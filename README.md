@@ -13,6 +13,9 @@ This extension is using a custum "PROJ.xcodeproj" file, to load the .bundle file
   * Allows you to specify min amount of time between interstitial displays (to avoid annoying your users).
   * Allows you to specify min amount of calls to interstitial before it actually gets displayed (to avoid annoying your users).
 
+**TO DO:**
+- Android support.
+
 ## How to Install
 Download zip file on the right of the screen. ![download](http://www.byrobingames.com/stencyl/heyzap/download.png) on this page https://github.com/byrobingames/tapdaq<br />
 
