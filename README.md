@@ -23,7 +23,7 @@ Install the zip file, see this post how to install: http://community.stencyl.com
 
 ## Documentation and Blocks
 
-If you don't have an accoount, create one on http://www.tapdaq.com and get your appID and clientKey.
+If you don't have an account, create one on http://www.tapdaq.com and get your appID and clientKey.
 
 **Blocks**
 
