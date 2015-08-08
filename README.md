@@ -4,6 +4,9 @@ For Stencyl 3.3 and above
 
 Stencyl extension for "Tapdaq" (http://www.tapdaq.com) for iOS. This extension allows you to easily integrate Tapdaq on your Stencyl game / application. (http://www.stencyl.com)
 
+### Important!!
+This extension is using a custum "PROJ.xcodeproj" file, to load the .bundle file, that Tapdaq used, automatically in your IOS game. It wil no harm for your game.
+
 ## Main Features
 
   * Interstitial Support.
