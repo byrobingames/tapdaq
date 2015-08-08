@@ -15,7 +15,7 @@ Download zip file on the right of the screen. ![download](http://www.byrobingame
 
 Install the zip file, see this post how to install: http://community.stencyl.com/index.php/topic,30432.0.html
 
-## Documentation and Blocks Example
+## Documentation and Blocks
 
 If you don't have an accoount, create one on http://www.tapdaq.com and get your appID and clientKey.
 
