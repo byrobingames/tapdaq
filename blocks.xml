@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<palette>
+    
+    <block tag="initTapdaq" spec="Start Tapdaq session with 'appID': %0 and 'clientKey': %1 in %2 [c:tapdaq]" code="Tapdaq.init(~,~,~);" help="Inititalize Tapdaq at the begin of your project!" type="action" color="charcoal" returns="void">
+        <fields>
+            <text order="0"></text>
+            <text order="1"></text>
+            <dropdown order="2">
+                <choices>
+                    <c text="Release Mode" code="0"></c>
+                    <c text="Test Mode" code="1"></c>
+                </choices>
+            </dropdown>
+        </fields>
+    </block>
+    	
+	<block tag="showInterstitialTapdaq" spec="Show Tapdaq Interstitial with minimal Interval time: %0 minimal time to Call Before Display: %1  [c:tapdaq]" code="Tapdaq.showInterstitial(~,~);" help="Minimal Interval time in seconds, 'Show Heyzap Interstitial' cannot been called in this time. - Minimal time in seconds before display Interstitial ad after 'Show Heyzap Interstitial' is called " type="action" color="charcoal" returns="void">
+        <fields>
+		<number order="0"></number>
+		<number order="1"></number>
+        </fields>
+    </block>
+       
+    <block tag="getInterstitialInfoTapdaq" spec="Tapdaq Interstitial ad %0 [c:tapdaq]" code="Tapdaq.getInterstitialInfo(~)" type="normal" color="charcoal" returns="boolean">
+        <fields>
+            <dropdown order="0">
+				<choices>
+					<c text="did successfully load" code="0"></c>
+					<c text="did fail to load" code="1"></c>
+					<c text="is Closed" code="2"></c>
+				</choices>
+			</dropdown>
+        </fields>
+    </block>
+
+</palette>

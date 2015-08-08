@@ -1,0 +1,6 @@
+name=Tapdaq Advertisement (byRobin)
+description=Implements Tapdaq Advertisement on iOS only
+author=Robin Schaafsma
+website=http://www.byrobingames.com
+version=1.0
+compatibility=ios

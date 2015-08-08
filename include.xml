@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension>
+    
+	<section if="ios">
+        
+        
+		<ndll name="tapdaq" />
+        
+        <dependency path="frameworks/Tapdaq.framework" />
+        <dependency name="Foundation.framework" />
+        <dependency name="UIKit.framework" />
+		<dependency name="AdSupport.framework" />
+        <dependency name="QuartzCore.framework" />
+        
+        <template path="templates" />
+        
+	</section>
+</extension>
