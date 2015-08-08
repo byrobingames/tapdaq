@@ -13,7 +13,7 @@ Stencyl extension for "Tapdaq" (http://www.tapdaq.com) for iOS. This extension a
 ## How to Install
 Download zip file on the right of the screen. ![download](http://www.byrobingames.com/stencyl/heyzap/download.png) on this page https://github.com/byrobingames/tapdaq<br />
 
-Install the zip file Go to : http://community.stencyl.com/index.php/topic,30432.0.html
+Install the zip file, see this post how to install: http://community.stencyl.com/index.php/topic,30432.0.html
 
 ## Documentation and Blocks Example
 
