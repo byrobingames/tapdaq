@@ -49,7 +49,7 @@ class Tapdaq {
 			testmode = "NO";
 		}
 	
-		
+		#if ios
 		if(initialized) return;
 		initialized = true;
 		try{
@@ -64,6 +64,21 @@ class Tapdaq {
 		}catch(e:Dynamic){
 			trace("iOS INIT Exception: "+e);
 		}
+		#end
+		
+		#if android
+		if(initialized) return;
+		initialized = true;
+		try{
+			// JNI METHOD LINKING
+			__init = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "init", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+			__showInterstitial = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showInterstitial", "()V");
+
+			__init(appId, clientKey, testmode);
+		}catch(e:Dynamic){
+			trace("Android INIT Exception: "+e);
+		}
+		#end
 			
 	}
 	
@@ -71,15 +86,45 @@ class Tapdaq {
 	{
         if (info == 0)
         {
-           	 return __interstitialLoaded();
+			#if ios
+           	return __interstitialLoaded();
+			#end
+			
+			#if android
+			if (__interstitialLoaded == null)
+            	{
+                	__interstitialLoaded = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "interstitialIsLoaded", "()Z", true);
+            	}
+            	return __interstitialLoaded();
+			#end
         }
         else if (info == 1)
         {
-           		return __interstitialFailedToLoad();
+           	#if ios
+			return __interstitialFailedToLoad();
+			#end
+			
+			#if android
+			if (__interstitialFailedToLoad == null)
+            	{
+                	__interstitialFailedToLoad = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "interstitialFailedToLoad", "()Z", true);
+            	}
+            	return __interstitialFailedToLoad();
+			#end
         }
         else
         {	
-           		return __interstitialClosed();
+           	#if ios
+			return __interstitialClosed();
+			#end
+			
+			#if android
+			if (__interstitialClosed == null)
+            	{
+                	__interstitialClosed = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "interstitialClosed", "()Z", true);
+            	}
+            	return __interstitialClosed();
+			#end
 		}
 
         return false;

@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension>
+    <section if="android">
+        <classpath name="src" />
+        
+        <dependency name="tapdaq" path="dependencies/tapdaq" if="android" />
+        
+        <android extension="com.byrobin.tapdaq.TapdaqEx" />
+    </section>
+    
     
 	<section if="ios">
         
