@@ -6,7 +6,7 @@ Stencyl extension for "Tapdaq" (http://www.tapdaq.com) for iOS. This extension a
 
 ### Important!!
 
-This extension is using a custum "PROJ.xcodeproj" file, to load the .bundle file, that Tapdaq used, automatically in your IOS game. It wil no harm for your game.
+This extension is using a custum "PROJ.xcodeproj" file to load some bundle files automatically in your IOS game. It wil no harm for your game.
 
 Does not work with the following extensions:
 - Heyzap Extension
