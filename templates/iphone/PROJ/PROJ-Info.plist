@@ -31,6 +31,8 @@
 			::if value::<true/>::else::<false/>::end::
 		::end::
 	</dict>
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<key>UIStatusBarHidden</key>
 	<::WIN_FULLSCREEN::/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
