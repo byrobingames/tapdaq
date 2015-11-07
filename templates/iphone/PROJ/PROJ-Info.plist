@@ -42,6 +42,8 @@
 	::IOS_APP_ORIENTATION::::end::
 	<key>NSAppTransportSecurity</key>
     <dict>
+		<key>NSAllowsArbitraryLoads</key>
+    	<true/>
         <key>NSExceptionDomains</key>
         <dict>
             <key>tapdaq.com</key>
