@@ -10,6 +10,9 @@ This extension is using a custum "PROJ.xcodeproj" file to load some bundle files
 
 Does not work with the following extensions:
 - Heyzap Extension
+- Batch Extension
+
+If you want to create a game with this and with above extension, you can ask me and i make it happen for your. Not for FREE.
 
 ## Main Features
 
