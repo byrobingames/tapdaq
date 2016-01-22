@@ -10,7 +10,6 @@ This extension is using a custom "PROJ.xcodeproj" and "PROJ-Info.plist" file to 
 
 Does not work with the following extensions:
 - Heyzap Extension
-- Batch Extension
 
 If you want to create a game with this and with above extension, you can ask me and i make it happen for your. Not for FREE.
 
