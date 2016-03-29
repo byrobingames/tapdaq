@@ -19,6 +19,9 @@ using namespace tapdaq;
     BOOL interstitialClosed;
 }
 
+- (id)initWithID:(NSString*)appID withClientKey:(NSString*)clientKey inTestMode:(NSString*)testmode;
+- (void)showInterstitialAd;
+
 @property (nonatomic, assign) BOOL interstitialLoaded;
 @property (nonatomic, assign) BOOL interstitialFailToLoad;
 @property (nonatomic, assign) BOOL interstitialClosed;
@@ -30,11 +33,14 @@ using namespace tapdaq;
 @synthesize interstitialFailToLoad;
 @synthesize interstitialClosed;
 
-- (void)initWithID:(NSString*)appID withClientKey:(NSString*)clientKey inTestMode:(NSString*)testmode
+- (id)initWithID:(NSString*)appID withClientKey:(NSString*)clientKey inTestMode:(NSString*)testmode
 {
+    self = [super init];
+    if(!self) return nil;
+    
     NSLog(@"Tapdaq Init");
     
-    NSMutableDictionary *tapdaqConfig = [[NSMutableDictionary alloc] init];
+    /*NSMutableDictionary *tapdaqConfig = [[NSMutableDictionary alloc] init];
     
     if( [UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeLeft ||
        [UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeRight )
@@ -50,11 +56,28 @@ using namespace tapdaq;
         [tapdaqConfig setObject:@YES forKey:@"testAdvertsEnabled"];
     }
     
-    [(Tapdaq *)[Tapdaq sharedSession] setApplicationId:appID clientKey:clientKey config:tapdaqConfig];
+    [[Tapdaq sharedSession] setApplicationId:appID clientKey:clientKey config:tapdaqConfig];
     
     [[Tapdaq sharedSession] launch];
     
-    [(Tapdaq *)[Tapdaq sharedSession] setDelegate: self];
+    [(Tapdaq *)[Tapdaq sharedSession] setDelegate: self];*/
+    
+    TDProperties *tapdaqProps = [[TDProperties alloc] init];
+    
+    if ([testmode isEqualToString:@"YES"])
+    {
+        [tapdaqProps setTestMode:YES];
+    }
+    
+    [[Tapdaq sharedSession] setApplicationId:appID
+                                   clientKey:clientKey
+                                  properties:tapdaqProps];
+    
+    [[Tapdaq sharedSession] launch];
+    
+    [(Tapdaq *)[Tapdaq sharedSession] setDelegate:self];
+    
+    return self;
 
 }
 
@@ -67,7 +90,7 @@ using namespace tapdaq;
 
 // Called when the request for interstitials was successful
 // and 1 or more interstitials were found
-- (void)hasInterstitialsAvailable
+- (void)hasInterstitialsAvailableForOrientation:(TDOrientation)orientation
 {
     interstitialLoaded = YES;
     interstitialFailToLoad = NO;
@@ -124,27 +147,27 @@ using namespace tapdaq;
 
 namespace tapdaq {
 	
-	static TapdaqController *adController;
+	static TapdaqController *tapdaqController;
     
 	void init(const char *appID, const char *clientKey, const char *testmode){
         
-        if(adController == NULL)
+        if(tapdaqController == NULL)
         {
-            adController = [[TapdaqController alloc] init];
+            tapdaqController = [[TapdaqController alloc] init];
         }
         
         NSString *appIDnew = [NSString stringWithUTF8String:appID];
         NSString *clientKeynew = [NSString stringWithUTF8String:clientKey];
         NSString *testmodenew = [NSString stringWithUTF8String:testmode];
         
-        [adController initWithID:appIDnew withClientKey:clientKeynew inTestMode:testmodenew];
+        [tapdaqController initWithID:appIDnew withClientKey:clientKeynew inTestMode:testmodenew];
     }
     
     void showInterstitial()
     {
-        if(adController!=NULL)
+        if(tapdaqController!=NULL)
         {
-            [adController showInterstitialAd];
+            [tapdaqController showInterstitialAd];
         }
     }
     
@@ -153,11 +176,11 @@ namespace tapdaq {
     
     bool interstitialLoaded()
     {
-        if(adController != NULL)
+        if(tapdaqController != NULL)
         {
-            if (adController.interstitialLoaded)
+            if (tapdaqController.interstitialLoaded)
             {
-                adController.interstitialLoaded = NO;
+                tapdaqController.interstitialLoaded = NO;
                 return true;
             }
         }
@@ -166,11 +189,11 @@ namespace tapdaq {
     
     bool interstitialFailToLoad()
     {
-        if(adController != NULL)
+        if(tapdaqController != NULL)
         {
-            if (adController.interstitialFailToLoad)
+            if (tapdaqController.interstitialFailToLoad)
             {
-                adController.interstitialFailToLoad = NO;
+                tapdaqController.interstitialFailToLoad = NO;
                 return true;
             }
         }
@@ -179,11 +202,11 @@ namespace tapdaq {
 
     bool interstitialClosed()
     {
-        if(adController != NULL)
+        if(tapdaqController != NULL)
         {
-            if (adController.interstitialClosed)
+            if (tapdaqController.interstitialClosed)
             {
-                adController.interstitialClosed = NO;
+                tapdaqController.interstitialClosed = NO;
                 return true;
             }
         }

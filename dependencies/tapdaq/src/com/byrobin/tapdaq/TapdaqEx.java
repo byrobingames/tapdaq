@@ -7,20 +7,10 @@
 
 package com.byrobin.tapdaq;
 
-import com.tapdaq.Tapdaq;
+import com.tapdaq.sdk.*;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.content.res.Configuration;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.view.Display;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.Toast;
+import android.content.Context;
 import android.util.Log;
-
 
 import org.haxe.extension.Extension;
 
@@ -31,18 +21,22 @@ public class TapdaqEx extends Extension {
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////
     
-    private static boolean interstitialLoaded = false;
-    private static boolean interstitialFailedToLoad = false;
-    private static boolean interstitialClosed =false;
+    public static boolean interstitialLoaded = false;
+    public static boolean interstitialFailedToLoad = false;
+    public static boolean interstitialClosed =false;
 	private static String appId=null;
     private static String clientKey=null;
     private static String testMode=null;
-
+    
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	static public void init(final String appId, final String clientKey, final String testMode){
+        
 		TapdaqEx.appId=appId;
         TapdaqEx.clientKey=clientKey;
         TapdaqEx.testMode=testMode;
@@ -51,41 +45,44 @@ public class TapdaqEx extends Extension {
             public void run() 
 			{
                 
-				Log.d("TapdaqEx","Init Tapdaq");
+				Log.d("TapdaqEx","Init Tapdaq" + testMode);
                 
-                if(testMode == "YES"){
-                    //to do
-                }
-                
-                int orientation = getScreenOrientation();
-                
-                if(orientation == 1){
-                    Tapdaq.tapdaq().initializeFixedPortrait(appId, clientKey, Extension.mainActivity);
-                }else if(orientation == 2){
-                    Tapdaq.tapdaq().initializeFixedLandscape(appId, clientKey, Extension.mainActivity);
+                if (testMode.equals("YES")){
+                    
+                    Log.d("TapdaqEx","Testmode");
+                    Tapdaq.tapdaq().initializeWithConfiguration()
+                    .withTestAdvertsEnabled(true)
+                    .initialize(appId,
+                                clientKey,
+                                Extension.mainActivity,
+                                new TapCallbacks(Extension.mainActivity));
                 }else{
-                    Tapdaq.tapdaq().initialize(appId, clientKey, Extension.mainActivity);
+                    Log.d("TapdaqEx","Releasemode");
+                    Tapdaq.tapdaq().initializeWithConfiguration()
+                    .withTestAdvertsEnabled(false)
+                    .initialize(appId,
+                                clientKey,
+                                Extension.mainActivity,
+                                new TapCallbacks(Extension.mainActivity));
+                    
                 }
-                
-                //setCallbacks
-                //setupCallbacks();
                 
 			}
 		});	
 	}
 
-	static public void showInterstitial() {
-        Log.d("TapdagEx","Show Interstitial Begin");
+	static public void showInterstitial()
+    {
+        Log.d("TapdaqEx","Show Interstitial Begin");
 		if(appId=="") return;
         if(clientKey=="") return;
 		Extension.mainActivity.runOnUiThread(new Runnable() {
 			public void run()
             {
-                    Tapdaq.tapdaq().displayInterstitial(Extension.mainActivity);
-                
+                Tapdaq.tapdaq().displayInterstitial(Extension.mainActivity);
             }
 		});
-		Log.d("TapdaqEx","Show Interstitial End");
+		Log.d("TapdaqEx","Show Interstitial End ");
 	}
 	
     
@@ -121,36 +118,41 @@ public class TapdaqEx extends Extension {
         }
         return false;
     }
+
     
-	
-	
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////////
+}
+
+class TapCallbacks extends TapdaqCallbacks {
     
-    static public void setupCallbacks() {
+    public final Context context;
+    
+    public TapCallbacks(final Context context) {
         
-        /* STATUS CALLBACKS
-         * Listener callbacks apply to the general lifecycle of an ad.
-         */
-        
-     //to do
-        
+        this.context = context;
     }
     
-    static public int getScreenOrientation(){
-        //get the orientation of device
-        Display getOrient = mainActivity.getWindowManager().getDefaultDisplay();
-        int orientation = Configuration.ORIENTATION_UNDEFINED;
-        if(getOrient.getWidth()==getOrient.getHeight()){
-            orientation = Configuration.ORIENTATION_SQUARE;
-        } else{
-            if(getOrient.getWidth() < getOrient.getHeight()){
-                orientation = Configuration.ORIENTATION_PORTRAIT;
-            }else {
-                orientation = Configuration.ORIENTATION_LANDSCAPE;
-            }
-        }
-        return orientation;
+    @Override
+    public void hasLandscapeInterstitialAvailable()
+    {
+        TapdaqEx.interstitialLoaded = true;
+    }
+    
+    @Override
+    public void hasPortraitInterstitialAvailable()
+    {
+        TapdaqEx.interstitialLoaded = true;
+    }
+     
+    @Override
+    public void didFailToDisplayInterstitial()
+    {
+        TapdaqEx.interstitialFailedToLoad = true;
+    }
+     
+    @Override
+    public void didCloseInterstitial()
+    {
+        TapdaqEx.interstitialClosed = true;
     }
     
 }

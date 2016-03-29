@@ -10,6 +10,7 @@
 
 #import "TDNativeAdUnitEnum.h"
 #import "TDNativeAdSizeEnum.h"
+#import "TDNativeAdTypeEnum.h"
 #import "TDOrientationEnum.h"
 
 @interface TDNativeAdvert : TDAdvert
@@ -27,8 +28,9 @@
 @property (nonatomic) float price;
 @property (nonatomic, strong) NSString *currency;
 
-@property (nonatomic) TDNativeAdUnit adUnit;
-@property (nonatomic) TDNativeAdSize adSize;
+@property (nonatomic) TDNativeAdType adType;
+@property (nonatomic) TDNativeAdUnit adUnit __deprecated;
+@property (nonatomic) TDNativeAdSize adSize __deprecated;
 
 - (id)initWithApplicationId:(NSString *)applicationId
                 targetingId:(NSString *)targetingId
@@ -37,7 +39,7 @@
                   customUrl:(NSString *)customUrl
      isBlockingInstalledApp:(BOOL)isBlockingInstalledApp
                    creative:(TDCreative *)creative
-                       size:(TDNativeAdSize)size
+                     adType:(TDNativeAdType)adType
                     iconUrl:(NSString *)iconUrl
                     appName:(NSString *)appName
                 description:(NSString *)description

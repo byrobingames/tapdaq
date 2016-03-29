@@ -61,10 +61,10 @@
 		<files id="common"/>
 	</target>
     
-    <section if="iphone" >
+    <!--<section if="iphone" >
         <vflag name="-framework" value="Tapdaq" />
         <files id="iphone" if="iphone" />
-    </section>
+    </section>-->
 
 	<target id="default">
 	   <target id="NDLL"/>

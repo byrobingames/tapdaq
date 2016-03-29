@@ -26,11 +26,6 @@
 - (id)initWithIdentifier:(NSString *)identifier
               resolution:(TDResolution)resolution
              aspectRatio:(TDAspectRatio *)aspectRatio
-                     url:(NSURL *)url;
-
-- (id)initWithIdentifier:(NSString *)identifier
-        resolutionNumber:(int)resolution
-             aspectRatio:(TDAspectRatio *)aspectRatio
                      url:(NSString *)url
              orientation:(TDOrientation)orientation;
 

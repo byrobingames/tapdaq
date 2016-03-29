@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <StoreKit/StoreKit.h>
 
 #import "TDCreative.h"
 
@@ -18,6 +19,9 @@
 @property (nonatomic, strong) NSString *storeId;
 @property (nonatomic, strong) NSURL *customUrl;
 @property (nonatomic) BOOL isBlockingInstalledApp;
+
+@property (nonatomic) NSNumber *frequencyCap;
+@property (nonatomic) NSNumber *frequencyCapDurationInDays;
 
 @property (nonatomic, strong) TDCreative *creative;
 
