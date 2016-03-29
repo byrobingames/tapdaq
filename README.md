@@ -6,12 +6,16 @@ Stencyl extension for "Tapdaq" (http://www.tapdaq.com) for iOS. This extension a
 
 ### Important!!
 
+<<<<<<< HEAD
+To get it work on IOS you have to Download, Install and Enable “<a href="http://byrobin.nl/store/product/byrobin-extension-manager-stencylopenfl/">byRobin Extension Manager</a>”
+=======
 This extension is using a custom "PROJ.xcodeproj" and "PROJ-Info.plist" file to load the .bundle file that Tapdaq used automatically in your IOS game. It wil no harm for your game.
 
 Does not work with the following extensions:
 - Heyzap Extension
 
 If you want to create a game with this and with above extension, you can ask me and i make it happen for your. Not for FREE.
+>>>>>>> origin/master
 
 ## Main Features
 
@@ -19,13 +23,11 @@ If you want to create a game with this and with above extension, you can ask me 
   * Allows you to specify min amount of time between interstitial displays (to avoid annoying your users).
   * Allows you to specify min amount of calls to interstitial before it actually gets displayed (to avoid annoying your users).
 
-**TO DO:**
-- Android support.
-
 ## How to Install
-Download zip file on the right of the screen. ![download](http://www.byrobingames.com/stencyl/heyzap/download.png) on this page https://github.com/byrobingames/tapdaq<br />
 
-Install the zip file, see this post how to install: http://community.stencyl.com/index.php/topic,30432.0.html
+Add the extension to the cart en proceed with checkout. After you successfully placed the order, you will get an e-mail with the download link or go to “<strong>My Account</strong>” section where you can also find the download link.
+
+Install the zip file: Go to : <a href="http://community.stencyl.com/index.php/topic,30432.0.html" target="_blank">http://community.stencyl.com/index.php/topic,30432.0.html</a>
 
 ## Documentation and Blocks
 
