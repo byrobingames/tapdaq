@@ -1,6 +1,6 @@
 ## Stencyl Tapdaq Advertising Extension (Openfl)
 
-For Stencyl 3.34 and above
+For Stencyl 3.4 and above
 
 Stencyl extension for "Tapdaq" (http://www.tapdaq.com) for iOS and Android. This extension allows you to easily integrate Tapdaq on your Stencyl game / application. (http://www.stencyl.com)
 
