@@ -1,9 +1,9 @@
 //
 //  TDNativeAdvert.h
-//  Tapdaq-sdk-v2
+//  Tapdaq
 //
-//  Created by Nick on 15/03/2015.
-//  Copyright (c) 2015 Tapdaq. All rights reserved.
+//  Created by Tapdaq <support@tapdaq.com>
+//  Copyright (c) 2016 Tapdaq. All rights reserved.
 //
 
 #import "TDAdvert.h"
@@ -39,6 +39,7 @@
                   customUrl:(NSString *)customUrl
      isBlockingInstalledApp:(BOOL)isBlockingInstalledApp
                    creative:(TDCreative *)creative
+                        tag:(NSString *)tag
                      adType:(TDNativeAdType)adType
                     iconUrl:(NSString *)iconUrl
                     appName:(NSString *)appName

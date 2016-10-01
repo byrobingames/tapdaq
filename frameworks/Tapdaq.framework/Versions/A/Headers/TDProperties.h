@@ -1,15 +1,16 @@
 //
 //  TDProperties.h
-//  Tapdaq-sdk-v2
+//  Tapdaq
 //
-//  Created by Nick on 28/07/2015.
-//  Copyright (c) 2015 Tapdaq. All rights reserved.
+//  Created by Tapdaq <support@tapdaq.com>
+//  Copyright (c) 2016 Tapdaq. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 #import "TDOrientationEnum.h"
 #import "TDAdTypeEnum.h"
+#import "TDPlacement.h"
 
 @interface TDProperties : NSObject
 
@@ -72,5 +73,16 @@
  Defaults to NO.
  */
 @property (nonatomic) BOOL mediationMode;
+
+/**
+ To use placement tags, you must create a TDPlacement object and register it.
+ If you do not register a placement tag but attempt to use a custom one elsewhere, adverts will not display.
+ 
+ @param placement The TDPlacement object to be registered
+ */
+- (BOOL)registerPlacement:(TDPlacement *)placement;
+- (BOOL)registerPlacements:(NSArray *)placements;
+
+- (NSArray *)registeredPlacements;
 
 @end

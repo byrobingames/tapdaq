@@ -1,6 +1,6 @@
-name=Tapdaq Advertisement (1.4)(byRobin)
+name=Tapdaq Advertisement (1.5)(byRobin)
 description=Implements Tapdaq Advertisement on iOS and Android
 author=Robin Schaafsma
 website=http://www.byrobingames.com
-version=1.4
+version=1.5
 compatibility=mobile

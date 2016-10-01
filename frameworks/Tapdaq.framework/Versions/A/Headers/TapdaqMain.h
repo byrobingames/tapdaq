@@ -3,7 +3,7 @@
 //  Tapdaq
 //
 //  Created by Tapdaq <support@tapdaq.com>
-//  Copyright (c) 2015 Tapdaq. All rights reserved.
+//  Copyright (c) 2016 Tapdaq. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -22,6 +22,36 @@
 @class TDNativeAdvert;
 @class TDInterstitialAdvert;
 @class TDProperties;
+@class TDPlacement;
+
+typedef NSString *const TDPTag;
+
+// Bootup - Initial bootup of game.
+static TDPTag const TDPTagBootup = @"bootup";
+// Home Screen - Home screen the player first sees.
+static TDPTag const TDPTagHomeScreen = @"home_screen";
+// Main Menu - Menu that provides game options.
+static TDPTag const TDPTagMainMenu = @"main_menu";
+// Pause - Pause screen.
+static TDPTag const TDPTagPause = @"pause";
+// Level Start - Start of the level.
+static TDPTag const TDPTagLevelStart = @"start";
+// Level Complete - Completion of the level.
+static TDPTag const TDPTagLevelComplete = @"level_complete";
+// Game Center - After a user visits the Game Center.
+static TDPTag const TDPTagGameCenter = @"game_center";
+// IAP Store - The store where the player pays real money for currency or items.
+static TDPTag const TDPTagIAPStore = @"iap_store";
+// Item Store - The store where a player buys virtual goods.
+static TDPTag const TDPTagItemStore = @"item_store";
+// Game Over - The game over screen after a player is finished playing.
+static TDPTag const TDPTagGameOver = @"game_over";
+// Leaderboard - List of leaders in the game.
+static TDPTag const TDPTagLeaderBoard = @"leaderboard";
+// Settings - Screen where player can change settings such as sound.
+static TDPTag const TDPTagSettings = @"settings";
+// Quit - Screen displayed right before the player exits a game.
+static TDPTag const TDPTagQuit = @"quit";
 
 @interface Tapdaq : NSObject
 
@@ -84,6 +114,23 @@
  */
 - (void)showInterstitial:(UIView *)view;
 
+/**
+ Displays an interstitial filtered by a given placement tag.
+ 
+ @param tag The placement tag.
+ **/
+- (void)showInterstitialForPlacementTag:(NSString *)tag;
+
+/**
+ This method also filters interstitials by placement tag, as well as giving you greater control over where the 
+ interstitial appears in the view heirarchy.
+ You must register the tag in TDProperties otherwise adverts will not display.
+ 
+ @param view The view which the interstitial view is added to as a subview.
+ @param tag The placement tag.
+ */
+- (void)showInterstitial:(UIView *)view forPlacementTag:(NSString *)tag;
+
 #pragma mark Native adverts
 
 /**
@@ -95,6 +142,15 @@
  @return A TDNativeAdvert.
  */
 - (TDNativeAdvert *)getNativeAdvertForAdType:(TDNativeAdType)nativeAdType;
+
+/**
+ Fetches a TDNativeAdvert for a particular placement tag.
+ You must register the tag in TDProperties otherwise adverts will not display.
+ 
+ @param tag The placement tag
+ @param nativeAdType The native advert type to be fetched.
+ */
+- (TDNativeAdvert *)getNativeAdvertForPlacementTag:(NSString *)tag adType:(TDNativeAdType)nativeAdType;
 
 /**
  This method must be called when the advert is displayed to the user. You do not need to call this method when using -showInterstitial. 
@@ -113,26 +169,6 @@
  */
 - (void)triggerClick:(TDAdvert *)advert;
 
-#pragma mark Interstitials (no UI support)
-
-/**
- Fetches the interstitial advert. 
- Use this method only if you wish to control the UI of the interstitial.
- The interstitial fetched will take into account the current orientation of the device.
- 
- @return The fetched interstitial advert.
- */
-- (TDInterstitialAdvert *)getInterstitialAdvert;
-
-/**
- Fetches the interstitial advert for a given orientation.
- Use this method only if you wish to control the UI of the interstitial.
- 
- @param orientation The orientation of the interstitial to be fetched.
- @return A fetched interstitial advert.
- */
-- (TDInterstitialAdvert *)getInterstitialAdvertForOrientation:(TDOrientation)orientation;
-
 #pragma mark Mediation mode
 
 /**
@@ -146,12 +182,29 @@
 
 /**
  Used only when mediation mode is enabled, see TDProperties.
+ Loads a native advert for a particular placement tag, this will fetch the native advert's creative, and call either -didLoadNativeAdvert:forPlacementTag:adType: if the advert is successfully loaded, or -didFailToLoadNativeAdvertForPlacementTag:adType: if it fails to load.
+ We recommend you implement both delegate methods to handle the advert accordingly.
+ 
+ @param tag The placement tag of the advert to be loaded.
+ @param nativeAdType The native ad type of the advert to be loaded.
+ */
+- (void)loadNativeAdvertForPlacementTag:(NSString *)tag adType:(TDNativeAdType)nativeAdType;
+
+/**
+ Used only when mediation mode is enabled, see TDProperties.
  Loads an interstitial advert, this will fetch the interstitial's creative, and calls either -didLoadInterstitial:forOrientation: if the advert is successfully loaded, or -didFailToLoadInterstitialForOrientation: if it fails to load.
  We recommend you implement both delegate methods to handle the advert accordingly.
  
  @param orientation The orientation of the interstitial to be loaded.
  */
 - (void)loadInterstitialAdvertForOrientation:(TDOrientation)orientation;
+
+/**
+ Used only when mediation mode is enabled, see TDProperties.
+ Loads an interstitial advert for a particular placement tag, this will fetch the interstitial's creative, and calls either -didLoadInterstitial:forPlacementTag:orientation: if the advert is successfully loaded, or -didFailToLoadInterstitialForPlacementTag:orientation: if it fails to load.
+ We recommend you implement both delegate methods to handle the advert accordingly.
+ */
+- (void)loadInterstitialAdvertForPlacementTag:(NSString *)tag orientation:(TDOrientation)orientation;
 
 #pragma mark Misc
 
@@ -217,6 +270,13 @@
 - (void)didFailToDisplayInterstitial;
 
 /**
+ Called when the interstitial was not able to be displayed for a specific placement tag.
+ This method should be used in conjunction with -showInterstitialForPlacementTag:.
+ @param tag A placement tag.
+ */
+- (void)didFailToShowInterstitialForPlacementTag:(NSString *)tag;
+
+/**
  Called when the user closes interstitial, either by tapping the close button, or the background surrounding the interstitial.
  This method is only used in conjunction with -showInterstitial.
  */
@@ -246,6 +306,13 @@
  */
 - (void)hasInterstitialsAvailableForOrientation:(TDOrientation)orientation;
 
+/**
+ Called each time an interstitial is ready to be displayed for a particular placement tag.
+ @param tag The placement tag of the interstitial that is ready to be displayed.
+ @param orientation The orientation of the interstitial that is ready to be displayed.
+ */
+- (void)hasInterstitialsAvailableForPlacementTag:(NSString *)tag orientation:(TDOrientation)orientation;
+
 #pragma mark Native advert delegate methods
 
 /**
@@ -262,9 +329,17 @@
  Called each time a native advert is ready to be fetched.
  By default this method may be called multiple times on application launch, for each supported native ad type.
  
- @param nativeAdType The advert type that is ready to be fetched.
+ @param nativeAdType The ad type of the advert ready to be fetched.
  */
 - (void)hasNativeAdvertsAvailableForAdType:(TDNativeAdType)nativeAdType;
+
+/**
+ Called each time a native advert is ready to be fetched for a particular placement tag.
+ 
+ @param tag The placement tag of the advert ready to be fetched.
+ @param nativeAdType The ad type of the advert ready to be fetched.
+ */
+- (void)hasNativeAdvertsAvailableForPlacementTag:(NSString *)tag adType:(TDNativeAdType)nativeAdType;
 
 #pragma mark Mediation mode delegate methods
 
@@ -279,6 +354,16 @@
 
 /**
  Used only when mediation mode is enabled, see TDProperties.
+ Called when an interstitial is successfully loaded, used in conjunction with -loadInterstitialAdvertForOrientation:.
+ 
+ @param advert The loaded interstitial advert.
+ @param tag The placement tag of the interstitial that loaded.
+ @param orientation The orientation of the interstitial that loaded.
+ */
+- (void)didLoadInterstitial:(TDInterstitialAdvert *)advert forPlacementTag:(NSString *)tag orientation:(TDOrientation)orientation;
+
+/**
+ Used only when mediation mode is enabled, see TDProperties.
  Called when the interstitial failed to load, used in conjunction with -loadInterstitialAdvertForOrientation:.
  
  @param orientation The orientation of the interstitial that failed to load.
@@ -287,7 +372,16 @@
 
 /**
  Used only when mediation mode is enabled, see TDProperties.
- Called when a native adverts is successfully loaded, used in conjunction with -loadNativeAdvertForAdType:.
+ Called when the interstitial failed to load, used in conjunction with -loadInterstitialAdvertForPlacementTag:orientation:.
+
+ @param tag The placement tag of the advert that failed to load.
+ @param orientation The orientation of the advert that failed to load.
+ */
+- (void)didFailToLoadInterstitialForPlacementTag:(NSString *)tag orientation:(TDOrientation)orientation;
+
+/**
+ Used only when mediation mode is enabled, see TDProperties.
+ Called when a native advert is successfully loaded, used in conjunction with -loadNativeAdvertForAdType:.
  
  @param advert The loaded native advert.
  @param nativeAdType The ad type.
@@ -297,11 +391,32 @@
 
 /**
  Used only when mediation mode is enabled, see TDProperties.
+ Called when a native advert is successfully loaded, used in conjunction with -loadNativeAdvertForPlacementTag:adType:.
+ 
+ @param advert The loaded native advert.
+ @param tag The placement tag of the native advert that loaded.
+ @param nativeAdType The ad type of the native advert that loaded.
+ */
+- (void)didLoadNativeAdvert:(TDNativeAdvert *)advert
+            forPlacementTag:(NSString *)tag
+                     adType:(TDNativeAdType)nativeAdType;
+
+/**
+ Used only when mediation mode is enabled, see TDProperties.
  Called when the native ad failed to load, used in conjunction with -loadNativeAdvertForAdType:.
  
  @param nativeAdType The ad type of the native advert that failed to load.
  */
 - (void)didFailToLoadNativeAdvertForAdType:(TDNativeAdType)nativeAdType;
+
+/**
+ Used only when mediation mode is enabled, see TDProperties.
+ Called when the native ad failed to load, used in conjunction with -loadNativeAdvertForPlacementTag:adType:.
+ 
+ @param tag The placement tag that failed to load the native ad.
+ @param nativeAdType The ad type of the native advert that failed to load.
+ */
+- (void)didFailToLoadNativeAdvertForPlacementTag:(NSString *)tag adType:(TDNativeAdType)nativeAdType;
 
 /***************************
  Deprecated delegate methods
@@ -310,7 +425,6 @@
 - (void)hasNativeAdvertsAvailableForAdUnit:(TDNativeAdUnit)adUnit
                                       size:(TDNativeAdSize)adSize
                                orientation:(TDOrientation)orientation __deprecated_msg("Use hasNativeAdvertsAvailableForAdType:");
-
 
 - (void)didLoadNativeAdvert:(TDNativeAdvert *)advert
                   forAdUnit:(TDNativeAdUnit)adUnit

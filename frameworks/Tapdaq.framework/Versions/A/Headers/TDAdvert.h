@@ -1,9 +1,9 @@
 //
 //  TDAdvert.h
-//  Tapdaq-sdk-v2
+//  Tapdaq
 //
-//  Created by Nick on 15/03/2015.
-//  Copyright (c) 2015 Tapdaq. All rights reserved.
+//  Created by Tapdaq <support@tapdaq.com>
+//  Copyright (c) 2016 Tapdaq. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -17,6 +17,7 @@
 @property (nonatomic, strong) NSString *targetingId;
 @property (nonatomic, strong) NSString *subscriptionId;
 @property (nonatomic, strong) NSString *storeId;
+@property (nonatomic, strong) NSString *tag;
 @property (nonatomic, strong) NSURL *customUrl;
 @property (nonatomic) BOOL isBlockingInstalledApp;
 
@@ -34,7 +35,8 @@
                     storeId:(NSString *)storeId
                   customUrl:(NSString *)customUrl
      isBlockingInstalledApp:(BOOL)isBlockingInstalledApp
-                   creative:(TDCreative *)creative;
+                   creative:(TDCreative *)creative
+                        tag:(NSString *)tag;
 
 - (void)triggerImpression;
 
