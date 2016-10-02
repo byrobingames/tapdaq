@@ -44,26 +44,29 @@ public class TapdaqEx extends Extension {
 		Extension.mainActivity.runOnUiThread(new Runnable() {
             public void run() 
 			{
-                
 				Log.d("TapdaqEx","Init Tapdaq" + testMode);
                 
                 if (testMode.equals("YES")){
                     
                     Log.d("TapdaqEx","Testmode");
-                    Tapdaq.tapdaq().initializeWithConfiguration()
-                    .withTestAdvertsEnabled(true)
-                    .initialize(appId,
-                                clientKey,
-                                Extension.mainActivity,
-                                new TapCallbacks(Extension.mainActivity));
+                    TapdaqConfig config = new TapdaqConfig(Extension.mainActivity);
+                    config.withTestAdvertsEnabled(true);
+                    
+                    Tapdaq.tapdaq().initialize(Extension.mainActivity,
+                                               appId,
+                                               clientKey,
+                                               new TapCallbacks(Extension.mainActivity),
+                                               config);
                 }else{
                     Log.d("TapdaqEx","Releasemode");
-                    Tapdaq.tapdaq().initializeWithConfiguration()
-                    .withTestAdvertsEnabled(false)
-                    .initialize(appId,
-                                clientKey,
-                                Extension.mainActivity,
-                                new TapCallbacks(Extension.mainActivity));
+                    TapdaqConfig config = new TapdaqConfig(Extension.mainActivity);
+                    config.withTestAdvertsEnabled(false);
+                    
+                    Tapdaq.tapdaq().initialize(Extension.mainActivity,
+                                               appId,
+                                               clientKey,
+                                               new TapCallbacks(Extension.mainActivity),
+                                               config);
                     
                 }
                 
