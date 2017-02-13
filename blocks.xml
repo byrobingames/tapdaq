@@ -13,23 +13,212 @@
             </dropdown>
         </fields>
     </block>
-    	
-	<block tag="showInterstitialTapdaq" spec="Show Tapdaq Interstitial with minimal Interval time: %0 minimal time to Call Before Display: %1  [c:tapdaq]" code="Tapdaq.showInterstitial(~,~);" help="Minimal Interval time in seconds, 'Show Heyzap Interstitial' cannot been called in this time. - Minimal time in seconds before display Interstitial ad after 'Show Heyzap Interstitial' is called " type="action" color="charcoal" returns="void">
+    
+    <block tag="openDebuggerTapdaq"
+        spec="Open Mediation Debugger (android only) [c:tapdaq]"
+        code="Tapdaq.openMediationDebugger();"
+        help="Open the Mediator Debugger, for now only supports Android"
+        type="action"
+        color="charcoal"
+        returns="void">
         <fields>
-		<number order="0"></number>
-		<number order="1"></number>
+        </fields>
+    </block>
+    
+    <block tag="loadBannerTapdaq"
+        spec="Load Tapdaq %0 Banner Ad [c:tapdaq]"
+        code="Tapdaq.loadBanner(~);"
+        help="Load banner before you can show only once a session by default banner is at the bottom"
+        type="action"
+        color="charcoal"
+        returns="void">
+        <fields>
+            <dropdown order="0">
+                <choices>
+                    <c text="Standard" code="&quot;TDMBannerStandard&quot;"></c>
+                    <c text="Large" code="&quot;TDMBannerLarge&quot;"></c>
+                    <c text="Medium" code="&quot;TDMBannerMedium&quot;"></c>
+                    <c text="Full" code="&quot;TDMBannerFull&quot;"></c>
+                    <c text="Leaderboard" code="&quot;TDMBannerLeaderboard&quot;"></c>
+                    <c text="SmartPortrait" code="&quot;TDMBannerSmartPortrait&quot;"></c>
+                    <c text="SmartLandscape" code="&quot;TDMBannerSmartLandscape&quot;"></c>
+                </choices>
+            </dropdown>
+        </fields>
+    </block>
+    
+    <block tag="show-hideTapdaq"
+        spec="%0 Tapdaq Banner Ad [c:tapdaq]"
+        code="Tapdaq.~Banner();"
+        help=""
+        type="action"
+        color="charcoal"
+        returns="void">
+        <fields>
+            <dropdown order="0">
+                <choices>
+                    <c text="Show" code="show"></c>
+                    <c text="Hide" code="hide"></c>
+                </choices>
+            </dropdown>
+        </fields>
+    </block>
+    
+    <block tag="moveBannerTapdaq"
+        spec="Move Tapdaq Banner to %0 [c:tapdaq]"
+        code="Tapdaq.moveBanner(~);"
+        help=""
+        type="action"
+        color="charcoal"
+        returns="void">
+        <fields>
+            <dropdown order="0">
+                <choices>
+                    <c text="Bottom" code="&quot;BOTTOM&quot;"></c>
+                    <c text="Top" code="&quot;TOP&quot;"></c>
+                </choices>
+            </dropdown>
+        </fields>
+    </block>
+    	
+	<block tag="showInterstitialTapdaq"
+        spec="%0 Tapdaq Interstitial Ad [c:tapdaq]"
+        code="Tapdaq.~Interstitial();"
+        help=""
+        type="action"
+        color="charcoal"
+        returns="void">
+        <fields>
+            <dropdown order="0">
+                <choices>
+                    <c text="Load" code="load"></c>
+                    <c text="Show" code="show"></c>
+                </choices>
+            </dropdown>
+        </fields>
+    </block>
+    
+    <block tag="load-showVideoTapdaq"
+        spec="%0 Tapdaq Video Ad [c:tapdaq]"
+        code="Tapdaq.~Video();"
+        help=""
+        type="action"
+        color="charcoal"
+        returns="void">
+        <fields>
+            <dropdown order="0">
+                <choices>
+                    <c text="Load" code="load"></c>
+                    <c text="Show" code="show"></c>
+                </choices>
+            </dropdown>
+        </fields>
+    </block>
+    
+    <block tag="load-showRewardedTapdaq"
+        spec="%0 Tapdaq Rewarded Video Ad [c:tapdaq]"
+        code="Tapdaq.~Rewarded();"
+        help=""
+        type="action"
+        color="charcoal"
+        returns="void">
+        <fields>
+            <dropdown order="0">
+                <choices>
+                    <c text="Load" code="load"></c>
+                    <c text="Show" code="show"></c>
+                </choices>
+            </dropdown>
         </fields>
     </block>
        
-    <block tag="getInterstitialInfoTapdaq" spec="Tapdaq Interstitial ad %0 [c:tapdaq]" code="Tapdaq.getInterstitialInfo(~)" type="normal" color="charcoal" returns="boolean">
+    <block tag="adisreadyTapdaq"
+        spec="Tapdaq %0 is ready [c:tapdaq]"
+        code="Tapdaq.~IsReady()"
+        help="returns true if ad is ready."
+        type="normal"
+        color="charcoal"
+        returns="boolean">
         <fields>
             <dropdown order="0">
 				<choices>
-					<c text="did successfully load" code="0"></c>
-					<c text="did fail to load" code="1"></c>
-					<c text="is Closed" code="2"></c>
+					<c text="interstitial" code="interstitial"></c>
+					<c text="video" code="video"></c>
+                    <c text="rewarded video" code="rewarded"></c>
 				</choices>
 			</dropdown>
+        </fields>
+    </block>
+    
+    <block tag="getBannerInfoTapdaq"
+        spec="Tapdaq Banner Ad %0 [c:tapdaq]"
+        code="Tapdaq.~()"
+        type="normal"
+        color="charcoal"
+        returns="boolean">
+        <fields>
+            <dropdown order="0">
+                <choices>
+                    <c text="did load" code="bannerDidLoad"></c>
+                    <c text="failed to load" code="bannerFailToLoad"></c>
+                    <c text="is clicked" code="bannerDidClick"></c>
+                </choices>
+            </dropdown>
+        </fields>
+    </block>
+    
+    <block tag="getInterstitialInfoTapdaq"
+        spec="Tapdaq Interstitial Ad %0 [c:tapdaq]"
+        code="Tapdaq.~()"
+        type="normal"
+        color="charcoal"
+        returns="boolean">
+        <fields>
+            <dropdown order="0">
+                <choices>
+                    <c text="will dislplay" code="interstitialWillDisplay"></c>
+                    <c text="did dislpay" code="interstitialDidDisplay"></c>
+                    <c text="is closed" code="interstitialDidClose"></c>
+                    <c text="is clicked" code="interstitialDidClick"></c>
+                </choices>
+            </dropdown>
+        </fields>
+    </block>
+    
+    <block tag="getVideoInfoTapdaq"
+        spec="Tapdaq Video Ad %0 [c:tapdaq]"
+        code="Tapdaq.~()"
+        type="normal"
+        color="charcoal"
+        returns="boolean">
+        <fields>
+            <dropdown order="0">
+                <choices>
+                    <c text="will dislplay" code="videoWillDisplay"></c>
+                    <c text="did dislpay" code="videoDidDisplay"></c>
+                    <c text="is closed" code="videoDidClose"></c>
+                    <c text="is clicked" code="videoDidClick"></c>
+                </choices>
+            </dropdown>
+        </fields>
+    </block>
+    
+    <block tag="getRewardedInfoTapdaq"
+        spec="Tapdaq Rewarded Video Ad %0 [c:tapdaq]"
+        code="Tapdaq.~()"
+        type="normal"
+        color="charcoal"
+        returns="boolean">
+        <fields>
+            <dropdown order="0">
+                <choices>
+                    <c text="will dislplay" code="rewardedWillDisplay"></c>
+                    <c text="did dislpay" code="rewardedDidDisplay"></c>
+                    <c text="is closed" code="rewardedDidClose"></c>
+                    <c text="is clicked" code="rewardedDidClick"></c>
+                    <c text="succeeded" code="rewardedSucceeded"></c>
+                </choices>
+            </dropdown>
         </fields>
     </block>
 

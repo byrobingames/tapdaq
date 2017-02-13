@@ -20,6 +20,12 @@
 		<ndll name="tapdaq" />
         
         <dependency path="frameworks/Tapdaq.framework" />
+        <dependency name="AVKit.framework" />
+        <dependency name="CoreData.framework" />
+        <dependency name="MediaToolbox.framework" />
+        
+        <template path="templates" />
+        
         
 	</section>
     

@@ -27,6 +27,7 @@
 @property (nonatomic, strong) NSString *appVersion;
 @property (nonatomic) float price;
 @property (nonatomic, strong) NSString *currency;
+@property (nonatomic, strong) NSString *promotionID;
 
 @property (nonatomic) TDNativeAdType adType;
 @property (nonatomic) TDNativeAdUnit adUnit __deprecated;

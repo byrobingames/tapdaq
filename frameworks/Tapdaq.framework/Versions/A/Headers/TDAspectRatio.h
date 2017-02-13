@@ -18,6 +18,8 @@
 
 @property (nonatomic) int width;
 @property (nonatomic) int height;
+@property (nonatomic) int originalWidth;
+@property (nonatomic) int originalHeight;
 
 /**
  Initializes a TDAspectRatio object based on a given `width` and `height`.

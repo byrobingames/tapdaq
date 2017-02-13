@@ -11,24 +11,9 @@
 #import "TDOrientationEnum.h"
 #import "TDAdTypeEnum.h"
 #import "TDPlacement.h"
+#import "TDTestDevices.h"
 
 @interface TDProperties : NSObject
-
-/**
- Set to YES if you want to display test adverts, NO for live adverts.
- --WARNING-- You must set this to NO when submitting your app to the App Store.
- 
- Defaults to NO.
- */
-@property (nonatomic) BOOL testMode;
-
-/**
- Declare which adverts you want to use in your application. 
- Tapdaq will then fetch adverts for each TDAdType in the background.
- 
- Defaults to TDAdTypeInterstitial.
- */
-@property (nonatomic) TDAdTypes advertTypesToEnable;
 
 /**
  Set how often the same advert should appear to the user.
@@ -53,26 +38,10 @@
 @property (nonatomic) NSUInteger maxCachedAdverts;
 
 /**
- Force an orientation to be set when fetching interstitial adverts. 
- For some environments, the orientation does not get set correctly (e.g Unity).
- 
- Defaults to TDOrientationUniversal.
- */
-@property (nonatomic) TDOrientation orientation;
-
-/**
  Note: For plugin developers only.
  Prefix the name of your library/plugin
  */
 @property (nonatomic) NSString *sdkIdentifierPrefix;
-
-/**
- Set to YES if you want to use mediation model. 
- This mode means that you load adverts manually one at a time, the success or failure is sent to delegates
- 
- Defaults to NO.
- */
-@property (nonatomic) BOOL mediationMode;
 
 /**
  To use placement tags, you must create a TDPlacement object and register it.
@@ -83,6 +52,10 @@
 - (BOOL)registerPlacement:(TDPlacement *)placement;
 - (BOOL)registerPlacements:(NSArray *)placements;
 
+- (BOOL)registerTestDevices:(TDTestDevices *)testDevices;
+
 - (NSArray *)registeredPlacements;
+
+- (NSArray *)registeredTestDevices;
 
 @end

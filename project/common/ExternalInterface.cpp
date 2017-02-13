@@ -9,58 +9,128 @@
 
 #include <hx/CFFI.h>
 #include "TapdaqEx.h"
+#include <stdio.h>
 
 using namespace tapdaq;
 
+AutoGCRoot* tapdaqEventHandle = 0;
+
+static void tapdaq_set_event_handle(value onEvent)
+{
+    tapdaqEventHandle = new AutoGCRoot(onEvent);
+}
+DEFINE_PRIM(tapdaq_set_event_handle, 1);
 
 void tapdaq_init(value app_id, value client_key, value testmode){
 	init(val_string(app_id), val_string(client_key), val_string(testmode));
-
 }
 DEFINE_PRIM(tapdaq_init, 3);
 
+void tapdaq_banner_load(value bannerType){
+    loadBanner(val_string(bannerType));
+}
+DEFINE_PRIM(tapdaq_banner_load, 1);
+
+void tapdaq_banner_show(){
+    showBanner();
+}
+DEFINE_PRIM(tapdaq_banner_show, 0);
+
+void tapdaq_banner_hide(){
+    hideBanner();
+}
+DEFINE_PRIM(tapdaq_banner_hide, 0);
+
+void tapdaq_banner_move(value gravity){
+    moveBanner(val_string(gravity));
+}
+DEFINE_PRIM(tapdaq_banner_move, 1);
+
+void tapdaq_interstitial_load(){
+    loadInterstitial();
+}
+DEFINE_PRIM(tapdaq_interstitial_load, 0);
 
 void tapdaq_interstitial_show(){
 	showInterstitial();
-
 }
 DEFINE_PRIM(tapdaq_interstitial_show, 0);
 
+void tapdaq_video_load(){
+    loadVideo();
+}
+DEFINE_PRIM(tapdaq_video_load, 0);
+
+void tapdaq_video_show(){
+    showVideo();
+}
+DEFINE_PRIM(tapdaq_video_show, 0);
+
+void tapdaq_rewarded_load(){
+    loadRewardedVideo();
+}
+DEFINE_PRIM(tapdaq_rewarded_load, 0);
+
+void tapdaq_rewarded_show(){
+    showRewardedVideo();
+}
+DEFINE_PRIM(tapdaq_rewarded_show, 0);
+
+void tapdaq_mediation_debugger(){
+    openMediationDebugger();
+}
+DEFINE_PRIM(tapdaq_mediation_debugger, 0);
 
 //callbacks
 
-static value tapdaq_interstitial_loaded()
+static value tapdaq_banner_isready()
 {
-    if (tapdaq::interstitialLoaded())
+    if (tapdaq::bannerIsReady())
         return val_true;
     return val_false;
 }
-DEFINE_PRIM(tapdaq_interstitial_loaded, 0);
+DEFINE_PRIM(tapdaq_banner_isready, 0);
 
-static value tapdaq_interstitial_failed()
+static value tapdaq_interstitial_isready()
 {
-    if (tapdaq::interstitialFailToLoad())
+    if (tapdaq::interstitialIsReady())
         return val_true;
     return val_false;
 }
-DEFINE_PRIM(tapdaq_interstitial_failed, 0);
+DEFINE_PRIM(tapdaq_interstitial_isready, 0);
 
-static value tapdaq_interstitial_closed()
+static value tapdaq_video_isready()
 {
-    if (tapdaq::interstitialClosed())
+    if (tapdaq::videoIsReady())
         return val_true;
     return val_false;
 }
-DEFINE_PRIM(tapdaq_interstitial_closed, 0);
+DEFINE_PRIM(tapdaq_video_isready, 0);
 
+static value tapdaq_rewarded_isready()
+{
+    if (tapdaq::rewardedIsReady())
+        return val_true;
+    return val_false;
+}
+DEFINE_PRIM(tapdaq_rewarded_isready, 0);
 
 extern "C" void tapdaq_main()
 {
+    val_int(0); // Fix Neko init
 }
 DEFINE_ENTRY_POINT(tapdaq_main);
 
 extern "C" int tapdaq_register_prims()
 {
     return 0;
+}
+
+extern "C" void sendTapdaqEvent(const char* type)
+{
+    printf("Send Event: %s\n", type);
+    value o = alloc_empty_object();
+    alloc_field(o,val_id("type"),alloc_string(type));
+    val_call1(tapdaqEventHandle->get(), o);
 }
 

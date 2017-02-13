@@ -40,6 +40,10 @@ typedef NS_OPTIONS(NSUInteger, TDAdTypes) {
     
     TDAdType5x1Large     = 1 << 20,
     TDAdType5x1Medium    = 1 << 21,
-    TDAdType5x1Small     = 1 << 22
+    TDAdType5x1Small     = 1 << 22,
     
+    TDAdTypeVideo        = 1 << 23,
+    TDAdTypeRewardedVideo= 1 << 24,
+    TDAdTypeBanner       = 1 << 25
+
 };
