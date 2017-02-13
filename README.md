@@ -16,6 +16,17 @@ To get it work on IOS you have to Download, Install and Enable “<a href="http:
     - <a href="https://github.com/byrobingames/tapdaq/wiki/Implement-Tapdaq-Advertising-in-your-Stencyl-game.#interstitial-ads">Interstitial Ad</a>
     - <a href="https://github.com/byrobingames/tapdaq/wiki/Implement-Tapdaq-Advertising-in-your-Stencyl-game.#video-ads">Video Ad</a>
     - <a href="https://github.com/byrobingames/tapdaq/wiki/Implement-Tapdaq-Advertising-in-your-Stencyl-game.#rewarded-video-ads">Rewarded Video Ad</a>
+    
+### Supported Networks
+This extension supports the following Networks.<br/>
+**The networks SDK's are included in this extension, you don't need to enable the seperate extenions for those networks **<br/>
+* Adcolony
+* Admob
+* AppLovin
+* Chartboost
+* Facebook Audience Network
+* UnityAds
+* Vungle
 
 ## How to Install
 
