@@ -17,13 +17,14 @@
         android:name="com.tapdaq.sdk.adnetworks.chartboost.CBWebActivity"
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
         
-        <!-- AdColony SDK-less -->
-        <activity
-        android:name="com.tapdaq.sdk.adnetworks.adcolony.ACVideoActivity"
-        android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
-        <activity
-        android:name="com.tapdaq.sdk.adnetworks.adcolony.ACWebActivity"
-        android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+        <!-- AdColony Adapter -->
+        <activity android:name="com.adcolony.sdk.AdColonyInterstitialActivity"
+        android:configChanges="keyboardHidden|orientation|screenSize"
+        android:hardwareAccelerated="true"/>
+        
+        <activity android:name="com.adcolony.sdk.AdColonyAdViewActivity"
+        android:configChanges="keyboardHidden|orientation|screenSize"
+        android:hardwareAccelerated="true"/>
         
         <!-- AppLovin SDK-less -->
         <activity

@@ -14,10 +14,8 @@ import com.tapdaq.sdk.adnetworks.TMMediationNetworks;
 import com.tapdaq.sdk.listeners.*;
 import com.tapdaq.sdk.model.TMAdSize;
 import com.tapdaq.sdk.storage.Storage;
-import com.tapdaq.sdk.model.launch.TMNetworkCredentials;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -25,7 +23,7 @@ import java.util.Locale;
 /**
  * Created by dominicroberts on 01/09/2016.
  */
-public class TMAdMobAdapter implements TMAdapter {
+public class TMAdMobAdapter extends TMAdapter {
 
     private final static String ERROR_CODE_INTERNAL_ERROR = "Something happened internally; for instance, an invalid response was received from the ad server.";//CODE 0
     private final static String ERROR_CODE_INVALID_REQUEST = "The ad request was invalid; for instance, the ad unit ID was incorrect.";                         //CODE 1
@@ -33,119 +31,43 @@ public class TMAdMobAdapter implements TMAdapter {
     private final static String ERROR_CODE_NO_FILL = "The ad request was successful, but no ad was returned due to lack of ad inventory.";                      //CODE 3
     private final static String ERROR_UNKNOWN = "UNKNOWN ERROR";
 
-    private Activity mCurrentActivity;
-    private AdapterListener mListener;
-
     private TMAdMobBannerSizes mBannerSizes = new TMAdMobBannerSizes();
 
     private List<InterstitialAd> mInterstitialAd = new ArrayList<InterstitialAd>();
     private List<InterstitialAd> mVideoInterstitialAd = new ArrayList<InterstitialAd>();
 
-    private TMNetworkCredentials mKeys;
-    private List<String> mPlacements;
-
     public TMAdMobAdapter(Context context){
-        super();
-        mPlacements = new ArrayList<String>();
-        clear(context);
-    }
-
-    private void clear(Context context) {
-        Storage storage = new Storage(context);
-        storage.remove("ADMOB_TEST_DEVICES");
-        storage.remove("ADMOB_BANNER_ID");
-        storage.remove("ADMOB_STATIC_ID");
-        storage.remove("ADMOB_VIDEO_ID");
+        super(context);
     }
 
     @Override
     public void initialise(Activity activity) {
-        if (activity != null)
-            mCurrentActivity = activity;
+        super.initialise(activity);
 
         if (mCurrentActivity != null && mKeys != null) {
             MobileAds.initialize(mCurrentActivity);
             mListener.onInitSuccess(mCurrentActivity, TMMediationNetworks.AD_MOB);
-
-            Storage storage = new Storage(mCurrentActivity);
-            storage.putString("ADMOB_BANNER_ID", mKeys.getBanner_id());
-            storage.putString("ADMOB_STATIC_ID", mKeys.getInterstitial_id());
-            storage.putString("ADMOB_VIDEO_ID", mKeys.getVideo_id());
-            storage.putString("ADMOB_VERSION_ID", mKeys.getVersion_id());
         }
-    }
-
-    @Override
-    public void setCredentials(TMNetworkCredentials credentials) {
-        mKeys = credentials;
     }
 
     public TMAdMobAdapter setTestDevices(Context context, List<String> devices) {
         Storage storage = new Storage(context);
         String devicesStr = TextUtils.join(", ", devices);
-        storage.putString("ADMOB_TEST_DEVICES",devicesStr);
+        storage.putString(String.format(Locale.ENGLISH, "%s_TEST_DEVICES", getName()),devicesStr);
         return this;
     }
 
     @Override
     public boolean isInitialised(Context context) {
-        return mCurrentActivity != null && (getBannerId(context) != null || getStaticId(context) != null || getVideoId(context) != null) ;
+        return mCurrentActivity != null && (getBannerId(context) != null || getInterstitialId(context) != null || getVideoId(context) != null) ;
     }
 
     @Override
-    public boolean hasFailedRecently(Context context, int ad_type) {
-        String failedKey = String.format(Locale.ENGLISH, "Failed_%s_%d", getName(), ad_type);
-        Storage storage = new Storage(context);
-        if(storage.contains(failedKey)) {
-            long failedTimeStamp = storage.getLong(failedKey);
-            if (new Date().getTime() - failedTimeStamp < 60000)
-                return true;
-        }
-        return false;
-    }
-
-    @Override
-    public String getVersionID(Context context) {
-        if (mKeys != null && mKeys.getVersion_id() != null)
-            return mKeys.getVersion_id();
-        else
-            return new Storage(context).getString("ADMOB_VERSION_ID");
-    }
-
-    private String getBannerId(Context context) {
-        if (mKeys != null && mKeys.getBanner_id() != null)
-            return mKeys.getBanner_id();
-        else
-            return new Storage(context).getString("ADMOB_BANNER_ID");
-    }
-
-    private String getStaticId(Context context) {
-        if (mKeys != null && mKeys.getInterstitial_id() != null)
-            return mKeys.getInterstitial_id();
-        else
-            return new Storage(context).getString("ADMOB_STATIC_ID");
-    }
-
-    private String getVideoId(Context context) {
-        if (mKeys != null && mKeys.getVideo_id() != null)
-            return mKeys.getVideo_id();
-        else
-            return new Storage(context).getString("ADMOB_VIDEO_ID");
-    }
-
-    @Override
-    public String getName() {
-        return TMMediationNetworks.AD_MOB_NAME + "_Adapter";
-    }
+    public String getName() { return TMMediationNetworks.AD_MOB_NAME; }
 
     @Override
     public int getID() {
         return TMMediationNetworks.AD_MOB;
-    }
-
-    @Override
-    public void setAdapterListener(AdapterListener listener) {
-        mListener = listener;
     }
 
     @Override
@@ -155,30 +77,12 @@ public class TMAdMobAdapter implements TMAdapter {
 
     @Override
     public boolean canDisplayInterstitial(Context context) {
-        return getStaticId(context) != null; //Has keys
+        return getInterstitialId(context) != null; //Has keys
     }
 
     @Override
     public boolean canDisplayVideo(Context context) {
         return getVideoId(context) != null; //Has keys
-    }
-
-    @Override
-    public boolean canDisplayRewardedVideo(Context context) {
-        return false;
-    }
-
-    @Override
-    public void setPlacements(String[] placements) {
-        for (String p : placements) {
-            if (!mPlacements.contains(p))
-                mPlacements.add(p);
-        }
-    }
-
-    @Override
-    public String[] getPlacements() {
-        return mPlacements.toArray(new String[mPlacements.size()]);
     }
 
     @Override
@@ -191,9 +95,8 @@ public class TMAdMobAdapter implements TMAdapter {
             view.setAdListener(new AdMobAdListener(listener));
             AdRequest.Builder builder = new AdRequest.Builder();
 
-            Storage storage = new Storage(context);
-            if (storage.contains("ADMOB_TEST_DEVICES")) {
-                String[] devices = TextUtils.split(storage.getString("ADMOB_TEST_DEVICES"), ", ");
+            String[] devices = getTestDevices(context);
+            if (devices != null) {
                 for (String d : devices) {
                     builder.addTestDevice(d);
                 }
@@ -201,23 +104,23 @@ public class TMAdMobAdapter implements TMAdapter {
 
             view.loadAd(builder.build());
             return view;
+        } else {
+            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not ready"));
         }
         return null;
     }
 
     @Override
     public void loadInterstitial(Activity activity, String placement, TMAdListenerBase listener) {
-        if (activity != null && getStaticId(activity) != null) {
+        if (activity != null && getInterstitialId(activity) != null) {
             InterstitialAd ad = new InterstitialAd(activity);
-            ad.setAdUnitId(getStaticId(activity));
+            ad.setAdUnitId(getInterstitialId(activity));
             ad.setAdListener(new AdMobInterstitialAdListener(ad, listener, TMAdType.STATIC_INTERSTITIAL, placement));
 
             AdRequest.Builder builder = new AdRequest.Builder();
 
-            Storage storage = new Storage(activity);
-            if (storage.contains("ADMOB_TEST_DEVICES")) {
-                String[] devices = TextUtils.split(storage.getString("ADMOB_TEST_DEVICES"), ", ");
-
+            String[] devices = getTestDevices(activity);
+            if (devices != null) {
                 for (String d : devices) {
                     builder.addTestDevice(d);
                 }
@@ -225,6 +128,8 @@ public class TMAdMobAdapter implements TMAdapter {
 
             ad.loadAd(builder.build());
             mInterstitialAd.add(ad);
+        } else {
+            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not ready"));
         }
     }
 
@@ -238,21 +143,17 @@ public class TMAdMobAdapter implements TMAdapter {
 
             AdRequest.Builder builder = new AdRequest.Builder();
 
-            Storage storage = new Storage(activity);
-            if (storage.contains("ADMOB_TEST_DEVICES")) {
-                String[] devices = TextUtils.split(storage.getString("ADMOB_TEST_DEVICES"), ", ");
+            String[] devices = getTestDevices(activity);
+            if (devices != null) {
                 for (String d : devices) {
                     builder.addTestDevice(d);
                 }
             }
 
             ad.loadAd(builder.build());
+        } else {
+            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not ready"));
         }
-    }
-
-    @Override
-    public void loadRewardedVideo(Activity activity, String placement, TMAdListenerBase listener) {
-        //Not available
     }
 
     @Override
@@ -262,8 +163,9 @@ public class TMAdMobAdapter implements TMAdapter {
             if (listener != null)
                 ad.setAdListener(new AdMobInterstitialAdListener(ad, listener, TMAdType.STATIC_INTERSTITIAL, placement));
             ad.show();
-        } else
-            loadInterstitial(activity, placement, listener);
+        } else {
+            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not loaded ad"));
+        }
     }
 
     @Override
@@ -273,18 +175,9 @@ public class TMAdMobAdapter implements TMAdapter {
             if (listener != null)
                 ad.setAdListener(new AdMobInterstitialAdListener(ad, listener, TMAdType.VIDEO_INTERSTITIAL, placement));
             ad.show();
-        } else
-            loadVideo(activity, placement, listener);
-    }
-
-    @Override
-    public void showRewardedVideo(Activity activity, String placement, TMRewardAdListenerBase listener) {
-
-    }
-
-    @Override
-    public void destroy() {
-
+        }  else {
+            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not loaded ad"));
+        }
     }
 
     private TMAdError buildError(int code) {
@@ -313,47 +206,32 @@ public class TMAdMobAdapter implements TMAdapter {
         @Override
         public void onAdClosed() {
             super.onAdClosed();
-            TLog.debug("didClose");
-
-            if (mAdListener != null)
-                mAdListener.didClose();
+            TMListenerHandler.DidClose(mAdListener);
         }
 
         @Override
         public void onAdFailedToLoad(int i) {
             super.onAdFailedToLoad(i);
-            TLog.debug("didFailToLoad");
-
-            if (mAdListener != null)
-                mAdListener.didFailToLoad(buildError(i));
+            TMListenerHandler.DidFailToLoad(mAdListener, buildError(i));
             TMServiceQueue.ServiceError(mCurrentActivity, getName(), TMAdType.BANNER);
         }
 
         @Override
         public void onAdLeftApplication() {
             super.onAdLeftApplication();
-            TLog.debug("onAdLeftApplication");
-
-            if (mAdListener != null)
-                mAdListener.didClick();
+            TMListenerHandler.DidClick(mAdListener);
         }
 
         @Override
         public void onAdOpened() {
             super.onAdOpened();
-            TLog.debug("didDisplay");
-
-            if (mAdListener != null)
-                mAdListener.didDisplay();
+            TMListenerHandler.DidDisplay(mAdListener);
         }
 
         @Override
         public void onAdLoaded() {
             super.onAdLoaded();
-            TLog.debug("didLoad");
-
-            if (mAdListener != null)
-                mAdListener.didLoad();
+            TMListenerHandler.DidLoad(mAdListener);
         }
     }
 
@@ -374,10 +252,8 @@ public class TMAdMobAdapter implements TMAdapter {
         @Override
         public void onAdClosed() {
             super.onAdClosed();
-            TLog.debug("didClose");
 
-            if (mAdListener != null)
-                mAdListener.didClose();
+            TMListenerHandler.DidClose(mAdListener);
 
             if (!mInterstitialAd.isEmpty() && mAd == mInterstitialAd.get(0))
                 mInterstitialAd.remove(mAd);
@@ -391,7 +267,6 @@ public class TMAdMobAdapter implements TMAdapter {
         @Override
         public void onAdFailedToLoad(int i) {
             super.onAdFailedToLoad(i);
-            TLog.debug("didFailToLoad");
 
             TMAdError error = buildError(i);
             TMServiceErrorHandler.ServiceError(mCurrentActivity, getName(), mType, mPlacement, error, mAdListener);
@@ -406,28 +281,19 @@ public class TMAdMobAdapter implements TMAdapter {
         @Override
         public void onAdLeftApplication() {
             super.onAdLeftApplication();
-            TLog.debug("onAdLeftApplication");
-
-            if (mAdListener != null)
-                mAdListener.didClick();
+            TMListenerHandler.DidClick(mAdListener);
         }
 
         @Override
         public void onAdOpened() {
             super.onAdOpened();
-            TLog.debug("didDisplay");
-
-            if (mAdListener != null)
-                mAdListener.didDisplay();
+            TMListenerHandler.DidDisplay(mAdListener);
         }
 
         @Override
         public void onAdLoaded() {
             super.onAdLoaded();
-            TLog.debug("didLoad");
-
-            if (mAdListener != null)
-                mAdListener.didLoad();
+            TMListenerHandler.DidLoad(mAdListener);
         }
     }
 
@@ -449,37 +315,4 @@ public class TMAdMobAdapter implements TMAdapter {
             return null;
         }
     }
-
-    //Lifecycle Events
-    @Override
-    public void onCreate(Activity activity) {
-
-    }
-
-    @Override
-    public void onStart(Activity activity) {
-
-    }
-
-    @Override
-    public void onResume(Activity activity) {
-        mCurrentActivity = activity;
-    }
-
-    @Override
-    public void onPaused(Activity activity) {
-
-    }
-
-    @Override
-    public void onStop(Activity activity) {
-
-    }
-
-    @Override
-    public void onDestroy(Activity activity) {
-        if (activity == mCurrentActivity)
-            mCurrentActivity = null;
-    }
 }
-

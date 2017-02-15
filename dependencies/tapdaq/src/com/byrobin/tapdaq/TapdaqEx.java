@@ -98,19 +98,22 @@ public class TapdaqEx extends Extension {
                     String facebookDeviceId = getInstance().getDeviceIdHash(mainActivity);
                     Log.d("Tapdaq","Facebook DEVICE ID: "+facebookDeviceId);
                     
+                    //Register Adapters
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMAdMobAdapter(mainActivity).setTestDevices(Extension.mainActivity, Arrays.asList(admobDeviceId))); //Ad Mob
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMFacebookAdapter(mainActivity).setTestDevices(Arrays.asList(facebookDeviceId))); //Facebook Audience Network
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMUnityAdsAdapter(mainActivity)); //UnityAds
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMVungleAdapter(mainActivity)); //Vungle
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMAdColonyAdapter(mainActivity)); //AdColony
                     
-                    Tapdaq.getInstance().registerAdapter(Extension.mainActivity, new TMFacebookAdapter(Extension.mainActivity).setTestDevices(Arrays.asList(facebookDeviceId)));
-                    Tapdaq.getInstance().registerAdapter(Extension.mainActivity, new TMAdMobAdapter(Extension.mainActivity).setTestDevices(Extension.mainActivity, Arrays.asList(admobDeviceId)));
-                    Tapdaq.getInstance().registerAdapter(Extension.mainActivity, new TMUnityAdsAdapter()); //UnityAds
-                    Tapdaq.getInstance().registerAdapter(Extension.mainActivity, new TMVungleAdapter()); //Vungle
                     
                 }else{
                     
                     //Register Adapters
-                    Tapdaq.getInstance().registerAdapter(Extension.mainActivity, new TMAdMobAdapter(Extension.mainActivity)); //Ad Mob
-                    Tapdaq.getInstance().registerAdapter(Extension.mainActivity, new TMFacebookAdapter(Extension.mainActivity)); //Facebook Audience Network
-                    Tapdaq.getInstance().registerAdapter(Extension.mainActivity, new TMUnityAdsAdapter()); //UnityAds
-                    Tapdaq.getInstance().registerAdapter(Extension.mainActivity, new TMVungleAdapter()); //Vungle
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMAdMobAdapter(mainActivity)); //Ad Mob
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMFacebookAdapter(mainActivity)); //Facebook Audience Network
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMUnityAdsAdapter(mainActivity)); //UnityAds
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMVungleAdapter(mainActivity)); //Vungle
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMAdColonyAdapter(mainActivity)); //AdColony
                     
                 }
                 
