@@ -55,12 +55,12 @@ If you get this error on compiling: iOS (only)
     [haxelib]   "_OBJC_CLASS_$_Tapdaq", referenced from:
     
 This means that the iOS Framework are not linked anymore in some how after you donwload the extension.
-### Solution:
-1) Go to "YOURDOCUMENTFOLDER"/stencylworks/engine-extensions/tapdaq-master/frameworks"
-2) Delete the Tapdaq.framework in this folder
-3) Download the Tapdaq.framework from here: https://www.dropbox.com/s/vqeg64i8f8736mq/tapdaq-ios-sdk-master.zip?dl=0
-4) Unzip it and copy the Tapdaq.framework to "YOURDOCUMENTFOLDER"/stencylworks/engine-extensions/tapdaq-master/frameworks"
-5) Run clean project and try to compile
+### Solution:<br/>
+1) Go to "YOURDOCUMENTFOLDER"/stencylworks/engine-extensions/tapdaq-master/frameworks"<br/>
+2) Delete the Tapdaq.framework in this folder<br/>
+3) Download the Tapdaq.framework from here: https://www.dropbox.com/s/vqeg64i8f8736mq/tapdaq-ios-sdk-master.zip?dl=0<br/>
+4) Unzip it and copy the Tapdaq.framework to "YOURDOCUMENTFOLDER"/stencylworks/engine-extensions/tapdaq-master/frameworks"<br/>
+5) Run clean project and try to compile<br/>
 
 ## Donate
 
