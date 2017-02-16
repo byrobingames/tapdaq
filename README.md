@@ -40,6 +40,28 @@ Install the zip file: Go to : <a href="http://community.stencyl.com/index.php/to
 See wiki page:
 https://github.com/byrobingames/tapdaq/wiki/Implement-Tapdaq-Advertising-in-your-Stencyl-game.
 
+## iOS Error on Compiling
+If you get this error on compiling: iOS (only)
+
+    [haxelib] ** BUILD FAILED **
+    [haxelib] clang: error: linker command failed with exit code 1 (use -v to see invocation)
+    [haxelib] ld: symbol(s) not found for architecture arm64
+    [haxelib]       objc-class-ref in libtapdaq.a(cd332943_TapdaqEx.o)
+    [haxelib]   "_OBJC_CLASS_$_TDProperties", referenced from:
+    [haxelib]       objc-class-ref in libtapdaq.a(cd332943_TapdaqEx.o)
+    [haxelib]   "_OBJC_CLASS_$_TDTestDevices", referenced from:
+    [haxelib]      (maybe you meant: _OBJC_CLASS_$_TapdaqController)
+    [haxelib]       objc-class-ref in libtapdaq.a(cd332943_TapdaqEx.o)
+    [haxelib]   "_OBJC_CLASS_$_Tapdaq", referenced from:
+    
+This means that the iOS Framework are not linked anymore in some how after you donwload the extension.
+### Solution:
+1) Go to "YOURDOCUMENTFOLDER"/stencylworks/engine-extensions/tapdaq-master/frameworks"
+2) Delete the Tapdaq.framework in this folder
+3) Download the Tapdaq.framework from here: https://www.dropbox.com/s/vqeg64i8f8736mq/tapdaq-ios-sdk-master.zip?dl=0
+4) Unzip it and copy the Tapdaq.framework to "YOURDOCUMENTFOLDER"/stencylworks/engine-extensions/tapdaq-master/frameworks"
+5) Run clean project and try to compile
+
 ## Donate
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HKLGFCAGKBMFL)<br />
