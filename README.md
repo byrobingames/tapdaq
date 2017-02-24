@@ -62,6 +62,14 @@ This means that the iOS Framework are not linked anymore in some how after you d
 4) Unzip it and copy the Tapdaq.framework to "YOURDOCUMENTFOLDER"/stencylworks/engine-extensions/tapdaq-master/frameworks"<br/>
 5) Run clean project and try to compile<br/>
 
+## iOS Make an ipa with Xcode when ready for publish
+
+When you publish with Stencyl you will get error ITMS 90179 when upload ipa with Application Loader.
+To Fix this you have to make an ipa with Xcode..
+
+See this wiki page how to do this:</br>
+https://github.com/byrobingames/tapdaq/wiki/iOS:-Publish-ipa-with-Xcode
+
 ## Donate
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HKLGFCAGKBMFL)<br />
