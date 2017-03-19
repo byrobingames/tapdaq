@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import com.google.android.gms.ads.*;
 
 import com.tapdaq.sdk.adnetworks.TMServiceQueue;
+import com.tapdaq.sdk.analytics.TMStatsManager;
 import com.tapdaq.sdk.common.*;
 import com.tapdaq.sdk.helpers.TLog;
 import com.tapdaq.sdk.adnetworks.TMMediationNetworks;
@@ -44,9 +45,9 @@ public class TMAdMobAdapter extends TMAdapter {
     public void initialise(Activity activity) {
         super.initialise(activity);
 
-        if (mCurrentActivity != null && mKeys != null) {
-            MobileAds.initialize(mCurrentActivity);
-            mListener.onInitSuccess(mCurrentActivity, TMMediationNetworks.AD_MOB);
+        if (activity != null && mKeys != null) {
+            MobileAds.initialize(activity);
+            mListener.onInitSuccess(activity, TMMediationNetworks.AD_MOB);
         }
     }
 
@@ -59,7 +60,7 @@ public class TMAdMobAdapter extends TMAdapter {
 
     @Override
     public boolean isInitialised(Context context) {
-        return mCurrentActivity != null && (getBannerId(context) != null || getInterstitialId(context) != null || getVideoId(context) != null) ;
+        return context != null && (getBannerId(context) != null || getInterstitialId(context) != null || getVideoId(context) != null) ;
     }
 
     @Override
@@ -71,8 +72,8 @@ public class TMAdMobAdapter extends TMAdapter {
     }
 
     @Override
-    public boolean isBannerAvailable(TMAdSize size) {
-        return getBannerId(mCurrentActivity) != null && mBannerSizes.getSize(size) != null;
+    public boolean isBannerAvailable(Context context, TMAdSize size) {
+        return getBannerId(context) != null && mBannerSizes.getSize(size) != null;
     }
 
     @Override
@@ -86,16 +87,16 @@ public class TMAdMobAdapter extends TMAdapter {
     }
 
     @Override
-    public ViewGroup loadAd(Context context, TMAdSize size, TMAdListenerBase listener) {
-        com.google.android.gms.ads.AdSize adSize = mBannerSizes.getSize(size);
+    public ViewGroup loadAd(Activity activity, TMAdSize size, TMAdListenerBase listener) {
+        AdSize adSize = mBannerSizes.getSize(size);
         if(adSize != null) {
-            AdView view = new AdView(context);
-            view.setAdUnitId(getBannerId(context));
+            AdView view = new AdView(activity);
+            view.setAdUnitId(getBannerId(activity));
             view.setAdSize(adSize);
-            view.setAdListener(new AdMobAdListener(listener));
+            view.setAdListener(new AdMobAdListener(activity, listener));
             AdRequest.Builder builder = new AdRequest.Builder();
 
-            String[] devices = getTestDevices(context);
+            String[] devices = getTestDevices(activity);
             if (devices != null) {
                 for (String d : devices) {
                     builder.addTestDevice(d);
@@ -115,7 +116,7 @@ public class TMAdMobAdapter extends TMAdapter {
         if (activity != null && getInterstitialId(activity) != null) {
             InterstitialAd ad = new InterstitialAd(activity);
             ad.setAdUnitId(getInterstitialId(activity));
-            ad.setAdListener(new AdMobInterstitialAdListener(ad, listener, TMAdType.STATIC_INTERSTITIAL, placement));
+            ad.setAdListener(new AdMobInterstitialAdListener(activity, ad, listener, TMAdType.STATIC_INTERSTITIAL, placement));
 
             AdRequest.Builder builder = new AdRequest.Builder();
 
@@ -138,7 +139,7 @@ public class TMAdMobAdapter extends TMAdapter {
         if (activity != null && getVideoId(activity) != null) {
             InterstitialAd ad = new InterstitialAd(activity);
             ad.setAdUnitId(getVideoId(activity));
-            ad.setAdListener(new AdMobInterstitialAdListener(ad, listener, TMAdType.VIDEO_INTERSTITIAL, placement));
+            ad.setAdListener(new AdMobInterstitialAdListener(activity, ad, listener, TMAdType.VIDEO_INTERSTITIAL, placement));
             mVideoInterstitialAd.add(ad);
 
             AdRequest.Builder builder = new AdRequest.Builder();
@@ -161,7 +162,7 @@ public class TMAdMobAdapter extends TMAdapter {
         InterstitialAd ad = (mInterstitialAd.isEmpty() ? null : mInterstitialAd.get(0));
         if (ad != null && ad.isLoaded()) {
             if (listener != null)
-                ad.setAdListener(new AdMobInterstitialAdListener(ad, listener, TMAdType.STATIC_INTERSTITIAL, placement));
+                ad.setAdListener(new AdMobInterstitialAdListener(activity, ad, listener, TMAdType.STATIC_INTERSTITIAL, placement));
             ad.show();
         } else {
             TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not loaded ad"));
@@ -173,7 +174,7 @@ public class TMAdMobAdapter extends TMAdapter {
         InterstitialAd ad = (mVideoInterstitialAd.isEmpty() ? null : mVideoInterstitialAd.get(0));
         if (ad != null && ad.isLoaded()) {
             if (listener != null)
-                ad.setAdListener(new AdMobInterstitialAdListener(ad, listener, TMAdType.VIDEO_INTERSTITIAL, placement));
+                ad.setAdListener(new AdMobInterstitialAdListener(activity, ad, listener, TMAdType.VIDEO_INTERSTITIAL, placement));
             ad.show();
         }  else {
             TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not loaded ad"));
@@ -197,9 +198,11 @@ public class TMAdMobAdapter extends TMAdapter {
 
     private class AdMobAdListener extends AdListener
     {
+        private Activity mActivity;
         private final TMAdListenerBase mAdListener;
 
-        AdMobAdListener(TMAdListenerBase listener) {
+        AdMobAdListener(Activity activity, TMAdListenerBase listener) {
+            mActivity = activity;
             mAdListener = listener;
         }
 
@@ -212,8 +215,14 @@ public class TMAdMobAdapter extends TMAdapter {
         @Override
         public void onAdFailedToLoad(int i) {
             super.onAdFailedToLoad(i);
-            TMListenerHandler.DidFailToLoad(mAdListener, buildError(i));
-            TMServiceQueue.ServiceError(mCurrentActivity, getName(), TMAdType.BANNER);
+            TMAdError error = buildError(i);
+            TMListenerHandler.DidFailToLoad(mAdListener, error);
+
+            if (mActivity != null) {
+                TMServiceQueue.ServiceError(mActivity, getName(), TMAdType.BANNER);
+                new TMStatsManager(mActivity).sendDidFailToLoad(mActivity, getName(), TMAdType.getString(TMAdType.BANNER), "", getVersionID(mActivity), error.getErrorMessage());
+            }
+            mActivity = null;
         }
 
         @Override
@@ -232,17 +241,22 @@ public class TMAdMobAdapter extends TMAdapter {
         public void onAdLoaded() {
             super.onAdLoaded();
             TMListenerHandler.DidLoad(mAdListener);
+            if (mActivity != null)
+                new TMStatsManager(mActivity).sendDidLoad(mActivity, getName(), TMAdType.getString(TMAdType.BANNER), null, getVersionID(mActivity));
+            mActivity = null;
         }
     }
 
     private class AdMobInterstitialAdListener extends AdListener
     {
+        private Activity mActivity;
         private TMAdListenerBase mAdListener;
         private InterstitialAd mAd;
         private int mType;
         private String mPlacement;
 
-        AdMobInterstitialAdListener(InterstitialAd ad, TMAdListenerBase listener, int type, String placement) {
+        AdMobInterstitialAdListener(Activity activity, InterstitialAd ad, TMAdListenerBase listener, int type, String placement) {
+            mActivity = activity;
             mAd = ad;
             mAdListener = listener;
             mType = type;
@@ -269,13 +283,19 @@ public class TMAdMobAdapter extends TMAdapter {
             super.onAdFailedToLoad(i);
 
             TMAdError error = buildError(i);
-            TMServiceErrorHandler.ServiceError(mCurrentActivity, getName(), mType, mPlacement, error, mAdListener);
+
             TLog.error(error.getErrorMessage());
 
             if (!mInterstitialAd.isEmpty() && mAd == mInterstitialAd.get(0))
                 mInterstitialAd.remove(mAd);
-            else if(!mVideoInterstitialAd.isEmpty() && mAd == mVideoInterstitialAd.get(0))
+            else if (!mVideoInterstitialAd.isEmpty() && mAd == mVideoInterstitialAd.get(0))
                 mVideoInterstitialAd.remove(mAd);
+
+            if (mActivity != null) {
+                TMServiceErrorHandler.ServiceError(mActivity, getName(), mType, mPlacement, error, mAdListener);
+                new TMStatsManager(mActivity).sendDidFailToLoad(mActivity, getName(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity), error.getErrorMessage());
+            }
+            mActivity = null;
         }
 
         @Override
@@ -288,29 +308,34 @@ public class TMAdMobAdapter extends TMAdapter {
         public void onAdOpened() {
             super.onAdOpened();
             TMListenerHandler.DidDisplay(mAdListener);
+            if (mActivity != null)
+                new TMStatsManager(mActivity).sendImpression(mActivity, getName(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
         }
 
         @Override
         public void onAdLoaded() {
             super.onAdLoaded();
             TMListenerHandler.DidLoad(mAdListener);
+            if (mActivity != null)
+                new TMStatsManager(mActivity).sendDidLoad(mActivity, getName(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
+            mActivity = null;
         }
     }
 
     private class TMAdMobBannerSizes extends TMBannerAdSizes {
-        com.google.android.gms.ads.AdSize getSize(TMAdSize size) {
+        AdSize getSize(TMAdSize size) {
             if (size == STANDARD)
-                return com.google.android.gms.ads.AdSize.BANNER;
+                return AdSize.BANNER;
             else if(size == LARGE)
-                return com.google.android.gms.ads.AdSize.LARGE_BANNER;
+                return AdSize.LARGE_BANNER;
             else if(size == MEDIUM_RECT)
-                return com.google.android.gms.ads.AdSize.MEDIUM_RECTANGLE;
+                return AdSize.MEDIUM_RECTANGLE;
             else if(size == FULL)
-                return com.google.android.gms.ads.AdSize.FULL_BANNER;
+                return AdSize.FULL_BANNER;
             else if(size == LEADERBOARD)
-                return com.google.android.gms.ads.AdSize.LEADERBOARD;
+                return AdSize.LEADERBOARD;
             else if(size == SMART)
-                return com.google.android.gms.ads.AdSize.SMART_BANNER;
+                return AdSize.SMART_BANNER;
             TLog.error(String.format(Locale.getDefault(), "No Ad Mob Banner Available for size: %s", size.name));
             return null;
         }

@@ -34,7 +34,6 @@
                     storeId:(NSString *)storeId
                   customUrl:(NSString *)customUrl
      isBlockingInstalledApp:(BOOL)isBlockingInstalledApp
-                   creative:(TDCreative *)creative
                         tag:(NSString *)tag;
 
 - (void)triggerImpression;

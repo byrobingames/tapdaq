@@ -17,16 +17,10 @@
 @interface TDCreative : NSObject
 
 @property (nonatomic, strong) NSString *identifier;
-@property (nonatomic) TDOrientation orientation;
-@property (nonatomic) TDResolution resolution;
-@property (nonatomic, strong) TDAspectRatio *aspectRatio;
 @property (nonatomic, strong) NSURL *url;
 @property (nonatomic, strong) UIImage *image;
 
 - (id)initWithIdentifier:(NSString *)identifier
-              resolution:(TDResolution)resolution
-             aspectRatio:(TDAspectRatio *)aspectRatio
-                     url:(NSString *)url
-             orientation:(TDOrientation)orientation;
+                imageUrl:(NSString *)url;
 
 @end

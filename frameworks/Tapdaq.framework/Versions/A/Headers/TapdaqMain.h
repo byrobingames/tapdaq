@@ -25,6 +25,7 @@
 @class TDInterstitialAdvert;
 @class TDProperties;
 @class TDPlacement;
+@class TDMoreAppsConfig;
 
 typedef NSString *const TDPTag;
 
@@ -188,6 +189,16 @@ static TDPTag const TDPTagQuit = @"quit";
  @return A TDNativeAdvert.
  */
 - (TDNativeAdvert *)getNativeAdvertForAdType:(TDNativeAdType)nativeAdType;
+
+#pragma mark - More apps
+
+- (void)loadMoreApps;
+
+- (void)loadMoreAppsWithConfig:(TDMoreAppsConfig *)moreAppsConfig;
+
+- (BOOL)isMoreAppsReady;
+
+- (void)showMoreApps;
 
 #pragma mark Misc
 
@@ -382,5 +393,17 @@ static TDPTag const TDPTagQuit = @"quit";
  */
 - (void)didFailToLoadNativeAdvertForPlacementTag:(NSString *)tag
                                           adType:(TDNativeAdType)nativeAdType;
+
+#pragma mark More apps delegate methods
+
+- (void)didLoadMoreApps;
+
+- (void)didFailToLoadMoreApps;
+
+- (void)willDisplayMoreApps;
+
+- (void)didDisplayMoreApps;
+
+- (void)didCloseMoreApps;
 
 @end

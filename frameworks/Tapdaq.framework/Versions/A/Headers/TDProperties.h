@@ -39,9 +39,8 @@
 
 /**
  Note: For plugin developers only.
- Prefix the name of your library/plugin
  */
-@property (nonatomic) NSString *sdkIdentifierPrefix;
+@property (nonatomic) NSString *pluginVersion;
 
 /**
  To use placement tags, you must create a TDPlacement object and register it.

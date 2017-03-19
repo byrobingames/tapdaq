@@ -95,7 +95,7 @@ public class TapdaqEx extends Extension {
                     String admobDeviceId = getInstance().md5(android_id).toUpperCase();
                     Log.d("Tapdaq","Admob DEVICE ID: "+admobDeviceId);
                     
-                    String facebookDeviceId = getInstance().getDeviceIdHash(mainActivity);
+                    String facebookDeviceId = getDeviceIdHash(mainActivity);
                     Log.d("Tapdaq","Facebook DEVICE ID: "+facebookDeviceId);
                     
                     //Register Adapters
@@ -104,6 +104,7 @@ public class TapdaqEx extends Extension {
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMUnityAdsAdapter(mainActivity)); //UnityAds
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMVungleAdapter(mainActivity)); //Vungle
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMAdColonyAdapter(mainActivity)); //AdColony
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMAppLovinAdapter(mainActivity)); //Applovin
                     
                     
                 }else{
@@ -114,6 +115,7 @@ public class TapdaqEx extends Extension {
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMUnityAdsAdapter(mainActivity)); //UnityAds
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMVungleAdapter(mainActivity)); //Vungle
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMAdColonyAdapter(mainActivity)); //AdColony
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMAppLovinAdapter(mainActivity)); //Applovin
                     
                 }
                 

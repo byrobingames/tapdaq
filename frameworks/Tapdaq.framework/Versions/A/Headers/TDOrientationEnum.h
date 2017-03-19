@@ -9,9 +9,13 @@
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSUInteger, TDOrientation) {
+    TDOrientationUnknown,
     TDOrientationPortrait,
-    TDOrientationLandscape,
-    TDOrientationUniversal
+    TDOrientationLandscape
 };
+
+static NSString *const kOrientationUnknown = @"unknown";
+static NSString *const kOrientationPortrait = @"portrait";
+static NSString *const kOrientationLandscape = @"landscape";
 
 #define kTDOrientation @"PORTRAIT", @"LANDSCAPE", @"UNIVERSAL", nil
