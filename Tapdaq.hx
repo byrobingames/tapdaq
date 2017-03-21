@@ -34,12 +34,12 @@ class Tapdaq {
 	#if android
 	private static var __init:Dynamic;
 	#end
-	private static var __loadInterstitial:Void->Void = function(){};
-	private static var __showInterstitial:Void->Void = function(){};
-	private static var __loadVideo:Void->Void = function(){};
-	private static var __showVideo:Void->Void = function(){};
-	private static var __loadRewarded:Void->Void = function(){};
-	private static var __showRewarded:Void->Void = function(){};
+	private static var __loadInterstitial:String->Void = function(tag:String){};
+	private static var __showInterstitial:String->Void = function(tag:String){};
+	private static var __loadVideo:String->Void = function(tag:String){};
+	private static var __showVideo:String->Void = function(tag:String){};
+	private static var __loadRewarded:String->Void = function(tag:String){};
+	private static var __showRewarded:String->Void = function(tag:String){};
 	private static var __loadBanner:String->Void = function(bannerType:String){};
 	private static var __showBanner:Void->Void = function(){};
 	private static var __hideBanner:Void->Void = function(){};
@@ -69,12 +69,12 @@ class Tapdaq {
 		try{
 			// CPP METHOD LINKING
 			__init = cpp.Lib.load("tapdaq","tapdaq_init",3);
-			__loadInterstitial = cpp.Lib.load("tapdaq","tapdaq_interstitial_load",0);
-			__showInterstitial = cpp.Lib.load("tapdaq","tapdaq_interstitial_show",0);
-			__loadVideo = cpp.Lib.load("tapdaq","tapdaq_video_load",0);
-			__showVideo = cpp.Lib.load("tapdaq","tapdaq_video_show",0);
-			__loadRewarded = cpp.Lib.load("tapdaq","tapdaq_rewarded_load",0);
-			__showRewarded = cpp.Lib.load("tapdaq","tapdaq_rewarded_show",0);
+			__loadInterstitial = cpp.Lib.load("tapdaq","tapdaq_interstitial_load",1);
+			__showInterstitial = cpp.Lib.load("tapdaq","tapdaq_interstitial_show",1);
+			__loadVideo = cpp.Lib.load("tapdaq","tapdaq_video_load",1);
+			__showVideo = cpp.Lib.load("tapdaq","tapdaq_video_show",1);
+			__loadRewarded = cpp.Lib.load("tapdaq","tapdaq_rewarded_load",1);
+			__showRewarded = cpp.Lib.load("tapdaq","tapdaq_rewarded_show",1);
 			__loadBanner = cpp.Lib.load("tapdaq","tapdaq_banner_load",1);
 			__showBanner = cpp.Lib.load("tapdaq","tapdaq_banner_show",0);
 	 		__hideBanner = cpp.Lib.load("tapdaq","tapdaq_banner_hide",0);
@@ -82,9 +82,9 @@ class Tapdaq {
 			__openMediationDebugger = cpp.Lib.load("tapdaq","tapdaq_mediation_debugger",0);
 			
 			__bannerIsReady = cpp.Lib.load("tapdaq","tapdaq_banner_isready",0);
-			__interstitialIsReady = cpp.Lib.load("tapdaq","tapdaq_interstitial_isready",0);
-			__videoIsReady = cpp.Lib.load("tapdaq","tapdaq_video_isready",0);
-			__rewardedIsReady = cpp.Lib.load("tapdaq","tapdaq_rewarded_isready",0);
+			__interstitialIsReady = cpp.Lib.load("tapdaq","tapdaq_interstitial_isready",1);
+			__videoIsReady = cpp.Lib.load("tapdaq","tapdaq_video_isready",1);
+			__rewardedIsReady = cpp.Lib.load("tapdaq","tapdaq_rewarded_isready",1);
 
 			__init(appId, clientKey, testmode);
 			__tapdaq_set_event_handle(notifyListeners);
@@ -98,21 +98,21 @@ class Tapdaq {
 		initialized = true;
 		try{
 			// JNI METHOD LINKING
-			__loadInterstitial = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadInterstitial", "()V");
-			__showInterstitial = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showInterstitial", "()V");
-			__loadVideo = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadVideo", "()V");
-			__showVideo = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showVideo", "()V");
-			__loadRewarded = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadRewarded", "()V");
-			__showRewarded = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showRewarded", "()V");
+			__loadInterstitial = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadInterstitial", "(Ljava/lang/String;)V");
+			__showInterstitial = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showInterstitial", "(Ljava/lang/String;)V");
+			__loadVideo = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadVideo", "(Ljava/lang/String;)V");
+			__showVideo = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showVideo", "(Ljava/lang/String;)V");
+			__loadRewarded = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadRewarded", "(Ljava/lang/String;)V");
+			__showRewarded = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showRewarded", "(Ljava/lang/String;)V");
 			__loadBanner = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadBanner", "(Ljava/lang/String;)V");
 			__showBanner = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showBanner", "()V");
 	 		__hideBanner = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "hideBanner", "()V");
 			__moveBanner = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "setBannerPosition", "(Ljava/lang/String;)V");	
 			__openMediationDebugger = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "openDebugger", "()V");
 			
-			__interstitialIsReady = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isInterstitialReady", "()Z");
-			__videoIsReady = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isVideoReady", "()Z");
-			__rewardedIsReady = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isRewardedReady", "()Z");
+			__interstitialIsReady = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isInterstitialReady", "(Ljava/lang/String;)Z");
+			__videoIsReady = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isVideoReady", "(Ljava/lang/String;)Z");
+			__rewardedIsReady = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isRewardedReady", "(Ljava/lang/String;)Z");
 		
 			if(__init == null)
 			{
@@ -170,46 +170,46 @@ class Tapdaq {
 		}
 	}
 	
-	public static function loadInterstitial() {
+	public static function loadInterstitial(tag:String) {
 		try{
-			__loadInterstitial();
+			__loadInterstitial(tag);
 		} catch(e:Dynamic) {
 			trace("LoadInterstitial Exception: "+e);
 		}
 	}
-	public static function showInterstitial() {
+	public static function showInterstitial(tag:String) {
 		try{
-			__showInterstitial();
+			__showInterstitial(tag);
 		} catch(e:Dynamic) {
 			trace("ShowInterstitial Exception: "+e);
 		}
 	}
 	
-	public static function loadVideo() {
+	public static function loadVideo(tag:String) {
 		try{
-			__loadVideo();
+			__loadVideo(tag);
 		} catch(e:Dynamic) {
 			trace("LoadVideo Exception: "+e);
 		}
 	}
-	public static function showVideo() {
+	public static function showVideo(tag:String) {
 		try{
-			__showVideo();
+			__showVideo(tag);
 		} catch(e:Dynamic) {
 			trace("ShowVideo Exception: "+e);
 		}
 	}
 	
-	public static function loadRewarded() {
+	public static function loadRewarded(tag:String) {
 		try{
-			__loadRewarded();
+			__loadRewarded(tag);
 		} catch(e:Dynamic) {
 			trace("LoadRewarded Exception: "+e);
 		}
 	}
-	public static function showRewarded() {
+	public static function showRewarded(tag:String) {
 		try{
-			__showRewarded();
+			__showRewarded(tag);
 		} catch(e:Dynamic) {
 			trace("ShowRewarded Exception: "+e);
 		}
@@ -219,14 +219,14 @@ class Tapdaq {
 	public static function bannerIsReady():Bool{
 		return __bannerIsReady();
 	}
-	public static function interstitialIsReady():Bool{
-		return __interstitialIsReady();
+	public static function interstitialIsReady(tag:String):Bool{
+		return __interstitialIsReady(tag);
 	}
-	public static function videoIsReady():Bool{
-		return __videoIsReady();
+	public static function videoIsReady(tag:String):Bool{
+		return __videoIsReady(tag);
 	}
-	public static function rewardedIsReady():Bool{
-		return __rewardedIsReady();
+	public static function rewardedIsReady(tag:String):Bool{
+		return __rewardedIsReady(tag);
 	}
 	////////////Banner////////////////
 	public static function bannerDidLoad():Bool{

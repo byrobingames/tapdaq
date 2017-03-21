@@ -281,7 +281,7 @@ public class TapdaqEx extends Extension {
         });
     }
     
-    static public void loadInterstitial()
+    static public void loadInterstitial(final String tag)
     {
         Log.d("TapdaqEx","Load Interstitial Begin");
         if(appId=="") return;
@@ -289,13 +289,14 @@ public class TapdaqEx extends Extension {
         Extension.mainActivity.runOnUiThread(new Runnable() {
             public void run()
             {
-                Tapdaq.getInstance().loadInterstitial(Extension.mainActivity, TapdaqPlacement.TDPTagDefault, new InterstitialAdListener());
+                //Tapdaq.getInstance().loadInterstitial(Extension.mainActivity, TapdaqPlacement.TDPTagDefault, new InterstitialAdListener());
+                Tapdaq.getInstance().loadInterstitial(Extension.mainActivity, tag, new InterstitialAdListener());
             }
         });
         Log.d("TapdaqEx","Load Interstitial End ");
     }
 
-	static public void showInterstitial()
+	static public void showInterstitial(final String tag)
     {
         Log.d("TapdaqEx","Show Interstitial Begin");
 		if(appId=="") return;
@@ -303,13 +304,14 @@ public class TapdaqEx extends Extension {
 		Extension.mainActivity.runOnUiThread(new Runnable() {
 			public void run()
             {
-                Tapdaq.getInstance().showInterstitial(Extension.mainActivity, TapdaqPlacement.TDPTagDefault, new InterstitialAdListener());
+                //Tapdaq.getInstance().showInterstitial(Extension.mainActivity, TapdaqPlacement.TDPTagDefault, new InterstitialAdListener());
+                Tapdaq.getInstance().showInterstitial(Extension.mainActivity, tag, new InterstitialAdListener());
             }
 		});
 		Log.d("TapdaqEx","Show Interstitial End ");
 	}
     
-    static public void loadVideo()
+    static public void loadVideo(final String tag)
     {
         Log.d("TapdaqEx","Load Video Begin");
         if(appId=="") return;
@@ -317,13 +319,14 @@ public class TapdaqEx extends Extension {
         Extension.mainActivity.runOnUiThread(new Runnable() {
             public void run()
             {
-                Tapdaq.getInstance().loadVideo(Extension.mainActivity, TapdaqPlacement.TDPTagDefault, new VideoAdListener());
+                //Tapdaq.getInstance().loadVideo(Extension.mainActivity, TapdaqPlacement.TDPTagDefault, new VideoAdListener());
+                Tapdaq.getInstance().loadVideo(Extension.mainActivity, tag, new VideoAdListener());
             }
         });
         Log.d("TapdaqEx","Load Video End ");
     }
     
-    static public void showVideo()
+    static public void showVideo(final String tag)
     {
         Log.d("TapdaqEx","Show Video Begin");
         if(appId=="") return;
@@ -331,13 +334,14 @@ public class TapdaqEx extends Extension {
         Extension.mainActivity.runOnUiThread(new Runnable() {
             public void run()
             {
-                Tapdaq.getInstance().showVideo(Extension.mainActivity, TapdaqPlacement.TDPTagDefault, new VideoAdListener());
+                //Tapdaq.getInstance().showVideo(Extension.mainActivity, TapdaqPlacement.TDPTagDefault, new VideoAdListener());
+                Tapdaq.getInstance().showVideo(Extension.mainActivity, tag, new VideoAdListener());
             }
         });
         Log.d("TapdaqEx","Show Video End ");
     }
     
-    static public void loadRewarded()
+    static public void loadRewarded(final String tag)
     {
         Log.d("TapdaqEx","Load rewarded Begin");
         if(appId=="") return;
@@ -345,13 +349,14 @@ public class TapdaqEx extends Extension {
         Extension.mainActivity.runOnUiThread(new Runnable() {
             public void run()
             {
-                Tapdaq.getInstance().loadRewardedVideo(Extension.mainActivity, TapdaqPlacement.TDPTagDefault, new RewardedAdListener());
+                //Tapdaq.getInstance().loadRewardedVideo(Extension.mainActivity, TapdaqPlacement.TDPTagDefault, new RewardedAdListener());
+                Tapdaq.getInstance().loadRewardedVideo(Extension.mainActivity, tag, new RewardedAdListener());
             }
         });
         Log.d("TapdaqEx","Load rewarded End ");
     }
     
-    static public void showRewarded()
+    static public void showRewarded(final String tag)
     {
         Log.d("TapdaqEx","Show rewarded Begin");
         if(appId=="") return;
@@ -359,7 +364,8 @@ public class TapdaqEx extends Extension {
         Extension.mainActivity.runOnUiThread(new Runnable() {
             public void run()
             {
-                Tapdaq.getInstance().showRewardedVideo(Extension.mainActivity, TapdaqPlacement.TDPTagDefault, new RewardedAdListener());
+                //Tapdaq.getInstance().showRewardedVideo(Extension.mainActivity, TapdaqPlacement.TDPTagDefault, new RewardedAdListener());
+                Tapdaq.getInstance().showRewardedVideo(Extension.mainActivity, tag, new RewardedAdListener());
             }
         });
         Log.d("TapdaqEx","Show rewarded End ");
@@ -370,19 +376,19 @@ public class TapdaqEx extends Extension {
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	
-    static public boolean isInterstitialReady()
+    static public boolean isInterstitialReady(final String tag)
     {
-        return Tapdaq.getInstance().isInterstitialReady(Extension.mainActivity, TapdaqPlacement.TDPTagDefault);
+        return Tapdaq.getInstance().isInterstitialReady(Extension.mainActivity, tag);
     }
     
-    static public boolean isVideoReady()
+    static public boolean isVideoReady(final String tag)
     {
-        return Tapdaq.getInstance().isVideoReady(TapdaqPlacement.TDPTagDefault);
+        return Tapdaq.getInstance().isVideoReady(tag);
     }
     
-    static public boolean isRewardedReady()
+    static public boolean isRewardedReady(final String tag)
     {
-         return Tapdaq.getInstance().isRewardedVideoReady(TapdaqPlacement.TDPTagDefault);
+         return Tapdaq.getInstance().isRewardedVideoReady(tag);
     }
     
     

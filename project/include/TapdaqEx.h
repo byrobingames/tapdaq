@@ -11,18 +11,18 @@ namespace tapdaq {
     void showBanner();
     void hideBanner();
     void moveBanner(const char *gravity);
-    void loadInterstitial();
-	void showInterstitial();
-    void loadVideo();
-    void showVideo();
-    void loadRewardedVideo();
-    void showRewardedVideo();
+    void loadInterstitial(const char *tag);
+	void showInterstitial(const char *tag);
+    void loadVideo(const char *tag);
+    void showVideo(const char *tag);
+    void loadRewardedVideo(const char *tag);
+    void showRewardedVideo(const char *tag);
     void openMediationDebugger();
     
     bool bannerIsReady();
-    bool interstitialIsReady();
-    bool videoIsReady();
-    bool rewardedIsReady();
+    bool interstitialIsReady(const char *tag);
+    bool videoIsReady(const char *tag);
+    bool rewardedIsReady(const char *tag);
     
 }
 

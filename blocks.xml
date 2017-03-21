@@ -82,8 +82,8 @@
     </block>
     	
 	<block tag="showInterstitialTapdaq"
-        spec="%0 Tapdaq Interstitial Ad [c:tapdaq]"
-        code="Tapdaq.~Interstitial();"
+        spec="%0 Tapdaq Interstitial Ad with placementTag: %1 [c:tapdaq]"
+        code="Tapdaq.~Interstitial(~);"
         help=""
         type="action"
         color="charcoal"
@@ -95,12 +95,13 @@
                     <c text="Show" code="show"></c>
                 </choices>
             </dropdown>
+            <text order="1"></text>
         </fields>
     </block>
     
     <block tag="load-showVideoTapdaq"
-        spec="%0 Tapdaq Video Ad [c:tapdaq]"
-        code="Tapdaq.~Video();"
+        spec="%0 Tapdaq Video Ad with placementTag: %1 [c:tapdaq]"
+        code="Tapdaq.~Video(~);"
         help=""
         type="action"
         color="charcoal"
@@ -112,12 +113,13 @@
                     <c text="Show" code="show"></c>
                 </choices>
             </dropdown>
+            <text order="1"></text>
         </fields>
     </block>
     
     <block tag="load-showRewardedTapdaq"
-        spec="%0 Tapdaq Rewarded Video Ad [c:tapdaq]"
-        code="Tapdaq.~Rewarded();"
+        spec="%0 Tapdaq Rewarded Video Ad with placementTag: %1 [c:tapdaq]"
+        code="Tapdaq.~Rewarded(~);"
         help=""
         type="action"
         color="charcoal"
@@ -129,12 +131,13 @@
                     <c text="Show" code="show"></c>
                 </choices>
             </dropdown>
+            <text order="1"></text>
         </fields>
     </block>
        
     <block tag="adisreadyTapdaq"
-        spec="Tapdaq %0 is ready [c:tapdaq]"
-        code="Tapdaq.~IsReady()"
+        spec="Tapdaq %0 with placementTag: %1 is ready[c:tapdaq]"
+        code="Tapdaq.~IsReady(~)"
         help="returns true if ad is ready."
         type="normal"
         color="charcoal"
@@ -147,6 +150,7 @@
                     <c text="rewarded video" code="rewarded"></c>
 				</choices>
 			</dropdown>
+            <text order="1"></text>
         </fields>
     </block>
     

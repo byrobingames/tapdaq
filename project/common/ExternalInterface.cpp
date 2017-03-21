@@ -46,35 +46,38 @@ void tapdaq_banner_move(value gravity){
 }
 DEFINE_PRIM(tapdaq_banner_move, 1);
 
-void tapdaq_interstitial_load(){
-    loadInterstitial();
+///interstitial
+void tapdaq_interstitial_load(value tag){
+    loadInterstitial(val_string(tag));
 }
-DEFINE_PRIM(tapdaq_interstitial_load, 0);
+DEFINE_PRIM(tapdaq_interstitial_load, 1);
 
-void tapdaq_interstitial_show(){
-	showInterstitial();
+void tapdaq_interstitial_show(value tag){
+	showInterstitial(val_string(tag));
 }
-DEFINE_PRIM(tapdaq_interstitial_show, 0);
+DEFINE_PRIM(tapdaq_interstitial_show, 1);
 
-void tapdaq_video_load(){
-    loadVideo();
+///video
+void tapdaq_video_load(value tag){
+    loadVideo(val_string(tag));
 }
-DEFINE_PRIM(tapdaq_video_load, 0);
+DEFINE_PRIM(tapdaq_video_load, 1);
 
-void tapdaq_video_show(){
-    showVideo();
+void tapdaq_video_show(value tag){
+    showVideo(val_string(tag));
 }
-DEFINE_PRIM(tapdaq_video_show, 0);
+DEFINE_PRIM(tapdaq_video_show, 1);
 
-void tapdaq_rewarded_load(){
-    loadRewardedVideo();
+//rewarded
+void tapdaq_rewarded_load(value tag){
+    loadRewardedVideo(val_string(tag));
 }
-DEFINE_PRIM(tapdaq_rewarded_load, 0);
+DEFINE_PRIM(tapdaq_rewarded_load, 1);
 
-void tapdaq_rewarded_show(){
-    showRewardedVideo();
+void tapdaq_rewarded_show(value tag){
+    showRewardedVideo(val_string(tag));
 }
-DEFINE_PRIM(tapdaq_rewarded_show, 0);
+DEFINE_PRIM(tapdaq_rewarded_show, 1);
 
 void tapdaq_mediation_debugger(){
     openMediationDebugger();
@@ -91,29 +94,29 @@ static value tapdaq_banner_isready()
 }
 DEFINE_PRIM(tapdaq_banner_isready, 0);
 
-static value tapdaq_interstitial_isready()
+static value tapdaq_interstitial_isready(value tag)
 {
-    if (tapdaq::interstitialIsReady())
+    if (tapdaq::interstitialIsReady(val_string(tag)))
         return val_true;
     return val_false;
 }
-DEFINE_PRIM(tapdaq_interstitial_isready, 0);
+DEFINE_PRIM(tapdaq_interstitial_isready, 1);
 
-static value tapdaq_video_isready()
+static value tapdaq_video_isready(value tag)
 {
-    if (tapdaq::videoIsReady())
+    if (tapdaq::videoIsReady(val_string(tag)))
         return val_true;
     return val_false;
 }
-DEFINE_PRIM(tapdaq_video_isready, 0);
+DEFINE_PRIM(tapdaq_video_isready, 1);
 
-static value tapdaq_rewarded_isready()
+static value tapdaq_rewarded_isready(value tag)
 {
-    if (tapdaq::rewardedIsReady())
+    if (tapdaq::rewardedIsReady(val_string(tag)))
         return val_true;
     return val_false;
 }
-DEFINE_PRIM(tapdaq_rewarded_isready, 0);
+DEFINE_PRIM(tapdaq_rewarded_isready, 1);
 
 extern "C" void tapdaq_main()
 {

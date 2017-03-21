@@ -28,15 +28,15 @@ extern "C" void sendTapdaqEvent(char* event);
 - (void)hideBannerAd;
 - (void)setPosition:(NSString*)position;
 - (BOOL)bannerAdIsReady;
-- (void)loadInterstitialAd;
-- (void)showInterstitialAd;
-- (BOOL)interstitialAdIsReady;
-- (void)loadVideoAd;
-- (void)showVideoAd;
-- (BOOL)videoAdIsReady;
-- (void)loadRewardedAd;
-- (void)showRewardedAd;
-- (BOOL)rewardedAdIsReady;
+- (void)loadInterstitialAd:(NSString*)placementTAG;
+- (void)showInterstitialAd:(NSString*)placementTAG;
+- (BOOL)interstitialAdIsReady:(NSString*)placementTAG;
+- (void)loadVideoAd:(NSString*)placementTAG;
+- (void)showVideoAd:(NSString*)placementTAG;
+- (BOOL)videoAdIsReady:(NSString*)placementTAG;
+- (void)loadRewardedAd:(NSString*)placementTAG;
+- (void)showRewardedAd:(NSString*)placementTAG;
+- (BOOL)rewardedAdIsReady:(NSString*)placementTAG;
 
 @end
 
@@ -175,63 +175,73 @@ extern "C" void sendTapdaqEvent(char* event);
 }
 
 ///// interstitialads
-- (void)loadInterstitialAd
+- (void)loadInterstitialAd:(NSString*)placementTAG
 {
     NSLog(@"LoadInterstial");
     
-    [[Tapdaq sharedSession] loadInterstitial];
+    //[[Tapdaq sharedSession] loadInterstitial];
+    [[Tapdaq sharedSession] loadInterstitialForPlacementTag:placementTAG];
 }
 
-- (void)showInterstitialAd
+- (void)showInterstitialAd:(NSString*)placementTAG
 {
     NSLog(@"ShowInterstial");
     
-    [[Tapdaq sharedSession] showInterstitial];
+    //[[Tapdaq sharedSession] showInterstitial];
+    [[Tapdaq sharedSession] showInterstitialForPlacementTag:placementTAG];
 }
 
-- (BOOL)interstitialAdIsReady
+- (BOOL)interstitialAdIsReady:(NSString*)placementTAG
 {
-    return [[Tapdaq sharedSession] isInterstitialReady];
+    //return [[Tapdaq sharedSession] isInterstitialReady];
+    return [[Tapdaq sharedSession] isInterstitialReadyForPlacementTag:placementTAG];
 }
 
 ///// Videoads
-- (void)loadVideoAd
+- (void)loadVideoAd:(NSString*)placementTAG
 {
     NSLog(@"LoadVideo");
     
-    [[Tapdaq sharedSession] loadVideo];
+    //[[Tapdaq sharedSession] loadVideo];
+     [[Tapdaq sharedSession] loadVideoForPlacementTag:placementTAG];
 }
 
-- (void)showVideoAd
+- (void)showVideoAd:(NSString*)placementTAG
 {
     NSLog(@"ShowVideo");
     
-    [[Tapdaq sharedSession] showVideo];
+    //[[Tapdaq sharedSession] showVideo];
+    [[Tapdaq sharedSession] showVideoForPlacementTag:placementTAG];
 }
 
-- (BOOL)videoAdIsReady
+- (BOOL)videoAdIsReady:(NSString*)placementTAG
 {
-    return [[Tapdaq sharedSession] isVideoReady];
+    //return [[Tapdaq sharedSession] isVideoReady];
+    return [[Tapdaq sharedSession] isVideoReadyForPlacementTag:placementTAG];
 }
 
 ///// rewardedVideoads
-- (void)loadRewardedAd
+- (void)loadRewardedAd:(NSString*)placementTAG
 {
     NSLog(@"LoadRewarded");
     
-    [[Tapdaq sharedSession] loadRewardedVideo];
+    //[[Tapdaq sharedSession] loadRewardedVideo];
+    [[Tapdaq sharedSession] loadRewardedVideoForPlacementTag:placementTAG];
 }
 
-- (void)showRewardedAd
+- (void)showRewardedAd:(NSString*)placementTAG
 {
     NSLog(@"ShowRewarded");
     
-    [[Tapdaq sharedSession] showRewardedVideo];
+    //[[Tapdaq sharedSession] showRewardedVideo];
+    [[Tapdaq sharedSession] showRewardedVideoForPlacementTag:placementTAG];
 }
 
-- (BOOL)rewardedAdIsReady
+- (BOOL)rewardedAdIsReady:(NSString*)placementTAG
 {
-    return [[Tapdaq sharedSession] isRewardedVideoReady];
+    //return [[Tapdaq sharedSession] isRewardedVideoReady];
+    return [[Tapdaq sharedSession] isRewardedVideoReadyForPlacementTag:placementTAG];
+
 }
 
 
@@ -336,7 +346,7 @@ extern "C" void sendTapdaqEvent(char* event);
  This method should be used in conjunction with -showVideoForPlacementTag:.
  @param tag A placement tag.
  */
-- (void)didLoadVideoForPlacementTag:(NSString *)tag
+- (void)didLoadVideoForPlacementTag:(NSString *)placementTag
 {
      NSLog(@"Tapdaq Video is loaded");
 }
@@ -530,51 +540,58 @@ namespace tapdaq {
         }
     }
     
-    void loadInterstitial()
+    void loadInterstitial(const char *tag)
     {
         if(tapdaqController!=NULL)
         {
-            [tapdaqController loadInterstitialAd];
+            NSString *tagnew = [NSString stringWithUTF8String:tag];
+            
+            [tapdaqController loadInterstitialAd:tagnew];
         }
     }
     
-    void showInterstitial()
+    void showInterstitial(const char *tag)
     {
         if(tapdaqController!=NULL)
         {
-            [tapdaqController showInterstitialAd];
+            NSString *tagnew = [NSString stringWithUTF8String:tag];
+            [tapdaqController showInterstitialAd:tagnew];
         }
     }
     
-    void loadVideo()
+    void loadVideo(const char *tag)
     {
         if(tapdaqController!=NULL)
         {
-            [tapdaqController loadVideoAd];
+            NSString *tagnew = [NSString stringWithUTF8String:tag];
+            [tapdaqController loadVideoAd:tagnew];
         }
     }
     
-    void showVideo()
+    void showVideo(const char *tag)
     {
         if(tapdaqController!=NULL)
         {
-            [tapdaqController showVideoAd];
+            NSString *tagnew = [NSString stringWithUTF8String:tag];
+            [tapdaqController showVideoAd:tagnew];
         }
     }
     
-    void loadRewardedVideo()
+    void loadRewardedVideo(const char *tag)
     {
         if(tapdaqController!=NULL)
         {
-            [tapdaqController loadRewardedAd];
+            NSString *tagnew = [NSString stringWithUTF8String:tag];
+            [tapdaqController loadRewardedAd:tagnew];
         }
     }
     
-    void showRewardedVideo()
+    void showRewardedVideo(const char *tag)
     {
         if(tapdaqController!=NULL)
         {
-            [tapdaqController showRewardedAd];
+            NSString *tagnew = [NSString stringWithUTF8String:tag];
+            [tapdaqController showRewardedAd:tagnew];
         }
     }
     
@@ -598,29 +615,32 @@ namespace tapdaq {
         return false;
     }
     
-    bool interstitialIsReady()
+    bool interstitialIsReady(const char *tag)
     {
         if(tapdaqController != NULL)
         {
-            return [tapdaqController interstitialAdIsReady];
+            NSString *tagnew = [NSString stringWithUTF8String:tag];
+            return [tapdaqController interstitialAdIsReady:tagnew];
         }
         return false;
     }
 
-    bool videoIsReady()
+    bool videoIsReady(const char *tag)
     {
         if(tapdaqController != NULL)
         {
-           return [tapdaqController videoAdIsReady];
+            NSString *tagnew = [NSString stringWithUTF8String:tag];
+           return [tapdaqController videoAdIsReady:tagnew];
         }
         return false;
     }
     
-    bool rewardedIsReady()
+    bool rewardedIsReady(const char *tag)
     {
         if(tapdaqController != NULL)
         {
-            return [tapdaqController rewardedAdIsReady];
+            NSString *tagnew = [NSString stringWithUTF8String:tag];
+            return [tapdaqController rewardedAdIsReady:tagnew];
         }
         return false;
     }
