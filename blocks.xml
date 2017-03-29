@@ -153,7 +153,7 @@
     </block>
        
     <block tag="adisreadyTapdaq"
-        spec="Tapdaq %0 with placementTag: %1 is ready[c:tapdaq]"
+        spec="Tapdaq %0 with placementTag: %1 is ready [c:tapdaq]"
         code="Tapdaq.~IsReady(~)"
         help="returns true if ad is ready."
         type="normal"
