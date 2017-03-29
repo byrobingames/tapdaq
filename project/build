@@ -1,4 +1,4 @@
-cd /Users/robinschaafsma/stencylworks/engine-extensions/tapdaq/project
+cd /Users/robin/stencylworks/engine-extensions/tapdaq/project
 
 mkdir ../ndll
 mkdir ../ndll/iPhone

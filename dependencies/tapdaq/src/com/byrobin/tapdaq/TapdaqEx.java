@@ -7,6 +7,9 @@
 
 package com.byrobin.tapdaq;
 
+import org.haxe.extension.Extension;
+import org.haxe.lime.HaxeObject;
+
 import com.tapdaq.sdk.*;
 import com.tapdaq.sdk.ads.*;
 import com.tapdaq.sdk.common.TMBannerAdSizes;
@@ -24,12 +27,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import android.app.Activity;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.Signature;
+import android.os.Bundle;
+import android.util.Base64;
 
 import android.content.Context;
 import android.util.Log;
 
-import org.haxe.extension.Extension;
-import org.haxe.lime.HaxeObject;
 
 import android.provider.Settings.Secure;
 import android.content.SharedPreferences;
@@ -43,15 +53,17 @@ import android.widget.LinearLayout;
 import android.view.ViewGroup;
 import android.os.Handler;
 
-import com.facebook.ads.internal.util.s;//used for get hash
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.facebook.ads.internal.util.*;//used to get facebook hashkey
 
 public class TapdaqEx extends Extension {
 
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-    private static String deviceIdHash = null;//facebookhash
-    
 	private static String appId=null;
     private static String clientKey=null;
     private static String testMode=null;
@@ -75,19 +87,82 @@ public class TapdaqEx extends Extension {
         return instance;
     }
 
-	static public void init(HaxeObject cb, final String appId, final String clientKey, final String testMode){
+	static public void init(HaxeObject cb, final String appId, final String clientKey, final String testMode, final String _tags){
         
         haxeCallback = cb;
 		TapdaqEx.appId=appId;
         TapdaqEx.clientKey=clientKey;
         TapdaqEx.testMode=testMode;
+        
 		
 		Extension.mainActivity.runOnUiThread(new Runnable() {
             public void run() 
 			{
 				Log.d("TapdaqEx","Init Tapdaq" + testMode);
                 
+                ///Register Placementtags
+                JSONArray interTagsArray = new JSONArray();
+                JSONArray videoTagsArray = new JSONArray();
+                JSONArray rewardTagsArray = new JSONArray();
+                try
+                {
+                    JSONObject obj = new JSONObject(_tags);
+                    
+                    Log.d("Tapdaq", "Json "+obj.toString());
+                    Log.d("Tapdaq", "Json TDAdTypeInterstitial "+obj.getString("TDAdTypeInterstitial"));
+                    
+                    interTagsArray = obj.getJSONArray("TDAdTypeInterstitial");
+                    videoTagsArray = obj.getJSONArray("TDAdTypeVideo");
+                    rewardTagsArray = obj.getJSONArray("TDAdTypeRewardedVideo");
+                    
+                    Log.d("Tapdaq", "interTags1 "+interTagsArray);
+                }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
+                
                 TapdaqConfig config = new TapdaqConfig(Extension.mainActivity);
+                List<TapdaqPlacement> enabledPlacements = new ArrayList();
+                
+                if(interTagsArray != null){
+                    for (int iTagNum=0; iTagNum < interTagsArray.length(); iTagNum++) {
+                        try{
+                            Log.d("Tapdaq","Interstitial tag: "+iTagNum+"= "+interTagsArray.getString(iTagNum));
+                            enabledPlacements.add(TapdaqPlacement.createPlacement(Arrays.asList(CreativeType.INTERSTITIAL_PORTRAIT, CreativeType.INTERSTITIAL_LANDSCAPE), interTagsArray.getString(iTagNum)));
+                        } catch (JSONException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                
+                if(videoTagsArray != null){
+                    for (int vTagNum=0; vTagNum < videoTagsArray.length(); vTagNum++) {
+                        try{
+                            Log.d("Tapdaq","vidoeTagsList: "+vTagNum+"= "+videoTagsArray.getString(vTagNum));
+                            enabledPlacements.add(TapdaqPlacement.createPlacement(Arrays.asList(CreativeType.VIDEO_INTERSTITIAL), videoTagsArray.getString(vTagNum)));
+                        } catch (JSONException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                
+                if(rewardTagsArray != null){
+                    for (int rTagNum=0; rTagNum < rewardTagsArray.length(); rTagNum++) {
+                        try{
+                            Log.d("Tapdaq","rewardTagsList: "+rTagNum+"= "+rewardTagsArray.getString(rTagNum));
+                            enabledPlacements.add(TapdaqPlacement.createPlacement(Arrays.asList(CreativeType.REWARDED_VIDEO_INTERSTITIAL), rewardTagsArray.getString(rTagNum)));
+                        } catch (JSONException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                
+                config.withPlacementTagSupport((TapdaqPlacement[])enabledPlacements.toArray(new TapdaqPlacement[enabledPlacements.size()]));
+                
                 
                 if (testMode.equals("YES")){
                     
@@ -95,9 +170,8 @@ public class TapdaqEx extends Extension {
                     String admobDeviceId = getInstance().md5(android_id).toUpperCase();
                     Log.d("Tapdaq","Admob DEVICE ID: "+admobDeviceId);
                     
-                    String facebookDeviceId = getDeviceIdHash(mainActivity);
+                    String facebookDeviceId = getInstance().getDeviceIdHash(mainActivity);
                     Log.d("Tapdaq","Facebook DEVICE ID: "+facebookDeviceId);
-                    
                     //Register Adapters
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMAdMobAdapter(mainActivity).setTestDevices(Extension.mainActivity, Arrays.asList(admobDeviceId))); //Ad Mob
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMFacebookAdapter(mainActivity).setTestDevices(Arrays.asList(facebookDeviceId))); //Facebook Audience Network
@@ -141,14 +215,15 @@ public class TapdaqEx extends Extension {
     public static String getDeviceIdHash(Context var0) { //get's device hash id.
         
         SharedPreferences var1 = var0.getSharedPreferences("FBAdPrefs", 0);
-        deviceIdHash = var1.getString("deviceIdHash", (String)null);
+        String deviceIdHash = var1.getString("deviceIdHash", null);
         if(deviceIdHash == null || deviceIdHash.length() <= 0){
-            deviceIdHash = s.b(UUID.randomUUID().toString());
+            deviceIdHash = t.b(UUID.randomUUID().toString());
             var1.edit().putString("deviceIdHash", deviceIdHash).apply();
             
         }
         return deviceIdHash;
     }
+    
     //////////////////////
     
     static public void openDebugger()

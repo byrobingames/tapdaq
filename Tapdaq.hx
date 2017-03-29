@@ -2,7 +2,6 @@ package;
 
 import openfl.Lib;
 
-
 class Tapdaq {
 
 	private static var initialized:Bool=false;
@@ -28,7 +27,7 @@ class Tapdaq {
 
 	////////////////////////////////////////////////////////////////////////////
 	#if ios
-	private static var __init:String->String->String->Void = function(appId:String,clientKey:String,testmode:String){};
+	private static var __init:String->String->String->String->Void = function(appId:String,clientKey:String,testmode:String,tagsString:String){};
 	private static var __tapdaq_set_event_handle = Lib.load("tapdaq","tapdaq_set_event_handle", 1);
 	#end
 	#if android
@@ -51,9 +50,14 @@ class Tapdaq {
 	private static var __videoIsReady:Dynamic;
 	private static var __rewardedIsReady:Dynamic;
 	////////////////////////////////////////////////////////////////////////////
+	public static var _tagsArray:Array<Dynamic>;
 	////////////////////////////////////////////////////////////////////////////
 	
-	public static function init(appId:String, clientKey:String,mode:Int){
+	private function new() {
+		_tagsArray=[];
+	}
+	
+	public static function init(appId:String, clientKey:String,mode:Int, interTags:String = "\"default\"", vidTags:String = "\"default\"", rewarTags:String = "\"default\""){
 	
 		if(mode == 1)
 		{
@@ -62,13 +66,24 @@ class Tapdaq {
 		{
 			testmode = "NO";
 		}
+		
+		var newInterString:String = getJSONString(interTags);
+		var newVideoString:String = getJSONString(vidTags);
+		var newRewardString:String = getJSONString(rewarTags);
+		
+		trace("newInterString" + newInterString);
+		trace("newVideoString" + newVideoString);
+		trace("newRewardString" + newRewardString);
+		
+		var tagsString:String = '{"TDAdTypeInterstitial": [$newInterString],"TDAdTypeVideo": [$newVideoString],"TDAdTypeRewardedVideo": [$newRewardString]}';
+		trace("tags string : " + tagsString);
 	
 		#if ios
 		if(initialized) return;
 		initialized = true;
 		try{
 			// CPP METHOD LINKING
-			__init = cpp.Lib.load("tapdaq","tapdaq_init",3);
+			__init = cpp.Lib.load("tapdaq","tapdaq_init",4);
 			__loadInterstitial = cpp.Lib.load("tapdaq","tapdaq_interstitial_load",1);
 			__showInterstitial = cpp.Lib.load("tapdaq","tapdaq_interstitial_show",1);
 			__loadVideo = cpp.Lib.load("tapdaq","tapdaq_video_load",1);
@@ -86,7 +101,7 @@ class Tapdaq {
 			__videoIsReady = cpp.Lib.load("tapdaq","tapdaq_video_isready",1);
 			__rewardedIsReady = cpp.Lib.load("tapdaq","tapdaq_rewarded_isready",1);
 
-			__init(appId, clientKey, testmode);
+			__init(appId, clientKey, testmode,tagsString);
 			__tapdaq_set_event_handle(notifyListeners);
 		}catch(e:Dynamic){
 			trace("iOS INIT Exception: "+e);
@@ -116,7 +131,7 @@ class Tapdaq {
 		
 			if(__init == null)
 			{
-				__init = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "init", "(Lorg/haxe/lime/HaxeObject;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", true);
+				__init = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "init", "(Lorg/haxe/lime/HaxeObject;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", true);
 			}
 	
 			var args = new Array<Dynamic>();
@@ -124,6 +139,7 @@ class Tapdaq {
 			args.push(appId);
 			args.push(clientKey);
 			args.push(testmode);
+			args.push(tagsString);
 			__init(args);
 		}catch(e:Dynamic){
 			trace("Android INIT Exception: "+e);
@@ -465,7 +481,6 @@ class Tapdaq {
 	#end
 	
 	#if android
-	private function new() {}
 	
 	public function onBannerDidLoad() 
 	{
@@ -532,5 +547,27 @@ class Tapdaq {
 		_rewardedsucceeded = true;
 	}
 	#end
+	
+	private static function getJSONString(tags:String):String
+	{
+		var _splitTags = tags.split(",");
+		_tagsArray = _splitTags;
+		var newString:String = "";
+		var i = 1;
+		for(item in cast(_tagsArray, Array<Dynamic>))
+		{
+			var newTags:String = "\""+item+"\"";
+			if(i >= _tagsArray.length){
+			    newString = newString + newTags;
+			}else{
+				newString = newString + newTags + ",";
+			}
+			i++;
+			//trace("_tagsArray " + _tagsArray.length + " i: " +i); 
+		}
+		//trace("newString: " + newString); 
+		
+		return newString;
+	}
 	
 }

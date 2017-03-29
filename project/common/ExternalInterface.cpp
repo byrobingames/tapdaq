@@ -21,10 +21,10 @@ static void tapdaq_set_event_handle(value onEvent)
 }
 DEFINE_PRIM(tapdaq_set_event_handle, 1);
 
-void tapdaq_init(value app_id, value client_key, value testmode){
-	init(val_string(app_id), val_string(client_key), val_string(testmode));
+void tapdaq_init(value app_id, value client_key, value testmode, value tagsJSON){
+	init(val_string(app_id), val_string(client_key), val_string(testmode), val_string(tagsJSON));
 }
-DEFINE_PRIM(tapdaq_init, 3);
+DEFINE_PRIM(tapdaq_init, 4);
 
 void tapdaq_banner_load(value bannerType){
     loadBanner(val_string(bannerType));

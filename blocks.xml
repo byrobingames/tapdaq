@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <palette>
     
-    <block tag="initTapdaq" spec="Start Tapdaq session with 'appID': %0 and 'clientKey': %1 in %2 [c:tapdaq]" code="Tapdaq.init(~,~,~);" help="Inititalize Tapdaq at the begin of your project!" type="action" color="charcoal" returns="void">
+    <!--<block tag="initTapdaq" spec="Start Tapdaq session with 'appID': %0 and 'clientKey': %1 in %2 [c:tapdaq]" code="Tapdaq.init(~,~,~);" help="Inititalize Tapdaq at the begin of your project!" type="action" color="charcoal" returns="void">
         <fields>
             <text order="0"></text>
             <text order="1"></text>
@@ -11,6 +11,23 @@
                     <c text="Test Mode" code="1"></c>
                 </choices>
             </dropdown>
+        </fields>
+    </block>-->
+    
+    <block tag="initTapdaq" spec="Start Tapdaq session with 'appID': %0 and 'clientKey': %1 in %2. Register Interstitialtags: %3 Videotags: %4 Rewardedtags: %5 [c:tapdaq]"
+        code="Tapdaq.init(~,~,~,~,~,~);" help="Inititalize Tapdaq at the begin of your project!, multi tags can be done by comma-separating them " type="action" color="charcoal" returns="void">
+        <fields>
+            <text order="0"></text>
+            <text order="1"></text>
+            <dropdown order="2">
+                <choices>
+                    <c text="Release Mode" code="0"></c>
+                    <c text="Test Mode" code="1"></c>
+                </choices>
+            </dropdown>
+            <text order="3"></text>
+            <text order="4"></text>
+            <text order="5"></text>
         </fields>
     </block>
     

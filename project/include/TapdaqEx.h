@@ -5,7 +5,7 @@
 namespace tapdaq {
 	
 	
-	void init(const char *appID, const char *clientKey, const char *testmode);
+	void init(const char *appID, const char *clientKey, const char *testmode, const char *tagsJSON);
     void debugger();
     void loadBanner(const char *bannerType);
     void showBanner();
@@ -23,7 +23,6 @@ namespace tapdaq {
     bool interstitialIsReady(const char *tag);
     bool videoIsReady(const char *tag);
     bool rewardedIsReady(const char *tag);
-    
 }
 
 

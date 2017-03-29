@@ -228,6 +228,8 @@ static TDPTag const TDPTagQuit = @"quit";
 
 - (void)didLoadConfig;
 
+- (void)didFailToLoadConfig;
+
 #pragma mark Banner delegate methods
 
 /**

@@ -15,13 +15,17 @@ using namespace tapdaq;
 
 extern "C" void sendTapdaqEvent(char* event);
 
+NSArray *interstitialPlacement;
+NSArray *videoPlacement;
+NSArray *rewardedPlacement;
+
 @interface TapdaqController : NSObject <TapdaqDelegate>
 {
     UIView *bannerView;
     UIViewController *root;
 }
 
-- (id)initWithID:(NSString*)appID withClientKey:(NSString*)clientKey inTestMode:(NSString*)testmode;
+- (id)initWithID:(NSString*)appID withClientKey:(NSString*)clientKey inTestMode:(NSString*)testmode withTags:(NSString*)tagsJSON;
 - (void)mediationDebugger;
 - (void)loadBannerAd:(NSString*)bannerType;
 - (void)showBannerAd;
@@ -43,7 +47,7 @@ extern "C" void sendTapdaqEvent(char* event);
 @implementation TapdaqController
 
 
-- (id)initWithID:(NSString*)appID withClientKey:(NSString*)clientKey inTestMode:(NSString*)testmode
+- (id)initWithID:(NSString*)appID withClientKey:(NSString*)clientKey inTestMode:(NSString*)testmode withTags:(NSString*)tagsJSON
 {
     self = [super init];
     if(!self) return nil;
@@ -53,6 +57,7 @@ extern "C" void sendTapdaqEvent(char* event);
     
     TDProperties *tapdaqProps = [[TDProperties alloc] init];
     
+    //set test devices
     if ([testmode isEqualToString:@"YES"])
     {
         TDTestDevices *fbTestDevices = [[TDTestDevices alloc] initWithNetwork:TDMFacebookAudienceNetwork
@@ -63,6 +68,62 @@ extern "C" void sendTapdaqEvent(char* event);
                                                                   testDevices:@[ [self admobDeviceID] ]];
         [tapdaqProps registerTestDevices:amTestDevices];
     }
+    
+    //Register placementid's
+    NSLog(@"Tags: %@", tagsJSON);
+    
+    //NSString *tagsJSON =  @"{\"TDAdTypeInterstitial\": [\"interTags1\",\"interTags2\"], \"TDAdTypeVideo\": [\"vidTags\"],\"TDAdTypeRewardedVideo\": [\"rewarTags\"]}";
+    NSData *tagData = [tagsJSON dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *error;
+    NSDictionary *tagArray = [NSJSONSerialization JSONObjectWithData:tagData options:NSJSONReadingMutableContainers error:&error];
+    
+    for (NSDictionary *dict in tagArray) {
+        
+        NSLog(@"NSDictionary %@", dict);
+        NSArray *interstititalplacementTags = [tagArray objectForKey:@"TDAdTypeInterstitial"];
+        NSArray *videoplacementTags = [tagArray objectForKey:@"TDAdTypeVideo"];
+        NSArray *rewardedplacementTags = [tagArray objectForKey:@"TDAdTypeRewardedVideo"];
+        
+        //NSLog(@"interstititalplacementTags: %@", interstititalplacementTags);
+        //NSLog(@"videoplacementTags: %@", videoplacementTags);
+        //NSLog(@"rewardedplacementTags: %@", rewardedplacementTags);
+        
+        if ([interstititalplacementTags count] > 0) {
+            for (NSString *initplacementTag in interstititalplacementTags) {
+                NSLog (@"InterstitialPlacement ID = %@", initplacementTag);
+                @try {
+                    TDPlacement *interstitialTag = [[TDPlacement alloc] initWithAdTypes:TDAdTypeInterstitial forTag:initplacementTag];
+                    [tapdaqProps registerPlacement:interstitialTag];
+                } @catch (NSException *exception) {
+                    NSLog (@"Error register interstitialTag: %@", exception);
+                }
+            }
+        }
+        if ([videoplacementTags count] > 0) {
+            for (NSString *vidplacementTag in videoplacementTags) {
+                NSLog (@"VideoPlacement ID = %@", vidplacementTag);
+                @try {
+                    TDPlacement *videoTag = [[TDPlacement alloc] initWithAdTypes:TDAdTypeVideo forTag:vidplacementTag];
+                    [tapdaqProps registerPlacement:videoTag];
+                } @catch (NSException *exception) {
+                    NSLog (@"Error register videoTag: %@", exception);
+                }
+            }
+        }
+        if ([rewardedplacementTags count] > 0) {
+            for (NSString *rewaplacementTag in rewardedplacementTags) {
+                NSLog (@"RewardedPlacement ID = %@", rewaplacementTag);
+                @try {
+                    TDPlacement *rewardedTag = [[TDPlacement alloc] initWithAdTypes:TDAdTypeRewardedVideo forTag:rewaplacementTag];
+                    [tapdaqProps registerPlacement:rewardedTag];
+                } @catch (NSException *exception) {
+                    NSLog (@"Error register rewardedTag: %@", exception);
+                }
+            }
+        }
+    }
+    
+    //////End Register
     
     [[Tapdaq sharedSession] setApplicationId:appID
                                    clientKey:clientKey
@@ -482,7 +543,9 @@ namespace tapdaq {
 	
 	static TapdaqController *tapdaqController;
     
-	void init(const char *appID, const char *clientKey, const char *testmode){
+	void init(const char *appID, const char *clientKey, const char *testmode, const char *tagsJSON){
+        
+        NSLog(@"First call Init");
         
         if(tapdaqController == NULL)
         {
@@ -492,8 +555,9 @@ namespace tapdaq {
         NSString *appIDnew = [NSString stringWithUTF8String:appID];
         NSString *clientKeynew = [NSString stringWithUTF8String:clientKey];
         NSString *testmodenew = [NSString stringWithUTF8String:testmode];
+        NSString *tagsJSONnew = [NSString stringWithUTF8String:tagsJSON];
         
-        [tapdaqController initWithID:appIDnew withClientKey:clientKeynew inTestMode:testmodenew];
+        [tapdaqController initWithID:appIDnew withClientKey:clientKeynew inTestMode:testmodenew withTags:tagsJSONnew];
     }
     
     void debugger()
