@@ -11,6 +11,7 @@
 #define CBSDK 1
 
 #import <Chartboost/Chartboost.h>
+#import "TDAdUnitEnum.h"
 
 //Debug flags
 #define TDMCBDEBUG 1
@@ -21,7 +22,7 @@
 #   define TDMCBLog(...)
 #endif
 
-@class TDMediationCredentialsConfig;
+@class TDMediationConfig;
 @protocol TDMCBDelegate;
 
 #ifdef CBSDK
@@ -35,31 +36,13 @@
 
 + (instancetype)sharedInstance;
 
-- (void)configure:(TDMediationCredentialsConfig *)config;
+- (void)configure:(TDMediationConfig *)config;
 
-// Interstitial
+- (void)loadForAdUnit:(TDAdUnit)adUnit;
 
-- (void)loadInterstitial;
+- (BOOL)isReadyForAdUnit:(TDAdUnit)adUnit;
 
-- (BOOL)isInterstitialReady;
-
-- (void)showInterstitial;
-
-// Video
-
-- (void)loadVideo;
-
-- (BOOL)isVideoReady;
-
-- (void)showVideo;
-
-// Rewarded Video
-
-- (void)loadRewardedVideo;
-
-- (BOOL)isRewardedVideoReady;
-
-- (void)showRewardedVideo;
+- (void)showForAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
 @end
 
@@ -67,51 +50,32 @@
 
 @protocol TDMCBDelegate <NSObject>
 
-@optional
+@required
 
-#pragma mark - Interstitial
+- (void)tapdaqCBDidLoadConfig;
 
-- (void)tapdaqCBDidLoadInterstitial;
+- (void)tapdaqCBDidFailToLoadConfig;
 
-- (void)tapdaqCBDidFailToLoadInterstitial;
+#pragma mark - All ad units
 
-- (void)tapdaqCBWillDisplayInterstitial;
+- (void)tapdaqCBDidLoadAdUnit:(TDAdUnit)adUnit;
 
-- (void)tapdaqCBDidDisplayInterstitial;
+- (void)tapdaqCBDidFailToLoadAdUnit:(TDAdUnit)adUnit;
 
-- (void)tapdaqCBDidCloseInterstitial;
+- (void)tapdaqCBWillDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
-- (void)tapdaqCBDidClickInterstitial;
+- (void)tapdaqCBDidDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
-#pragma mark - Video
+- (void)tapdaqCBDidCloseAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
-- (void)tapdaqCBDidLoadVideo;
-
-- (void)tapdaqCBDidFailToLoadVideo;
-
-- (void)tapdaqCBWillDisplayVideo;
-
-- (void)tapdaqCBDidDisplayVideo;
-
-- (void)tapdaqCBDidCloseVideo;
-
-- (void)tapdaqCBDidClickVideo;
+- (void)tapdaqCBDidClickAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
 #pragma mark - Rewarded Video
 
-- (void)tapdaqCBDidLoadRewardedVideo;
+- (void)tapdaqCBRewardValidationSucceededWithPlacementTag:(NSString *)placementTag
+                                               rewardName:(NSString *)rewardName
+                                             rewardAmount:(int)rewardAmount;
 
-- (void)tapdaqCBDidFailToLoadRewardedVideo;
-
-- (void)tapdaqCBWillDisplayRewardedVideo;
-
-- (void)tapdaqCBDidDisplayRewardedVideo;
-
-- (void)tapdaqCBDidCloseRewardedVideo;
-
-- (void)tapdaqCBDidClickRewardedVideo;
-
-- (void)tapdaqCBRewardValidationSucceeded:(NSString *)rewardName
-                             rewardAmount:(int)rewardAmount;
+- (void)tapdaqCBRewardValidationErroredWithPlacementTag:(NSString *)placementTag;
 
 @end

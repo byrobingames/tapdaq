@@ -10,25 +10,16 @@
 #import "TDMBannerSizeEnum.h"
 #import "TDMAMSDKInterstitialRequests.h"
 #import "TDMAMSDKVideoRequests.h"
-
-#define AMSDK 1
-
+#import "TDMAMSDKRewardedRequests.h"
 #import <GoogleMobileAds/GoogleMobileAds.h>
+#import "TDMAMSDKConstants.h"
+#import "TDAdUnitEnum.h"
 
-//Debug flags
-#define TDMAMDEBUG 1
-
-#if defined(TDMAMDEBUG)
-#define TDMAMLog(fmt, ...) NSLog((@"[%@] " fmt), [self class], ##__VA_ARGS__)
-#else
-#   define TDMAMLog(...)
-#endif
-
-@class TDMediationCredentialsConfig;
+@class TDMediationConfig;
 @protocol TDMAMDelegate;
 
 #ifdef AMSDK
-@interface TDMAMSDKRequests : NSObject <TDMAMInterstitialDelegate, TDMAMVideoDelegate, GADBannerViewDelegate>
+@interface TDMAMSDKRequests : NSObject <TDMAMInterstitialDelegate, TDMAMVideoDelegate, TDMAMRewardedDelegate, GADBannerViewDelegate>
 #else
 @interface TDMAMSDKRequests : NSObject
 #endif
@@ -37,31 +28,19 @@
 
 + (instancetype)sharedInstance;
 
-- (void)configure:(TDMediationCredentialsConfig *)config;
+- (void)configure:(TDMediationConfig *)config;
 
 - (void)addTestDevices:(NSArray *)testDeviceIDs;
 
-// Interstitial
+- (void)loadForAdUnit:(TDAdUnit)adUnit;
 
-- (void)loadInterstitial;
+- (BOOL)isReadyForAdUnit:(TDAdUnit)adUnit;
 
-- (BOOL)isInterstitialReady;
-
-- (void)showInterstitial;
-
-// Video
-
-- (void)loadVideo;
-
-- (BOOL)isVideoReady;
-
-- (void)showVideo;
+- (void)showForAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
 // Banner
 
 - (void)loadBannerWithSize:(TDMBannerSize)size;
-
-- (BOOL)isBannerReady;
 
 - (UIView *)getBanner;
 
@@ -71,44 +50,35 @@
 
 @protocol TDMAMDelegate <NSObject>
 
-@optional
+@required
+
+- (void)tapdaqAMDidLoadConfig;
+
+#pragma mark - All ad units
+
+- (void)tapdaqAMDidLoadAdUnit:(TDAdUnit)adUnit;
+
+- (void)tapdaqAMDidFailToLoadAdUnit:(TDAdUnit)adUnit;
+
+- (void)tapdaqAMWillDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
+
+- (void)tapdaqAMDidDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
+
+- (void)tapdaqAMDidCloseAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
+
+- (void)tapdaqAMDidClickAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
 #pragma mark - Banner
-
-- (void)tapdaqAMDidLoadBanner;
-
-- (void)tapdaqAMDidFailToLoadBanner;
 
 - (void)tapdaqAMDidRefreshBanner;
 
 - (void)tapdaqAMDidClickBanner;
 
-#pragma mark - Interstitial
+#pragma mark - Rewarded Video
 
-- (void)tapdaqAMDidLoadInterstitial;
+- (void)tapdaqAMRewardValidationSucceededWithPlacementTag:(NSString *)placementTag
+                                               rewardName:(NSString *)rewardName
+                                             rewardAmount:(int)rewardAmount;
 
-- (void)tapdaqAMDidFailToLoadInterstitial;
-
-- (void)tapdaqAMWillDisplayInterstitial;
-
-- (void)tapdaqAMDidDisplayInterstitial;
-
-- (void)tapdaqAMDidCloseInterstitial;
-
-- (void)tapdaqAMDidClickInterstitial;
-
-#pragma mark - Video
-
-- (void)tapdaqAMDidLoadVideo;
-
-- (void)tapdaqAMDidFailToLoadVideo;
-
-- (void)tapdaqAMWillDisplayVideo;
-
-- (void)tapdaqAMDidDisplayVideo;
-
-- (void)tapdaqAMDidCloseVideo;
-
-- (void)tapdaqAMDidClickVideo;
 
 @end

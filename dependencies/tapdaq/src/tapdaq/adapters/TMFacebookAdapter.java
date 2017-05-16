@@ -14,7 +14,6 @@ import com.tapdaq.sdk.adnetworks.TMMediationNetworks;
 import com.tapdaq.sdk.listeners.*;
 import com.tapdaq.sdk.model.TMAdSize;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,7 +23,7 @@ import java.util.Locale;
 public class TMFacebookAdapter extends TMAdapter {
 
     private AdView mAd;
-    private List<InterstitialAd> mInterstitialAd = new ArrayList<InterstitialAd>();
+    private InterstitialAd mInterstitialAd, mVideoInterstitialAd;
 
     public TMFacebookAdapter(Context context) {
         super(context);
@@ -60,7 +59,7 @@ public class TMFacebookAdapter extends TMAdapter {
     @Override
     public boolean isBannerAvailable(Context context, TMAdSize size) {
         if (getBannerId(context) != null) {
-            AdSize adSize = new TMFacebookBannerSizes().getSize(size);
+            com.facebook.ads.AdSize adSize = new TMFacebookBannerSizes().getSize(size);
             if (adSize != null)
                 return true;
         }
@@ -69,12 +68,27 @@ public class TMFacebookAdapter extends TMAdapter {
 
     @Override
     public boolean canDisplayInterstitial(Context context) {
-        return getInterstitialId(context) != null && isActivityAvailable(context, InterstitialAdActivity.class);
+        return getInterstitialId(context) != null;
+    }
+
+    @Override
+    public boolean canDisplayVideo(Context context) {
+        return getVideoId(context) != null;
+    }
+
+    @Override
+    public boolean isStaticInterstitialReady(Activity activity) {
+        return mInterstitialAd != null && mInterstitialAd.isAdLoaded();
+    }
+
+    @Override
+    public boolean isVideoInterstitialReady(Activity activity) {
+        return mVideoInterstitialAd != null && mVideoInterstitialAd.isAdLoaded();
     }
 
     @Override
     public ViewGroup loadAd(Activity activity, TMAdSize size, TMAdListenerBase listener) {
-        AdSize adSize = new TMFacebookBannerSizes().getSize(size);
+        com.facebook.ads.AdSize adSize = new TMFacebookBannerSizes().getSize(size);
         if(adSize != null) {
             mAd = new AdView(activity, getBannerId(activity), adSize);
             mAd.setAdListener(new FBBannerListener(activity, listener));
@@ -87,12 +101,22 @@ public class TMFacebookAdapter extends TMAdapter {
     }
 
     @Override
-    public void loadInterstitial(Activity activity, String placement, TMAdListenerBase listener) {
+    public void loadInterstitial(Activity activity, String shared_id, String placement, TMAdListenerBase listener) {
         if (activity != null && getInterstitialId(activity) != null) {
-            InterstitialAd ad = new InterstitialAd(activity, getInterstitialId(activity));
-            ad.setAdListener(new FBInterstitialListener(activity, placement, listener));
-            mInterstitialAd.add(ad);
-            ad.loadAd();
+            mInterstitialAd = new InterstitialAd(activity, getInterstitialId(activity));
+            mInterstitialAd.setAdListener(new FBInterstitialListener(activity, shared_id, placement, TMAdType.STATIC_INTERSTITIAL, listener));
+            mInterstitialAd.loadAd();
+        } else {
+            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Facebook not ready"));
+        }
+    }
+
+    @Override
+    public void loadVideo(Activity activity, String shared_id, String placement, TMAdListenerBase listener) {
+        if (activity != null && getVideoId(activity) != null) {
+            mVideoInterstitialAd = new InterstitialAd(activity, getInterstitialId(activity));
+            mVideoInterstitialAd.setAdListener(new FBInterstitialListener(activity, shared_id, placement, TMAdType.VIDEO_INTERSTITIAL, listener));
+            mVideoInterstitialAd.loadAd();
         } else {
             TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Facebook not ready"));
         }
@@ -100,10 +124,19 @@ public class TMFacebookAdapter extends TMAdapter {
 
     @Override
     public void showInterstitial(Activity activity, String placement, TMAdListenerBase listener) {
-        InterstitialAd ad = (mInterstitialAd.isEmpty() ? null : mInterstitialAd.get(0));
-        if (ad != null && ad.isAdLoaded()) {
-            ad.setAdListener(new FBInterstitialListener(activity, placement, listener));
-            ad.show();
+        if (isStaticInterstitialReady(activity)) {
+            mInterstitialAd.setAdListener(new FBInterstitialListener(activity, getSharedId(mInterstitialAd.getPlacementId()), placement, TMAdType.STATIC_INTERSTITIAL, listener));
+            mInterstitialAd.show();
+        } else {
+            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Facebook ad not loaded"));
+        }
+    }
+
+    @Override
+    public void showVideo(Activity activity, String placement, TMAdListenerBase listener) {
+        if (isVideoInterstitialReady(activity)) {
+            mVideoInterstitialAd.setAdListener(new FBInterstitialListener(activity, getSharedId(mVideoInterstitialAd.getPlacementId()), placement, TMAdType.VIDEO_INTERSTITIAL, listener));
+            mVideoInterstitialAd.show();
         } else {
             TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Facebook ad not loaded"));
         }
@@ -136,7 +169,7 @@ public class TMFacebookAdapter extends TMAdapter {
 
             if (mActivity != null) {
                 TMServiceQueue.ServiceError(mActivity, getName(), TMAdType.BANNER);
-                new TMStatsManager(mActivity).sendDidFailToLoad(mActivity, getName(), TMAdType.getString(TMAdType.BANNER), null, getVersionID(mActivity), error.getErrorMessage());
+                new TMStatsManager(mActivity).sendDidFailToLoad(mActivity, getName(), false, TMAdType.getString(TMAdType.BANNER), null, getVersionID(mActivity), error.getErrorMessage());
             }
             mActivity = null;
         }
@@ -146,7 +179,7 @@ public class TMFacebookAdapter extends TMAdapter {
             TMListenerHandler.DidLoad(mAdListener);
 
             if (mActivity != null)
-                new TMStatsManager(mActivity).sendDidLoad(mActivity, getName(), TMAdType.getString(TMAdType.BANNER), null, getVersionID(mActivity));
+                new TMStatsManager(mActivity).sendDidLoad(mActivity, getName(), false, TMAdType.getString(TMAdType.BANNER), null, getVersionID(mActivity));
             mActivity = null;
         }
 
@@ -160,17 +193,22 @@ public class TMFacebookAdapter extends TMAdapter {
         private final TMAdListenerBase mAdListener;
         private String mPlacement;
         private Activity mActivity;
+        private String mShared_id;
+        private int mType;
 
-        FBInterstitialListener(Activity activity, String placement, TMAdListenerBase listener) {
+        FBInterstitialListener(Activity activity, String shared_id, String placement, int type, TMAdListenerBase listener) {
             mActivity = activity;
+            mShared_id = shared_id;
             mAdListener = listener;
             mPlacement = placement;
+            mType = type;
         }
+
         @Override
         public void onInterstitialDisplayed(Ad ad) {
             TMListenerHandler.DidDisplay(mAdListener);
             if (mActivity != null)
-                new TMStatsManager(mActivity).sendImpression(mActivity, getName(), TMAdType.getString(TMAdType.STATIC_INTERSTITIAL), mPlacement, getVersionID(mActivity));
+                new TMStatsManager(mActivity).sendImpression(mActivity, mShared_id, getName(), false, TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
         }
 
         @Override
@@ -178,31 +216,43 @@ public class TMFacebookAdapter extends TMAdapter {
             TMListenerHandler.DidClose(mAdListener);
             ad.destroy();
 
-            if (mInterstitialAd.contains(ad))
-                mInterstitialAd.remove(ad);
-
+            if (ad == mInterstitialAd)
+                mInterstitialAd = null;
+            else if (ad == mVideoInterstitialAd)
+                mVideoInterstitialAd = null;
             mActivity = null;
         }
 
         @Override
         public void onError(Ad ad, AdError adError) {
             TMAdError error = buildError(adError);
-            TMServiceErrorHandler.ServiceError(mActivity, getName(), TMAdType.STATIC_INTERSTITIAL, mPlacement, error, mAdListener);
             TLog.error(error.getErrorMessage());
 
-            if (mInterstitialAd.contains(ad))
-                mInterstitialAd.remove(ad);
+            if (mActivity != null) {
+                TMServiceErrorHandler.ServiceError(mActivity, mShared_id, getName(), mType, mPlacement, error, mAdListener);
+                TMStatsManager statsManager = new TMStatsManager(mActivity);
+                statsManager.sendDidFailToLoad(mActivity, getName(), false, TMAdType.getString(mType), mPlacement, getVersionID(mActivity), error.getErrorMessage());
+                statsManager.finishAdRequest(mActivity, mShared_id, false);
+            }
 
-            if (mActivity != null)
-                new TMStatsManager(mActivity).sendDidFailToLoad(mActivity, getName(), TMAdType.getString(TMAdType.STATIC_INTERSTITIAL), mPlacement, getVersionID(mActivity), error.getErrorMessage());
+
+            if (ad == mInterstitialAd)
+                mInterstitialAd = null;
+            else if (ad == mVideoInterstitialAd)
+                mVideoInterstitialAd = null;
             mActivity = null;
         }
 
         @Override
         public void onAdLoaded(Ad ad) {
             TMListenerHandler.DidLoad(mAdListener);
-            if (mActivity != null)
-                new TMStatsManager(mActivity).sendDidLoad(mActivity, getName(), TMAdType.getString(TMAdType.STATIC_INTERSTITIAL), mPlacement, getVersionID(mActivity));
+            setSharedId(ad.getPlacementId(), mShared_id);
+
+            if (mActivity != null) {
+                TMStatsManager statsManager = new TMStatsManager(mActivity);
+                statsManager.sendDidLoad(mActivity, getName(), false, TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
+                statsManager.finishAdRequest(mActivity, mShared_id, true);
+            }
             mActivity = null;
         }
 
@@ -213,9 +263,9 @@ public class TMFacebookAdapter extends TMAdapter {
     }
 
     private class TMFacebookBannerSizes extends TMBannerAdSizes {
-        AdSize getSize(TMAdSize size) {
+        com.facebook.ads.AdSize getSize(TMAdSize size) {
             if (size == STANDARD)
-                return AdSize.BANNER_320_50;
+                return AdSize.BANNER_HEIGHT_50;
             else if(size == LARGE)
                 return AdSize.BANNER_HEIGHT_90;
             else if(size == MEDIUM_RECT)

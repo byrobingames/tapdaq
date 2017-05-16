@@ -75,7 +75,7 @@ static TDPTag const TDPTagQuit = @"quit";
 /**
  A setter for the Application ID of your app, and the Client Key associated with your Tapdaq account. 
  You can obtain these details when you sign up and add your app to https://tapdaq.com
- You must use this in the application:didFinishLaunchingWithOptions method. By default, test adverts is not enabled.
+ You must use this in the application:didFinishLaunchingWithOptions method.
  
  @param applicationId The application ID tied to your app.
  @param clientKey The client key tied to your app.
@@ -95,11 +95,11 @@ static TDPTag const TDPTagQuit = @"quit";
 
 #pragma mark Interstitial
 
-- (void)loadInterstitialForPlacementTag:(NSString *)tag;
+- (void)loadInterstitialForPlacementTag:(NSString *)placementTag;
 
-- (BOOL)isInterstitialReadyForPlacementTag:(NSString *)tag;
+- (BOOL)isInterstitialReadyForPlacementTag:(NSString *)placementTag;
 
-- (void)showInterstitialForPlacementTag:(NSString *)tag;
+- (void)showInterstitialForPlacementTag:(NSString *)placementTag;
 
 - (void)loadInterstitial;
 
@@ -109,11 +109,11 @@ static TDPTag const TDPTagQuit = @"quit";
 
 #pragma mark Video
 
-- (void)loadVideoForPlacementTag:(NSString *)tag;
+- (void)loadVideoForPlacementTag:(NSString *)placementTag;
 
-- (BOOL)isVideoReadyForPlacementTag:(NSString *)tag;
+- (BOOL)isVideoReadyForPlacementTag:(NSString *)placementTag;
 
-- (void)showVideoForPlacementTag:(NSString *)tag;
+- (void)showVideoForPlacementTag:(NSString *)placementTag;
 
 - (void)loadVideo;
 
@@ -123,11 +123,11 @@ static TDPTag const TDPTagQuit = @"quit";
 
 #pragma mark Rewarded Video
 
-- (void)loadRewardedVideoForPlacementTag:(NSString *)tag;
+- (void)loadRewardedVideoForPlacementTag:(NSString *)placementTag;
 
-- (BOOL)isRewardedVideoReadyForPlacementTag:(NSString *)tag;
+- (BOOL)isRewardedVideoReadyForPlacementTag:(NSString *)placementTag;
 
-- (void)showRewardedVideoForPlacementTag:(NSString *)tag;
+- (void)showRewardedVideoForPlacementTag:(NSString *)placementTag;
 
 - (void)loadRewardedVideo;
 
@@ -141,19 +141,19 @@ static TDPTag const TDPTagQuit = @"quit";
  Loads a native advert for a particular placement tag, this will fetch the native advert's creative, and call either -didLoadNativeAdvert:forPlacementTag:adType: if the advert is successfully loaded, or -didFailToLoadNativeAdvertForPlacementTag:adType: if it fails to load.
  We recommend you implement both delegate methods to handle the advert accordingly.
  
- @param tag The placement tag of the advert to be loaded.
+ @param placementTag The placement tag of the advert to be loaded.
  @param nativeAdType The native ad type of the advert to be loaded.
  */
-- (void)loadNativeAdvertForPlacementTag:(NSString *)tag adType:(TDNativeAdType)nativeAdType;
+- (void)loadNativeAdvertForPlacementTag:(NSString *)placementTag adType:(TDNativeAdType)nativeAdType;
 
 /**
  Fetches a TDNativeAdvert for a particular placement tag.
  You must register the tag in TDProperties otherwise adverts will not display.
  
- @param tag The placement tag
+ @param placementTag The placement tag
  @param nativeAdType The native advert type to be fetched.
  */
-- (TDNativeAdvert *)getNativeAdvertForPlacementTag:(NSString *)tag adType:(TDNativeAdType)nativeAdType;
+- (TDNativeAdvert *)getNativeAdvertForPlacementTag:(NSString *)placementTag adType:(TDNativeAdType)nativeAdType;
 
 /**
  This method must be called when the advert is displayed to the user. You do not need to call this method when using -showInterstitial. 
@@ -275,29 +275,37 @@ static TDPTag const TDPTagQuit = @"quit";
  */
 - (void)willDisplayInterstitial;
 
+- (void)willDisplayInterstitialForPlacementTag:(NSString *)placementTag;
+
 /**
  Called immediately after the interstitial is displayed to the user.
  */
 - (void)didDisplayInterstitial;
+
+- (void)didDisplayInterstitialForPlacementTag:(NSString *)placementTag;
 
 /**
  Called when the user closes interstitial, either by tapping the close button, or the background surrounding the interstitial.
  */
 - (void)didCloseInterstitial;
 
+- (void)didCloseInterstitialForPlacementTag:(NSString *)placementTag;
+
 /**
  Called when the user clicks the interstitial.
  */
 - (void)didClickInterstitial;
+
+- (void)didClickInterstitialForPlacementTag:(NSString *)placementTag;
 
 #pragma mark Video delegate methods
 
 /**
  Called immediately after a video is available to the user for a specific placement tag.
  This method should be used in conjunction with -showVideoForPlacementTag:.
- @param tag A placement tag.
+ @param placementTag A placement tag.
  */
-- (void)didLoadVideoForPlacementTag:(NSString *)tag;
+- (void)didLoadVideoForPlacementTag:(NSString *)placementTag;
 
 /**
  Called when, for whatever reason, the video was not able to be loaded.
@@ -311,20 +319,28 @@ static TDPTag const TDPTagQuit = @"quit";
  */
 - (void)willDisplayVideo;
 
+- (void)willDisplayVideoForPlacementTag:(NSString *)placementTag;
+
 /**
  Called immediately after the video is displayed to the user.
  */
 - (void)didDisplayVideo;
+
+- (void)didDisplayVideoForPlacementTag:(NSString *)placementTag;
 
 /**
  Called when the user closes the video.
  */
 - (void)didCloseVideo;
 
+- (void)didCloseVideoForPlacementTag:(NSString *)placementTag;
+
 /**
  Called when the user clicks the video ad.
  */
 - (void)didClickVideo;
+
+- (void)didClickVideoForPlacementTag:(NSString *)placementTag;
 
 
 #pragma mark Rewarded Video delegate methods
@@ -332,9 +348,9 @@ static TDPTag const TDPTagQuit = @"quit";
 /**
  Called immediately after a rewarded video is available to the user for a specific placement tag.
  This method should be used in conjunction with -showRewardedVideoForPlacementTag:.
- @param tag A placement tag.
+ @param placementTag A placement tag.
  */
-- (void)didLoadRewardedVideoForPlacementTag:(NSString *)tag;
+- (void)didLoadRewardedVideoForPlacementTag:(NSString *)placementTag;
 
 /**
  Called when, for whatever reason, the rewarded video was not able to be loaded.
@@ -348,20 +364,28 @@ static TDPTag const TDPTagQuit = @"quit";
  */
 - (void)willDisplayRewardedVideo;
 
+- (void)willDisplayRewardedVideoForPlacementTag:(NSString *)placementTag;
+
 /**
  Called immediately after the rewarded video is displayed to the user.
  */
 - (void)didDisplayRewardedVideo;
+
+- (void)didDisplayRewardedVideoForPlacementTag:(NSString *)placementTag;
 
 /**
  Called when the user closes the rewarded video.
  */
 - (void)didCloseRewardedVideo;
 
+- (void)didCloseRewardedVideoForPlacementTag:(NSString *)placementTag;
+
 /**
  Called when the user clicks the rewarded video ad.
  */
 - (void)didClickRewardedVideo;
+
+- (void)didClickRewardedVideoForPlacementTag:(NSString *)placementTag;
 
 /**
  Called when a reward is ready for the user.
@@ -371,10 +395,16 @@ static TDPTag const TDPTagQuit = @"quit";
 - (void)rewardValidationSucceededForRewardName:(NSString *)rewardName
                                   rewardAmount:(int)rewardAmount;
 
+- (void)rewardValidationSucceededForPlacementTag:(NSString *)placementTag
+                                      rewardName:(NSString *)rewardName
+                                    rewardAmount:(int)rewardAmount;
+
 /**
  Called if an error occurred when rewarding the user.
  */
 - (void)rewardValidationErrored;
+
+- (void)rewardValidationErroredForPlacementTag:(NSString *)placementTag;
 
 #pragma mark Native advert delegate methods
 
@@ -384,7 +414,7 @@ static TDPTag const TDPTagQuit = @"quit";
  @param tag The placement tag of the native advert that loaded.
  @param nativeAdType The ad type of the native advert that loaded.
  */
-- (void)didLoadNativeAdvertForPlacementTag:(NSString *)tag
+- (void)didLoadNativeAdvertForPlacementTag:(NSString *)placementTag
                                     adType:(TDNativeAdType)nativeAdType;
 
 /**
@@ -393,7 +423,7 @@ static TDPTag const TDPTagQuit = @"quit";
  @param tag The placement tag that failed to load the native ad.
  @param nativeAdType The ad type of the native advert that failed to load.
  */
-- (void)didFailToLoadNativeAdvertForPlacementTag:(NSString *)tag
+- (void)didFailToLoadNativeAdvertForPlacementTag:(NSString *)placementTag
                                           adType:(TDNativeAdType)nativeAdType;
 
 #pragma mark More apps delegate methods

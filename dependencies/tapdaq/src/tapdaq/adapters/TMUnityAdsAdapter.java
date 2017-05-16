@@ -8,6 +8,7 @@ import com.tapdaq.sdk.analytics.TMStatsManager;
 import com.tapdaq.sdk.common.TMAdError;
 import com.tapdaq.sdk.common.TMAdType;
 import com.tapdaq.sdk.common.TMAdapter;
+import com.tapdaq.sdk.common.TMServiceErrorHandler;
 import com.tapdaq.sdk.helpers.TLog;
 import com.tapdaq.sdk.listeners.TMAdListenerBase;
 import com.tapdaq.sdk.listeners.TMListenerHandler;
@@ -58,7 +59,7 @@ public class TMUnityAdsAdapter extends TMAdapter {
     public void initialise(Activity activity) {
         super.initialise(activity);
 
-        if (mKeys != null) {
+        if (activity != null && getAppId(activity) != null) {
             UnityAds.initialize(activity, getAppId(activity), getUnityListener(activity));
             mListener.onInitSuccess(activity, TMMediationNetworks.UNITY_ADS);
         }
@@ -73,49 +74,69 @@ public class TMUnityAdsAdapter extends TMAdapter {
 
     @Override
     public boolean canDisplayVideo(Context context) {
-        return isInitialised(context) && getVideoId(context) != null && UnityAds.isReady(getVideoId(context));
+        return isInitialised(context) && getVideoId(context) != null;
     }
 
     @Override
     public boolean canDisplayRewardedVideo(Context context) {
-        return isInitialised(context) && getRewardedVideoId(context) != null && UnityAds.isReady(getRewardedVideoId(context));
+        return isInitialised(context) && getRewardedVideoId(context) != null;
+    }
+
+
+    public boolean isVideoInterstitialReady(Activity activity) {
+        return UnityAds.isReady(getVideoId(activity));
     }
 
     @Override
-    public void loadVideo(Activity activity, String placement, TMAdListenerBase listener) {
-        if (UnityAds.isReady(getVideoId(activity))) {
+    public boolean isRewardInterstitialReady(Activity activity) {
+        return UnityAds.isReady(getRewardedVideoId(activity));
+    }
+
+    @Override
+    public void loadVideo(Activity activity, String shared_id, String placement, TMAdListenerBase listener) {
+        TMStatsManager statsManager = new TMStatsManager(activity);
+
+        if (isVideoInterstitialReady(activity)) {
             TMListenerHandler.DidLoad(listener);
+            setSharedId(getSharedKey(TMAdType.VIDEO_INTERSTITIAL, placement), shared_id);
+            statsManager.finishAdRequest(activity, shared_id, true);
         } else {
-            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Unity ad failed to load"));
+            TMServiceErrorHandler.ServiceError(activity, shared_id, getName(), TMAdType.VIDEO_INTERSTITIAL, placement, new TMAdError(0, "Unity video ad failed to load"), listener);
+            statsManager.finishAdRequest(activity, shared_id, false);
         }
     }
 
     @Override
-    public void loadRewardedVideo(Activity activity, String placement, TMAdListenerBase listener) {
-        if (UnityAds.isReady(getRewardedVideoId(activity))) {
+    public void loadRewardedVideo(Activity activity, String shared_id, String placement, TMAdListenerBase listener) {
+        TMStatsManager statsManager = new TMStatsManager(activity);
+
+        if (isRewardInterstitialReady(activity)) {
             TMListenerHandler.DidLoad(listener);
+            setSharedId(getSharedKey(TMAdType.REWARD_INTERSTITIAL, placement), shared_id);
+            statsManager.finishAdRequest(activity, shared_id, true);
         } else {
-            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Unity ad failed to load"));
+            TMServiceErrorHandler.ServiceError(activity, shared_id, getName(), TMAdType.REWARD_INTERSTITIAL, placement, new TMAdError(0, "Unity rewarded video ad failed to load"), listener);
+            statsManager.finishAdRequest(activity, shared_id, false);
         }
     }
 
     @Override
     public void showVideo(Activity activity, String placement, TMAdListenerBase listener) {
         if (UnityAds.isReady(getVideoId(activity))) {
-            UnityAds.setListener(new UnityListener(activity, false, placement, listener));
+            UnityAds.setListener(new UnityListener(activity, getSharedId(getSharedKey(TMAdType.VIDEO_INTERSTITIAL, placement)), false, placement, listener));
             UnityAds.show(activity, getVideoId(activity));
         } else {
-            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Unity ad failed to load"));
+            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Unity video ad failed to show"));
         }
     }
 
     @Override
     public void showRewardedVideo(Activity activity, String placement, TMRewardAdListenerBase listener) {
         if (UnityAds.isReady(getRewardedVideoId(activity))) {
-            UnityAds.setListener(new UnityListener(activity, true, placement, listener));
+            UnityAds.setListener(new UnityListener(activity, getSharedId(getSharedKey(TMAdType.REWARD_INTERSTITIAL, placement)), true, placement, listener));
             UnityAds.show(activity, getRewardedVideoId(activity));
         } else {
-            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Unity ad failed to load"));
+            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Unity rewarded video ad failed to show"));
         }
     }
 
@@ -125,16 +146,18 @@ public class TMUnityAdsAdapter extends TMAdapter {
         private boolean mRewarded;
         private String mPlacement;
         private Activity mActivity;
+        private String mShared_id;
 
         private UnityListener(Activity activity) {
             mActivity = activity;
         }
 
-        private UnityListener(Activity activity, boolean rewarded, String tag, TMAdListenerBase listenerBase) {
+        private UnityListener(Activity activity, String shared_id, boolean rewarded, String tag, TMAdListenerBase listenerBase) {
             mActivity = activity;
             mRewarded = rewarded;
             mListener = listenerBase;
             mPlacement = tag;
+            mShared_id = shared_id;
         }
 
         void destroy() {
@@ -146,14 +169,14 @@ public class TMUnityAdsAdapter extends TMAdapter {
             TLog.debug("onUnityAdsReady: " + s);
 
             if (mActivity != null)
-                new TMStatsManager(mActivity).sendDidLoad(mActivity, getName(), TMAdType.getString((mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL)), mPlacement, getVersionID(mActivity));
+                new TMStatsManager(mActivity).sendDidLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString((mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL)), mPlacement, getVersionID(mActivity));
         }
 
         @Override
         public void onUnityAdsStart(String s) {
             TMListenerHandler.DidDisplay(mListener);
             if (mActivity != null)
-                new TMStatsManager(mActivity).sendImpression(mActivity, getName(), TMAdType.getString((mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL)), mPlacement, getVersionID(mActivity));
+                new TMStatsManager(mActivity).sendImpression(mActivity, mShared_id, getName(), isPublisherKeys(), TMAdType.getString((mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL)), mPlacement, getVersionID(mActivity));
         }
 
         @Override
@@ -169,7 +192,12 @@ public class TMUnityAdsAdapter extends TMAdapter {
             TLog.debug("onUnityAdsError: " + s);
             TMListenerHandler.DidFailToLoad(mListener, new TMAdError(0, s));
             if (mActivity != null)
-                new TMStatsManager(mActivity).sendDidFailToLoad(mActivity, getName(), TMAdType.getString(TMAdType.VIDEO_INTERSTITIAL), mPlacement, getVersionID(mActivity), unityAdsError.name());
+                new TMStatsManager(mActivity).sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(TMAdType.VIDEO_INTERSTITIAL), mPlacement, getVersionID(mActivity), unityAdsError.name());
+        }
+
+        @Override
+        public void onUnityAdsPlacementStateChanged(String s, UnityAds.PlacementState placementState, UnityAds.PlacementState placementState1) {
+
         }
 
         @Override

@@ -7,27 +7,17 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "TDMFBSDKInterstitialRequests.h"
+#import "TDMFBSDKVideoRequests.h"
+#import "TDAdUnitEnum.h"
 #import "TDMBannerSizeEnum.h"
+#import "TDMFBSDKConstants.h"
 
-#define FBSDK 1
-
-#import <FBAudienceNetwork/FBAudienceNetwork.h>
-
-//Debug flags
-#define TDMFBDEBUG 1
-
-#if defined(TDMFBDEBUG)
-#define TDMFBLog(fmt, ...) NSLog((@"[%@] " fmt), [self class], ##__VA_ARGS__)
-#else
-#   define TDMFBLog(...)
-#endif
-
-
-@class TDMediationCredentialsConfig;
+@class TDMediationConfig;
 @protocol TDMFANDelegate;
 
 #ifdef FBSDK
-@interface TDMFBSDKRequests : NSObject <FBInterstitialAdDelegate, FBAdViewDelegate>
+@interface TDMFBSDKRequests : NSObject <FBAdViewDelegate, TDMFANInterstitialDelegate, TDMFANVideoDelegate>
 #else
 @interface TDMFBSDKRequests : NSObject
 #endif 
@@ -36,23 +26,19 @@
 
 + (instancetype)sharedInstance;
 
-- (void)configure:(TDMediationCredentialsConfig *)config;
+- (void)configure:(TDMediationConfig *)config;
 
 - (void)addTestDevices:(NSArray *)testDeviceIDs;
 
-// Interstitial
+- (void)loadForAdUnit:(TDAdUnit)adUnit;
 
-- (void)loadInterstitial;
+- (BOOL)isReadyForAdUnit:(TDAdUnit)adUnit;
 
-- (BOOL)isInterstitialReady;
-
-- (void)showInterstitial;
+- (void)showForAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
 // Banner
 
 - (void)loadBannerWithSize:(TDMBannerSize)size;
-
-- (BOOL)isBannerReady;
 
 - (UIView *)getBanner;
 
@@ -63,30 +49,28 @@
 
 @protocol TDMFANDelegate <NSObject>
 
-@optional
+@required
+
+- (void)tapdaqFANDidLoadConfig;
+
+#pragma mark - All ad units
+
+- (void)tapdaqFANDidLoadAdUnit:(TDAdUnit)adUnit;
+
+- (void)tapdaqFANDidFailToLoadAdUnit:(TDAdUnit)adUnit;
+
+- (void)tapdaqFANWillDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
+
+- (void)tapdaqFANDidDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
+
+- (void)tapdaqFANDidCloseAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
+
+- (void)tapdaqFANDidClickAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
 #pragma mark - Banner
-
-- (void)tapdaqFANDidLoadBanner;
-
-- (void)tapdaqFANDidFailToLoadBanner;
 
 - (void)tapdaqFANDidRefreshBanner;
 
 - (void)tapdaqFANDidClickBanner;
-
-#pragma mark - Interstitial
-
-- (void)tapdaqFANDidLoadInterstitial;
-
-- (void)tapdaqFANDidFailToLoadInterstitial;
-
-- (void)tapdaqFANWillDisplayInterstitial;
-
-- (void)tapdaqFANDidDisplayInterstitial;
-
-- (void)tapdaqFANDidCloseInterstitial;
-
-- (void)tapdaqFANDidClickInterstitial;
 
 @end

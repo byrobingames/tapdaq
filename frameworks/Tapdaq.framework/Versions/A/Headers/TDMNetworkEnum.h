@@ -18,7 +18,8 @@ typedef NS_ENUM(NSUInteger, TDMNetwork) {
     TDMInMobi,
     TDMFacebookAudienceNetwork,
     TDMVungle,
-    TDMUnityAds
+    TDMUnityAds,
+    TDMTapjoy
 };
 
 static NSString *const kNetworkUnknown = @"unknown";
@@ -31,6 +32,4 @@ static NSString *const kNetworkInMobi = @"inmobi";
 static NSString *const kNetworkFacebookAudienceNetwork = @"facebook";
 static NSString *const kNetworkVungle = @"vungle";
 static NSString *const kNetworkUnityads = @"unityads";
-
-
-#define kTDMNetwork @"Tapdaq", @"AdColony", @"AdMob", @"AppLovin", @"Chartboost", @"InMobi", @"Facebook Audience Network", @"Vungle", @"UnityAds", @"Mediated network", @"None", nil
+static NSString *const kNetworkTapjoy = @"tapjoy";

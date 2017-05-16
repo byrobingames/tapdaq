@@ -7,31 +7,16 @@
 //
 
 #import <Foundation/Foundation.h>
-
-#define ALSDK 1
-
-//Debug flags
-#define TDMALDEBUG 1
-
-#if defined(TDMALDEBUG)
-#define TDMALLog(fmt, ...) NSLog((@"[%@] " fmt), [self class], ##__VA_ARGS__)
-#else
-#   define TDMALLog(...)
-#endif
-
-@class TDMediationCredentialsConfig;
-
-@protocol TDMALDelegate;
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdocumentation"
-
-#import "ALSdk.h"
+#import <AppLovinSDK/AppLovinSDK.h>
+#import "TDMALSDKConstants.h"
+#import "TDAdUnitEnum.h"
 #import "TDMALSDKInterstitialRequests.h"
 #import "TDMALSDKVideoRequests.h"
 #import "TDMALSDKRewardedRequests.h"
 
-#pragma clang pop
+@class TDMediationConfig;
+
+@protocol TDMALDelegate;
 
 #ifdef ALSDK
 @interface TDMALSDKRequests : NSObject <TDMALInterstitialDelegate, TDMALVideoDelegate, TDMALRewardedDelegate>
@@ -42,31 +27,13 @@
 
 + (instancetype)sharedInstance;
 
-- (void)configure:(TDMediationCredentialsConfig *)config;
+- (void)configure:(TDMediationConfig *)config;
 
-// Interstitial
+- (void)loadForAdUnit:(TDAdUnit)adUnit;
 
-- (void)loadInterstitial;
+- (BOOL)isReadyForAdUnit:(TDAdUnit)adUnit;
 
-- (BOOL)isInterstitialReady;
-
-- (void)showInterstitial;
-
-// Video
-
-- (void)loadVideo;
-
-- (BOOL)isVideoReady;
-
-- (void)showVideo;
-
-// Rewarded Video
-
-- (void)loadRewardedVideo;
-
-- (BOOL)isRewardedVideoReady;
-
-- (void)showRewardedVideo;
+- (void)showForAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
 @end
 
@@ -75,53 +42,30 @@
 
 @protocol TDMALDelegate <NSObject>
 
-@optional
+@required
 
-#pragma mark - Interstitial
+- (void)tapdaqALDidLoadConfig;
 
-- (void)tapdaqALDidLoadInterstitial;
+#pragma mark - All ad units
 
-- (void)tapdaqALDidFailToLoadInterstitial;
+- (void)tapdaqALDidLoadAdUnit:(TDAdUnit)adUnit;
 
-- (void)tapdaqALWillDisplayInterstitial;
+- (void)tapdaqALDidFailToLoadAdUnit:(TDAdUnit)adUnit;
 
-- (void)tapdaqALDidDisplayInterstitial;
+- (void)tapdaqALWillDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
-- (void)tapdaqALDidCloseInterstitial;
+- (void)tapdaqALDidDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
-- (void)tapdaqALDidClickInterstitial;
+- (void)tapdaqALDidCloseAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
-#pragma mark - Video
-
-- (void)tapdaqALDidLoadVideo;
-
-- (void)tapdaqALDidFailToLoadVideo;
-
-- (void)tapdaqALWillDisplayVideo;
-
-- (void)tapdaqALDidDisplayVideo;
-
-- (void)tapdaqALDidCloseVideo;
-
-- (void)tapdaqALDidClickVideo;
+- (void)tapdaqALDidClickAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
 #pragma mark - Rewarded Video
 
-- (void)tapdaqALDidLoadRewardedVideo;
+- (void)tapdaqALRewardValidationSucceededWithPlacementTag:(NSString *)placementTag
+                                               rewardName:(NSString *)rewardName
+                                             rewardAmount:(int)rewardAmount;
 
-- (void)tapdaqALDidFailToLoadRewardedVideo;
-
-- (void)tapdaqALWillDisplayRewardedVideo;
-
-- (void)tapdaqALDidDisplayRewardedVideo;
-
-- (void)tapdaqALDidCloseRewardedVideo;
-
-- (void)tapdaqALDidClickRewardedVideo;
-
-- (void)tapdaqALRewardValidationSucceeded:(NSString *)rewardName
-                             rewardAmount:(int)rewardAmount;
-
-- (void)tapdaqALRewardValidationErrored;
+- (void)tapdaqALRewardValidationErroredWithPlacementTag:(NSString *)placementTag;
 
 @end

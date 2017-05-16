@@ -1,6 +1,7 @@
 package;
 
 import openfl.Lib;
+import scripts.ByRobinAssets;
 
 class Tapdaq {
 
@@ -28,7 +29,7 @@ class Tapdaq {
 	////////////////////////////////////////////////////////////////////////////
 	#if ios
 	private static var __init:String->String->String->String->Void = function(appId:String,clientKey:String,testmode:String,tagsString:String){};
-	private static var __tapdaq_set_event_handle = Lib.load("tapdaq","tapdaq_set_event_handle", 1);
+	private static var __tapdaq_set_event_handle = cpp.Lib.load("tapdaq","tapdaq_set_event_handle", 1);
 	#end
 	#if android
 	private static var __init:Dynamic;
@@ -57,9 +58,29 @@ class Tapdaq {
 		_tagsArray=[];
 	}
 	
-	public static function init(appId:String, clientKey:String,mode:Int, interTags:String = "\"default\"", vidTags:String = "\"default\"", rewarTags:String = "\"default\""){
-	
-		if(mode == 1)
+	public static function init(){
+		var clientKey:String = ByRobinAssets.TDClientKey;
+		#if ios
+		var appId:String = ByRobinAssets.TDIosAppId;
+		#elseif android
+		var appId:String = ByRobinAssets.TDAndroidAppId;
+		#end
+		
+		var interTags:String = ByRobinAssets.TDAdTypeInterstitial;
+		var vidTags:String = ByRobinAssets.TDAdTypeVideo;
+		var rewarTags:String = ByRobinAssets.TDAdTypeRewardedVideo;
+		
+		if (interTags == ""){
+			interTags = "default";
+		}
+		if (vidTags == ""){
+			vidTags = "default";
+		}
+		if (rewarTags == ""){
+			rewarTags = "default";
+		}
+		///////////
+		if(ByRobinAssets.TDTestADS)
 		{
 			testmode = "YES";
 		}else

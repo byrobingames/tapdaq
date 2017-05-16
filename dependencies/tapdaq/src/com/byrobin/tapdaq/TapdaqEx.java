@@ -179,6 +179,8 @@ public class TapdaqEx extends Extension {
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMVungleAdapter(mainActivity)); //Vungle
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMAdColonyAdapter(mainActivity)); //AdColony
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMAppLovinAdapter(mainActivity)); //Applovin
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMTapjoyAdapter(mainActivity)); //Tapjoy
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMChartboostAdapter(mainActivity));//Chartboost
                     
                     
                 }else{
@@ -190,6 +192,8 @@ public class TapdaqEx extends Extension {
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMVungleAdapter(mainActivity)); //Vungle
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMAdColonyAdapter(mainActivity)); //AdColony
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMAppLovinAdapter(mainActivity)); //Applovin
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMTapjoyAdapter(mainActivity)); //Tapjoy
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMChartboostAdapter(mainActivity));//Chartboost
                     
                 }
                 
@@ -458,12 +462,12 @@ public class TapdaqEx extends Extension {
     
     static public boolean isVideoReady(final String tag)
     {
-        return Tapdaq.getInstance().isVideoReady(tag);
+        return Tapdaq.getInstance().isVideoReady(Extension.mainActivity, tag);
     }
     
     static public boolean isRewardedReady(final String tag)
     {
-         return Tapdaq.getInstance().isRewardedVideoReady(tag);
+         return Tapdaq.getInstance().isRewardedVideoReady(Extension.mainActivity, tag);
     }
     
     
@@ -491,6 +495,7 @@ class BannerAdListener extends TMAdListener {
     @Override
     public void didLoad() {
         Log.i("Tapdaq Banner", "didLoad");
+        TapdaqEx.hideBanner();
         TapdaqEx.haxeCallback.call("onBannerDidLoad", new Object[] {});
     }
     

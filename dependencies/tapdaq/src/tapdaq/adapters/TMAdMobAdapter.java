@@ -2,11 +2,15 @@ package tapdaq.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.ViewGroup;
 
 import com.google.android.gms.ads.*;
 
+import com.google.android.gms.ads.reward.RewardItem;
+import com.google.android.gms.ads.reward.RewardedVideoAd;
+import com.google.android.gms.ads.reward.RewardedVideoAdListener;
 import com.tapdaq.sdk.adnetworks.TMServiceQueue;
 import com.tapdaq.sdk.analytics.TMStatsManager;
 import com.tapdaq.sdk.common.*;
@@ -16,7 +20,6 @@ import com.tapdaq.sdk.listeners.*;
 import com.tapdaq.sdk.model.TMAdSize;
 import com.tapdaq.sdk.storage.Storage;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -34,8 +37,11 @@ public class TMAdMobAdapter extends TMAdapter {
 
     private TMAdMobBannerSizes mBannerSizes = new TMAdMobBannerSizes();
 
-    private List<InterstitialAd> mInterstitialAd = new ArrayList<InterstitialAd>();
-    private List<InterstitialAd> mVideoInterstitialAd = new ArrayList<InterstitialAd>();
+    private InterstitialAd mInterstitialAd;
+    private InterstitialAd mVideoInterstitialAd;
+    private RewardedVideoAd mRewardVideoAd;
+
+    private boolean mStaticReady, mVideoReady, mRewardVideoReady;
 
     public TMAdMobAdapter(Context context){
         super(context);
@@ -87,8 +93,52 @@ public class TMAdMobAdapter extends TMAdapter {
     }
 
     @Override
+    public boolean canDisplayRewardedVideo(Context context) {
+        return getRewardedVideoId(context) != null; //Has keys
+    }
+
+    @Override
+    public boolean isStaticInterstitialReady(Activity activity) {
+        //If using Android UI Thread
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            try {
+                return mInterstitialAd != null && mInterstitialAd.isLoaded();
+            } catch (Exception e) {
+                TLog.error(e);
+            }
+        }
+        return mInterstitialAd != null && mStaticReady;
+    }
+
+    @Override
+    public boolean isVideoInterstitialReady(Activity activity) {
+        //If using Android UI Thread
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            try {
+                return mVideoInterstitialAd != null && mVideoInterstitialAd.isLoaded();
+            } catch (Exception e) {
+                TLog.error(e);
+            }
+        }
+        return mVideoInterstitialAd != null && mVideoReady;
+    }
+
+    @Override
+    public boolean isRewardInterstitialReady(Activity activity) {
+        //If using Android UI Thread
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            try {
+                return mRewardVideoAd != null && mRewardVideoAd.isLoaded();
+            } catch (Exception e) {
+                TLog.error(e);
+            }
+        }
+        return mRewardVideoAd != null && mRewardVideoReady;
+    }
+
+    @Override
     public ViewGroup loadAd(Activity activity, TMAdSize size, TMAdListenerBase listener) {
-        AdSize adSize = mBannerSizes.getSize(size);
+        com.google.android.gms.ads.AdSize adSize = mBannerSizes.getSize(size);
         if(adSize != null) {
             AdView view = new AdView(activity);
             view.setAdUnitId(getBannerId(activity));
@@ -112,11 +162,11 @@ public class TMAdMobAdapter extends TMAdapter {
     }
 
     @Override
-    public void loadInterstitial(Activity activity, String placement, TMAdListenerBase listener) {
+    public void loadInterstitial(Activity activity, String shared_id, String placement, TMAdListenerBase listener) {
         if (activity != null && getInterstitialId(activity) != null) {
-            InterstitialAd ad = new InterstitialAd(activity);
-            ad.setAdUnitId(getInterstitialId(activity));
-            ad.setAdListener(new AdMobInterstitialAdListener(activity, ad, listener, TMAdType.STATIC_INTERSTITIAL, placement));
+            mInterstitialAd = new InterstitialAd(activity);
+            mInterstitialAd.setAdUnitId(getInterstitialId(activity));
+            mInterstitialAd.setAdListener(new AdMobInterstitialAdListener(activity, mInterstitialAd, shared_id, listener, TMAdType.STATIC_INTERSTITIAL, placement));
 
             AdRequest.Builder builder = new AdRequest.Builder();
 
@@ -127,20 +177,18 @@ public class TMAdMobAdapter extends TMAdapter {
                 }
             }
 
-            ad.loadAd(builder.build());
-            mInterstitialAd.add(ad);
+            mInterstitialAd.loadAd(builder.build());
         } else {
             TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not ready"));
         }
     }
 
     @Override
-    public void loadVideo(Activity activity, String placement, TMAdListenerBase listener) {
+    public void loadVideo(Activity activity, String shared_id, String placement, TMAdListenerBase listener) {
         if (activity != null && getVideoId(activity) != null) {
-            InterstitialAd ad = new InterstitialAd(activity);
-            ad.setAdUnitId(getVideoId(activity));
-            ad.setAdListener(new AdMobInterstitialAdListener(activity, ad, listener, TMAdType.VIDEO_INTERSTITIAL, placement));
-            mVideoInterstitialAd.add(ad);
+            mVideoInterstitialAd = new InterstitialAd(activity);
+            mVideoInterstitialAd.setAdUnitId(getVideoId(activity));
+            mVideoInterstitialAd.setAdListener(new AdMobInterstitialAdListener(activity, mVideoInterstitialAd, shared_id, listener, TMAdType.VIDEO_INTERSTITIAL, placement));
 
             AdRequest.Builder builder = new AdRequest.Builder();
 
@@ -151,7 +199,29 @@ public class TMAdMobAdapter extends TMAdapter {
                 }
             }
 
-            ad.loadAd(builder.build());
+            mVideoInterstitialAd.loadAd(builder.build());
+        } else {
+            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not ready"));
+        }
+    }
+
+    @Override
+    public void loadRewardedVideo(Activity activity, String shared_id, String placement, TMAdListenerBase listener) {
+        if (activity != null && getRewardedVideoId(activity) != null) {
+            mRewardVideoAd = MobileAds.getRewardedVideoAdInstance(activity);
+            mRewardVideoAd.setRewardedVideoAdListener(new AdMobRewardListener(activity, mRewardVideoAd, shared_id, listener, TMAdType.REWARD_INTERSTITIAL, placement));
+
+            AdRequest.Builder builder = new AdRequest.Builder();
+
+            String[] devices = getTestDevices(activity);
+            if (devices != null) {
+                for (String d : devices) {
+                    builder.addTestDevice(d);
+                }
+            }
+
+            mRewardVideoAd.loadAd(getRewardedVideoId(activity), builder.build());
+
         } else {
             TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not ready"));
         }
@@ -159,11 +229,10 @@ public class TMAdMobAdapter extends TMAdapter {
 
     @Override
     public void showInterstitial(Activity activity, String placement, TMAdListenerBase listener) {
-        InterstitialAd ad = (mInterstitialAd.isEmpty() ? null : mInterstitialAd.get(0));
-        if (ad != null && ad.isLoaded()) {
+        if (isStaticInterstitialReady(activity)) {
             if (listener != null)
-                ad.setAdListener(new AdMobInterstitialAdListener(activity, ad, listener, TMAdType.STATIC_INTERSTITIAL, placement));
-            ad.show();
+                mInterstitialAd.setAdListener(new AdMobInterstitialAdListener(activity, mInterstitialAd, getSharedId(mInterstitialAd.getAdUnitId()), listener, TMAdType.STATIC_INTERSTITIAL, placement));
+            mInterstitialAd.show();
         } else {
             TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not loaded ad"));
         }
@@ -171,12 +240,21 @@ public class TMAdMobAdapter extends TMAdapter {
 
     @Override
     public void showVideo(Activity activity, String placement, TMAdListenerBase listener) {
-        InterstitialAd ad = (mVideoInterstitialAd.isEmpty() ? null : mVideoInterstitialAd.get(0));
-        if (ad != null && ad.isLoaded()) {
+        if (isVideoInterstitialReady(activity)) {
             if (listener != null)
-                ad.setAdListener(new AdMobInterstitialAdListener(activity, ad, listener, TMAdType.VIDEO_INTERSTITIAL, placement));
-            ad.show();
+                mVideoInterstitialAd.setAdListener(new AdMobInterstitialAdListener(activity, mVideoInterstitialAd, getSharedId(mVideoInterstitialAd.getAdUnitId()), listener, TMAdType.VIDEO_INTERSTITIAL, placement));
+            mVideoInterstitialAd.show();
         }  else {
+            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not loaded ad"));
+        }
+    }
+
+    @Override
+    public void showRewardedVideo(Activity activity, String placement, TMRewardAdListenerBase listener) {
+        if (isRewardInterstitialReady(activity)) {
+            mRewardVideoAd.setRewardedVideoAdListener(new AdMobRewardListener(activity, mRewardVideoAd, getSharedId("ADMOB_REWARDED_VIDEO"), listener, TMAdType.REWARD_INTERSTITIAL, placement));
+            mRewardVideoAd.show();
+        } else {
             TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not loaded ad"));
         }
     }
@@ -220,7 +298,7 @@ public class TMAdMobAdapter extends TMAdapter {
 
             if (mActivity != null) {
                 TMServiceQueue.ServiceError(mActivity, getName(), TMAdType.BANNER);
-                new TMStatsManager(mActivity).sendDidFailToLoad(mActivity, getName(), TMAdType.getString(TMAdType.BANNER), "", getVersionID(mActivity), error.getErrorMessage());
+                new TMStatsManager(mActivity).sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(TMAdType.BANNER), "", getVersionID(mActivity), error.getErrorMessage());
             }
             mActivity = null;
         }
@@ -242,7 +320,7 @@ public class TMAdMobAdapter extends TMAdapter {
             super.onAdLoaded();
             TMListenerHandler.DidLoad(mAdListener);
             if (mActivity != null)
-                new TMStatsManager(mActivity).sendDidLoad(mActivity, getName(), TMAdType.getString(TMAdType.BANNER), null, getVersionID(mActivity));
+                new TMStatsManager(mActivity).sendDidLoad(mActivity, getName(), false, TMAdType.getString(TMAdType.BANNER), null, getVersionID(mActivity));
             mActivity = null;
         }
     }
@@ -254,13 +332,15 @@ public class TMAdMobAdapter extends TMAdapter {
         private InterstitialAd mAd;
         private int mType;
         private String mPlacement;
+        private String mShared_id;
 
-        AdMobInterstitialAdListener(Activity activity, InterstitialAd ad, TMAdListenerBase listener, int type, String placement) {
+        AdMobInterstitialAdListener(Activity activity, InterstitialAd ad, String shared_id, TMAdListenerBase listener, int type, String placement) {
             mActivity = activity;
             mAd = ad;
             mAdListener = listener;
             mType = type;
             mPlacement = placement;
+            mShared_id = shared_id;
         }
 
         @Override
@@ -269,10 +349,14 @@ public class TMAdMobAdapter extends TMAdapter {
 
             TMListenerHandler.DidClose(mAdListener);
 
-            if (!mInterstitialAd.isEmpty() && mAd == mInterstitialAd.get(0))
-                mInterstitialAd.remove(mAd);
-            else if(!mVideoInterstitialAd.isEmpty() && mAd == mVideoInterstitialAd.get(0))
-                mVideoInterstitialAd.remove(mAd);
+            if (mInterstitialAd == mAd) {
+                mInterstitialAd = null;
+                mStaticReady = false;
+            }
+            if (mVideoInterstitialAd == mAd) {
+                mVideoInterstitialAd = null;
+                mVideoReady = false;
+            }
 
             mAd = null;
             mAdListener = null;
@@ -286,14 +370,21 @@ public class TMAdMobAdapter extends TMAdapter {
 
             TLog.error(error.getErrorMessage());
 
-            if (!mInterstitialAd.isEmpty() && mAd == mInterstitialAd.get(0))
-                mInterstitialAd.remove(mAd);
-            else if (!mVideoInterstitialAd.isEmpty() && mAd == mVideoInterstitialAd.get(0))
-                mVideoInterstitialAd.remove(mAd);
+            if (mInterstitialAd == mAd) {
+                mInterstitialAd = null;
+                mStaticReady = false;
+            }
+            if (mVideoInterstitialAd == mAd) {
+                mVideoInterstitialAd = null;
+                mVideoReady = false;
+            }
 
             if (mActivity != null) {
-                TMServiceErrorHandler.ServiceError(mActivity, getName(), mType, mPlacement, error, mAdListener);
-                new TMStatsManager(mActivity).sendDidFailToLoad(mActivity, getName(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity), error.getErrorMessage());
+                TMServiceErrorHandler.ServiceError(mActivity, mShared_id, getName(), mType, mPlacement, error, mAdListener);
+
+                TMStatsManager statsManager = new TMStatsManager(mActivity);
+                statsManager.sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity), error.getErrorMessage());
+                statsManager.finishAdRequest(mActivity, mShared_id, false);
             }
             mActivity = null;
         }
@@ -309,33 +400,137 @@ public class TMAdMobAdapter extends TMAdapter {
             super.onAdOpened();
             TMListenerHandler.DidDisplay(mAdListener);
             if (mActivity != null)
-                new TMStatsManager(mActivity).sendImpression(mActivity, getName(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
+                new TMStatsManager(mActivity).sendImpression(mActivity, mShared_id, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
         }
 
         @Override
         public void onAdLoaded() {
             super.onAdLoaded();
+
+            if (mAd == mInterstitialAd)
+                mStaticReady = true;
+            if (mAd == mVideoInterstitialAd)
+                mVideoReady = true;
+
             TMListenerHandler.DidLoad(mAdListener);
+            if (mActivity != null) {
+                TMStatsManager statsManager = new TMStatsManager(mActivity);
+                statsManager.sendDidLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
+                statsManager.finishAdRequest(mActivity, mShared_id, true);
+
+                setSharedId(mAd.getAdUnitId(), mShared_id);
+            }
+            mActivity = null;
+        }
+    }
+
+    private class AdMobRewardListener implements RewardedVideoAdListener {
+        private Activity mActivity;
+        private final TMAdListenerBase mAdListener;
+        private final RewardedVideoAd mAd;
+        private final int mType;
+        private final String mPlacement;
+        private final String mShared_id;
+
+        AdMobRewardListener(Activity activity, RewardedVideoAd ad, String shared_id, TMAdListenerBase listener, int type, String placement) {
+            mActivity = activity;
+            mAd = ad;
+            mShared_id = shared_id;
+            mAdListener = listener;
+            mType = type;
+            mPlacement = placement;
+        }
+
+        @Override
+        public void onRewardedVideoAdLoaded() {
+            TLog.debug("onRewardedVideoAdLoaded");
+
+            TMListenerHandler.DidLoad(mAdListener);
+            if (mActivity != null) {
+                TMStatsManager statsManager = new TMStatsManager(mActivity);
+                statsManager.sendDidLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
+                statsManager.finishAdRequest(mActivity, mShared_id, true);
+
+                setSharedId("ADMOB_REWARDED_VIDEO", mShared_id);
+            }
+            mActivity = null;
+        }
+
+        @Override
+        public void onRewardedVideoAdOpened() {
+            TLog.debug("onRewardedVideoAdOpened");
+
+            TMListenerHandler.DidDisplay(mAdListener);
             if (mActivity != null)
-                new TMStatsManager(mActivity).sendDidLoad(mActivity, getName(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
+                new TMStatsManager(mActivity).sendImpression(mActivity, mShared_id, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
+
+        }
+
+        @Override
+        public void onRewardedVideoStarted() {
+            TLog.debug("onRewardedVideoStarted");
+        }
+
+        @Override
+        public void onRewardedVideoAdClosed() {
+            TLog.debug("onRewardedVideoAdClosed");
+            TMListenerHandler.DidClose(mAdListener);
+            mActivity = null;
+        }
+
+        @Override
+        public void onRewarded(RewardItem rewardItem) {
+            TLog.debug("onRewarded " + rewardItem.getType() + " " + rewardItem.getAmount());
+
+            if (mAdListener instanceof  TMRewardAdListenerBase) {
+                TMListenerHandler.DidVerify((TMRewardAdListenerBase) mAdListener, mPlacement, rewardItem.getType(), rewardItem.getAmount());
+            }
+        }
+
+        @Override
+        public void onRewardedVideoAdLeftApplication() {
+            TLog.debug("onRewardedVideoAdLeftApplication");
+            TMListenerHandler.DidClick(mAdListener);
+        }
+
+        @Override
+        public void onRewardedVideoAdFailedToLoad(int i) {
+            TLog.debug("onRewardedVideoAdFailedToLoad");
+
+            TMAdError error = buildError(i);
+
+            TLog.error(error.getErrorMessage());
+
+            if (mRewardVideoAd == mAd) {
+                mRewardVideoAd = null;
+                mRewardVideoReady = false;
+            }
+
+            if (mActivity != null) {
+                TMServiceErrorHandler.ServiceError(mActivity, mShared_id, getName(), mType, mPlacement, error, mAdListener);
+
+                TMStatsManager statsManager = new TMStatsManager(mActivity);
+                statsManager.sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity), error.getErrorMessage());
+                statsManager.finishAdRequest(mActivity, mShared_id, false);
+            }
             mActivity = null;
         }
     }
 
     private class TMAdMobBannerSizes extends TMBannerAdSizes {
-        AdSize getSize(TMAdSize size) {
+        com.google.android.gms.ads.AdSize getSize(TMAdSize size) {
             if (size == STANDARD)
-                return AdSize.BANNER;
+                return com.google.android.gms.ads.AdSize.BANNER;
             else if(size == LARGE)
-                return AdSize.LARGE_BANNER;
+                return com.google.android.gms.ads.AdSize.LARGE_BANNER;
             else if(size == MEDIUM_RECT)
-                return AdSize.MEDIUM_RECTANGLE;
+                return com.google.android.gms.ads.AdSize.MEDIUM_RECTANGLE;
             else if(size == FULL)
-                return AdSize.FULL_BANNER;
+                return com.google.android.gms.ads.AdSize.FULL_BANNER;
             else if(size == LEADERBOARD)
-                return AdSize.LEADERBOARD;
+                return com.google.android.gms.ads.AdSize.LEADERBOARD;
             else if(size == SMART)
-                return AdSize.SMART_BANNER;
+                return com.google.android.gms.ads.AdSize.SMART_BANNER;
             TLog.error(String.format(Locale.getDefault(), "No Ad Mob Banner Available for size: %s", size.name));
             return null;
         }

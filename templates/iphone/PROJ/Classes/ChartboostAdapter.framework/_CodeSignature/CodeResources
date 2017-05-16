@@ -4,21 +4,17 @@
 <dict>
 	<key>files</key>
 	<dict>
-		<key>.DS_Store</key>
-		<data>
-		y8YKedYTNEpd6OPNN46oZQ2ix1M=
-		</data>
 		<key>Headers/ChartboostAdapter.h</key>
 		<data>
 		FNDa17z0Nad/3ScpMdaRC8IYbY0=
 		</data>
 		<key>Headers/TDMCBSDKRequests.h</key>
 		<data>
-		+eGNk2+HHStctbBRpD4JDH29lDs=
+		XW4TrOFpKI6i7RiUJ7XJEFhLm2E=
 		</data>
 		<key>Info.plist</key>
 		<data>
-		sSRIe0908oqqDFjxLJY43l+uF2s=
+		NEby8xnq/Cx9VpZ9IpbMaQxua88=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -38,11 +34,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			+eGNk2+HHStctbBRpD4JDH29lDs=
+			XW4TrOFpKI6i7RiUJ7XJEFhLm2E=
 			</data>
 			<key>hash2</key>
 			<data>
-			Y9+Nlo806NUfLY9QiEJvapZDd/MPGW3y1a1nb+mCk6E=
+			7RIkVpsWY9wATj32T6t6/ReLGXTLXC8L3rCG4lOPuuo=
 			</data>
 		</dict>
 	</dict>

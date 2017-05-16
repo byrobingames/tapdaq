@@ -8,31 +8,17 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "TDMACSDKConstants.h"
+#import "TDMACSDKVideoRequests.h"
+#import "TDMACSDKRewardedRequests.h"
+#import "TDAdUnitEnum.h"
 
-#define ACSDK 1
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdocumentation"
-
-#import <AdColony/AdColony.h>
-
-#pragma clang pop
-
-//Debug flags
-#define TDMACDEBUG 1
-
-#if defined(TDMACDEBUG)
-#define TDMACLog(fmt, ...) NSLog((@"[%@] " fmt), [self class], ##__VA_ARGS__)
-#else
-#   define TDMACLog(...)
-#endif
-
-@class TDMediationCredentialsConfig;
+@class TDMediationConfig;
 
 @protocol TDMACDelegate;
 
 #ifdef ACSDK
-@interface TDMACSDKRequests : NSObject <AdColonyDelegate, AdColonyAdDelegate>
+@interface TDMACSDKRequests : NSObject <TDMACVideoDelegate, TDMACRewardedDelegate>
 #else
 @interface TDMACSDKRequests : NSObject
 #endif
@@ -44,52 +30,48 @@
 /**
  * Configures the SDK, prefetches ads.
  */
-- (void)configure:(TDMediationCredentialsConfig *)config;
+- (void)configure:(TDMediationConfig *)config;
 
-- (BOOL)isVideoReady;
+- (void)loadForAdUnit:(TDAdUnit)adUnit;
 
-- (void)showVideo;
+- (BOOL)isReadyForAdUnit:(TDAdUnit)adUnit;
 
-- (BOOL)isRewardedVideoReady;
-
-- (void)showRewardedVideo;
+- (void)showForAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
 @end
 
-#pragma mark -
-#pragma mark TDMACDelegate
+#pragma mark - TDMACDelegate
 
 @protocol TDMACDelegate <NSObject>
 
-@optional
+@required
 
-#pragma mark - Video
+#pragma mark - Config
 
-- (void)tapdaqACDidLoadVideo;
+- (void)tapdaqACDidLoadConfig;
 
-- (void)tapdaqACDidFailToLoadVideo;
+- (void)tapdaqACDidFailToLoadConfig;
 
-- (void)tapdaqACWillDisplayVideo;
+#pragma mark - All Ads
 
-- (void)tapdaqACDidDisplayVideo;
+- (void)tapdaqACDidLoadAdUnit:(TDAdUnit)adUnit;
 
-- (void)tapdaqACDidCloseVideo;
+- (void)tapdaqACDidFailToLoadAdUnit:(TDAdUnit)adUnit;
+
+- (void)tapdaqACWillDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
+
+- (void)tapdaqACDidDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
+
+- (void)tapdaqACDidCloseAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
+
+- (void)tapdaqACDidClickAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
 #pragma mark - Rewarded Video
 
-- (void)tapdaqACDidLoadRewardedVideo;
+- (void)tapdaqACRewardValidationSucceededWithPlacementTag:(NSString *)placementTag
+                                               rewardName:(NSString *)rewardName
+                                             rewardAmount:(int)rewardAmount;
 
-- (void)tapdaqACDidFailToLoadRewardedVideo;
-
-- (void)tapdaqACWillDisplayRewardedVideo;
-
-- (void)tapdaqACDidDisplayRewardedVideo;
-
-- (void)tapdaqACDidCloseRewardedVideo;
-
-- (void)tapdaqACRewardValidationSucceeded:(NSString *)rewardName
-                             rewardAmount:(int)rewardAmount;
-
-- (void)tapdaqACRewardValidationErrored;
+- (void)tapdaqACRewardValidationErroredWithPlacementTag:(NSString *)placementTag;
 
 @end

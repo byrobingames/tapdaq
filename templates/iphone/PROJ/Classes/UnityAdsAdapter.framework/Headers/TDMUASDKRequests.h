@@ -12,6 +12,7 @@
 #define UASDK 1
 
 #import <UnityAds/UnityAds.h>
+#import "TDAdUnitEnum.h"
 
 //Debug flags
 #define TDMUADEBUG 1
@@ -22,12 +23,12 @@
 #   define TDMUALog(...)
 #endif
 
-@class TDMediationCredentialsConfig;
+@class TDMediationConfig;
 @protocol TDMUADelegate;
 
 #ifdef UASDK
 
-@interface TDMUASDKRequests : NSObject <UnityAdsDelegate>
+@interface TDMUASDKRequests : NSObject
 #else
 @interface TDMUASDKRequests : NSObject
 #endif
@@ -36,15 +37,13 @@
 
 + (instancetype)sharedInstance;
 
-- (void)configure:(TDMediationCredentialsConfig *)config;
+- (void)configure:(TDMediationConfig *)config;
 
-- (BOOL)isVideoReady;
+- (void)loadForAdUnit:(TDAdUnit)adUnit;
 
-- (void)showVideo;
+- (BOOL)isReadyForAdUnit:(TDAdUnit)adUnit;
 
-- (BOOL)isRewardedVideoReady;
-
-- (void)showRewardedVideo;
+- (void)showForAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
 @end
 
@@ -54,35 +53,30 @@
 
 @protocol TDMUADelegate <NSObject>
 
-@optional
+@required
 
-#pragma mark - Video
+- (void)tapdaqUADidLoadConfig;
 
-- (void)tapdaqUADidLoadVideo;
+#pragma mark - All ad units
 
-- (void)tapdaqUADidFailToLoadVideo;
+- (void)tapdaqUADidLoadAdUnit:(TDAdUnit)adUnit;
 
-- (void)tapdaqUAWillDisplayVideo;
+- (void)tapdaqUADidFailToLoadAdUnit:(TDAdUnit)adUnit;
 
-- (void)tapdaqUADidDisplayVideo;
+- (void)tapdaqUAWillDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
-- (void)tapdaqUADidCloseVideo;
+- (void)tapdaqUADidDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
+
+- (void)tapdaqUADidCloseAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
+
+- (void)tapdaqUADidClickAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
 #pragma mark - Rewarded Video
 
-- (void)tapdaqUADidLoadRewardedVideo;
+- (void)tapdaqUARewardValidationSucceededWithPlacementTag:(NSString *)placementTag
+                                               rewardName:(NSString *)rewardName
+                                             rewardAmount:(int)rewardAmount;
 
-- (void)tapdaqUADidFailToLoadRewardedVideo;
-
-- (void)tapdaqUAWillDisplayRewardedVideo;
-
-- (void)tapdaqUADidDisplayRewardedVideo;
-
-- (void)tapdaqUADidCloseRewardedVideo;
-
-- (void)tapdaqUARewardValidationSucceeded:(NSString *)rewardName
-                             rewardAmount:(int)rewardAmount;
-
-- (void)tapdaqUARewardValidationErrored;
+- (void)tapdaqUARewardValidationErroredWithPlacementTag:(NSString *)placementTag;
 
 @end

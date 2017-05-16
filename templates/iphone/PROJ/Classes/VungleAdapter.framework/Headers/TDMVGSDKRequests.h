@@ -11,17 +11,25 @@
 #define VGSDK 1
 
 #import <VungleSDK/VungleSDK.h>
+#import "TDAdUnitEnum.h"
 
 //Debug flags
-#define TDMVGDEBUG 1
+#define TDMVGINFO 1
+#define TDMVGDEBUG 0
 
-#if defined(TDMVGDEBUG)
-#define TDMVGLog(fmt, ...) NSLog((@"[%@] " fmt), [self class], ##__VA_ARGS__)
+#if defined(TDMVGINFO)
+#define TDMVGInfoLog(fmt, ...) NSLog((@"[Vungle Adapter] " fmt), ##__VA_ARGS__)
 #else
-#   define TDMVGLog(...)
+#   define TDMVGInfoLog(...)
 #endif
 
-@class TDMediationCredentialsConfig;
+#if defined(TDMVGDEBUG)
+#define TDMVGDebugLog(fmt, ...) NSLog((@"[%@] " fmt), [self class], ##__VA_ARGS__)
+#else
+#   define TDMVGDebugLog(...)
+#endif
+
+@class TDMediationConfig;
 @protocol TDMVGDelegate;
 
 #ifdef VGSDK
@@ -35,15 +43,13 @@
 
 + (instancetype)sharedInstance;
 
-- (void)configure:(TDMediationCredentialsConfig *)config;
+- (void)configure:(TDMediationConfig *)config;
 
-- (BOOL)isVideoReady;
+- (void)loadForAdUnit:(TDAdUnit)adUnit;
 
-- (void)showVideo;
+- (BOOL)isReadyForAdUnit:(TDAdUnit)adUnit;
 
-- (BOOL)isRewardedVideoReady;
-
-- (void)showRewardedVideo;
+- (void)showForAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
 @end
 
@@ -51,37 +57,28 @@
 
 @protocol TDMVGDelegate <NSObject>
 
-@optional
+@required
+
+- (void)tapdaqVGDidLoadConfig;
 
 #pragma mark - Video
 
-- (void)tapdaqVGDidLoadVideo;
+- (void)tapdaqVGDidLoadAdUnit:(TDAdUnit)adUnit;
 
-- (void)tapdaqVGDidFailToLoadVideo;
+- (void)tapdaqVGDidFailToLoadAdUnit:(TDAdUnit)adUnit;
 
-- (void)tapdaqVGWillDisplayVideo;
+- (void)tapdaqVGWillDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
-- (void)tapdaqVGDidDisplayVideo;
+- (void)tapdaqVGDidDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
-- (void)tapdaqVGDidCloseVideo;
+- (void)tapdaqVGDidCloseAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
-- (void)tapdaqVGDidClickVideo;
+- (void)tapdaqVGDidClickAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
 
 #pragma mark - Rewarded Video
 
-- (void)tapdaqVGDidLoadRewardedVideo;
-
-- (void)tapdaqVGDidFailToLoadRewardedVideo;
-
-- (void)tapdaqVGWillDisplayRewardedVideo;
-
-- (void)tapdaqVGDidDisplayRewardedVideo;
-
-- (void)tapdaqVGDidCloseRewardedVideo;
-
-- (void)tapdaqVGDidClickRewardedVideo;
-
-- (void)tapdaqVGRewardValidationSucceeded:(NSString *)rewardName
-                             rewardAmount:(int)rewardAmount;
+- (void)tapdaqVGRewardValidationSucceededWithPlacementTag:(NSString *)placementTag
+                                               rewardName:(NSString *)rewardName
+                                             rewardAmount:(int)rewardAmount;
 
 @end

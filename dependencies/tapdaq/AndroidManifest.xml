@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="::APP_PACKAGE::" android:versionCode="::APP_BUILD_NUMBER::" android:versionName="::APP_VERSION::" android:installLocation="::ANDROID_INSTALL_LOCATION::">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.byrobin.tapdaq" android:versionCode="::APP_BUILD_NUMBER::" android:versionName="::APP_VERSION::" android:installLocation="::ANDROID_INSTALL_LOCATION::">
     
+    <!-- Tapdaq -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    
+    <!-- Chartboost -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    
+    <!-- Tapjoy -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     
     <application>
         
@@ -53,7 +65,7 @@
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
         <activity android:name="com.vungle.publisher.MraidFullScreenAdActivity"
         android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize"
-        android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"/>
+        android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
         
         
         <!-- AdColony Adapter -->
@@ -68,6 +80,32 @@
         <!-- Applovin Adapter -->
         <activity android:name="com.applovin.adview.AppLovinInterstitialActivity" />
         <activity android:name="com.applovin.adview.AppLovinConfirmationActivity" />
+        
+        <!-- Tapjoy Adapter -->
+        <activity
+        android:name="com.tapjoy.TJAdUnitActivity"
+        android:configChanges="orientation|keyboardHidden|screenSize"
+        android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+        android:hardwareAccelerated="true" />
+        <activity
+        android:name="com.tapjoy.mraid.view.ActionHandler"
+        android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+        android:name="com.tapjoy.mraid.view.Browser"
+        android:configChanges="orientation|keyboardHidden|screenSize" />
+        
+        <activity
+        android:name="com.tapjoy.TJContentActivity"
+        android:configChanges="orientation|keyboardHidden|screenSize"
+        android:theme="@android:style/Theme.NoTitleBar" />
+        
+        <!-- Chartboost Adapter -->
+        <activity
+        android:name="com.chartboost.sdk.CBImpressionActivity"
+        android:configChanges="keyboardHidden|orientation|screenSize"
+        android:excludeFromRecents="true"
+        android:hardwareAccelerated="true"
+        android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
         
     </application>
  

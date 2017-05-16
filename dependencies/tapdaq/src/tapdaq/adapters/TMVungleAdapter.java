@@ -9,6 +9,7 @@ import com.tapdaq.sdk.analytics.TMStatsManager;
 import com.tapdaq.sdk.common.TMAdError;
 import com.tapdaq.sdk.common.TMAdType;
 import com.tapdaq.sdk.common.TMAdapter;
+import com.tapdaq.sdk.common.TMServiceErrorHandler;
 import com.tapdaq.sdk.helpers.TLog;
 import com.tapdaq.sdk.listeners.TMAdListenerBase;
 import com.tapdaq.sdk.listeners.TMListenerHandler;
@@ -35,7 +36,7 @@ public class TMVungleAdapter extends TMAdapter {
 
     private VungleEventListener getEventListener(Activity activity) {
         if (mEventListener == null)
-            mEventListener = new VungleEventListener(activity, false, null, null);
+            mEventListener = new VungleEventListener(activity, null, false, null, null);
         return mEventListener;
     }
 
@@ -65,10 +66,17 @@ public class TMVungleAdapter extends TMAdapter {
     public void initialise(Activity activity) {
         super.initialise(activity);
 
-        if (activity != null && mKeys != null) {
-            getVunglePub().init(activity, mKeys.getApp_id());
-            getVunglePub().setEventListeners(getEventListener(activity));
-            mListener.onInitSuccess(activity, TMMediationNetworks.VUNGLE);
+        if (activity != null && getAppId(activity) != null) {
+            try {
+                VunglePub vunglePub = getVunglePub();
+                String appid = getAppId(activity);
+                vunglePub.init(activity, appid);
+                vunglePub.setEventListeners(getEventListener(activity));
+                mListener.onInitSuccess(activity, getID());
+            } catch (Exception e) {
+                TLog.error(e);
+                mListener.onInitFailure(activity, getID(), new TMAdError(0, "Vungle init failed"));
+            }
         }
     }
 
@@ -79,44 +87,66 @@ public class TMVungleAdapter extends TMAdapter {
 
     @Override
     public boolean canDisplayVideo(Context context) {
-        return isInitialised(context) && getVunglePub().isAdPlayable();
+        return isInitialised(context);
     }
 
     @Override
     public boolean canDisplayRewardedVideo(Context context) {
-        return isInitialised(context) && getVunglePub().isAdPlayable();
+        return isInitialised(context);
+    }
+
+    public boolean isVideoInterstitialReady(Activity activity) {
+        return getVunglePub().isAdPlayable();
     }
 
     @Override
-    public void loadVideo(Activity activity, String placement, TMAdListenerBase listener) {
-        if (getVunglePub().isAdPlayable()) {
+    public boolean isRewardInterstitialReady(Activity activity) {
+        return getVunglePub().isAdPlayable();
+    }
+
+    @Override
+    public void loadVideo(Activity activity, String shared_id, String placement, TMAdListenerBase listener) {
+        TMStatsManager statsManager = new TMStatsManager(activity);
+
+        if (isVideoInterstitialReady(activity)) {
             TMListenerHandler.DidLoad(listener);
+            setSharedId(getSharedKey(TMAdType.VIDEO_INTERSTITIAL, placement), shared_id);
+            statsManager.finishAdRequest(activity, shared_id, true);
         } else {
-            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Vungle ad failed to load"));
+            TMAdError error =  new TMAdError(0, "Vungle video ad failed to load");
+            TMServiceErrorHandler.ServiceError(activity, shared_id, getName(), TMAdType.VIDEO_INTERSTITIAL, placement, error, listener);
+            statsManager.finishAdRequest(activity, shared_id, false);
         }
     }
 
     @Override
-    public void loadRewardedVideo(Activity activity, String placement, TMAdListenerBase listener) {
-        if (getVunglePub().isAdPlayable()) {
+    public void loadRewardedVideo(Activity activity, String shared_id, String placement, TMAdListenerBase listener) {
+        TMStatsManager statsManager = new TMStatsManager(activity);
+
+        if (isRewardInterstitialReady(activity)) {
             TMListenerHandler.DidLoad(listener);
+            setSharedId(getSharedKey(TMAdType.REWARD_INTERSTITIAL, placement), shared_id);
+            statsManager.finishAdRequest(activity, shared_id, true);
         } else {
-            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Vungle reward ad failed to load"));
+            TMAdError error =  new TMAdError(0, "Vungle reward video ad failed to load");
+            TMServiceErrorHandler.ServiceError(activity, shared_id, getName(), TMAdType.REWARD_INTERSTITIAL, placement, error, listener);
+            statsManager.finishAdRequest(activity, shared_id, false);
         }
     }
 
     @Override
     public void showVideo(Activity activity, String placement, TMAdListenerBase listener) {
-        if (getVunglePub().isAdPlayable()) {
-            getVunglePub().setEventListeners(new VungleEventListener(activity, false, placement, listener), getEventListener(activity));
+        if (isVideoInterstitialReady(activity)) {
+            getVunglePub().setEventListeners(new VungleEventListener(activity, getSharedId(getSharedKey(TMAdType.VIDEO_INTERSTITIAL, placement)), false, placement, listener), getEventListener(activity));
             getVunglePub().playAd();
         }
     }
 
     @Override
     public void showRewardedVideo(Activity activity, String placement, TMRewardAdListenerBase listener) {
-        if (getVunglePub().isAdPlayable()) {
-            getVunglePub().setEventListeners(new VungleEventListener(activity, true, placement, listener), getEventListener(activity));
+        if (isRewardInterstitialReady(activity)) {
+            getVunglePub().setEventListeners(new VungleEventListener(activity, getSharedId(getSharedKey(TMAdType.REWARD_INTERSTITIAL, placement)), true, placement, listener), getEventListener(activity));
+
             AdConfig config = new AdConfig();
             config.setBackButtonImmediatelyEnabled(false);
             config.setIncentivized(true);
@@ -130,12 +160,14 @@ public class TMVungleAdapter extends TMAdapter {
         private boolean mReward = false;
         private String mPlacement;
         private Activity mActivity;
+        private String mShared_id;
 
-        VungleEventListener(Activity activity, boolean reward, String tag, TMAdListenerBase listener) {
+        VungleEventListener(Activity activity, String shared_id, boolean reward, String tag, TMAdListenerBase listener) {
             mActivity = activity;
             mListener = listener;
             mReward = reward;
             mPlacement = tag;
+            mShared_id = shared_id;
         }
 
         @Override
@@ -167,7 +199,7 @@ public class TMVungleAdapter extends TMAdapter {
                     public void run() {
                         TMListenerHandler.DidDisplay(mListener);
                     }});
-                new TMStatsManager(mActivity).sendImpression(mActivity, getName(), TMAdType.getString((mReward ? TMAdType.REWARD_INTERSTITIAL : TMAdType.STATIC_INTERSTITIAL)), mPlacement, getVersionID(mActivity));
+                new TMStatsManager(mActivity).sendImpression(mActivity, mShared_id, getName(), isPublisherKeys(), TMAdType.getString((mReward ? TMAdType.REWARD_INTERSTITIAL : TMAdType.STATIC_INTERSTITIAL)), mPlacement, getVersionID(mActivity));
             }
         }
 
@@ -176,14 +208,14 @@ public class TMVungleAdapter extends TMAdapter {
             TLog.debug(String.format(Locale.ENGLISH, "onAdUnavailable %s", s));
 
             if (mActivity != null && mListener == null)
-                new TMStatsManager(mActivity).sendDidFailToLoad(mActivity, getName(), TMAdType.getString((mReward ? TMAdType.REWARD_INTERSTITIAL : TMAdType.STATIC_INTERSTITIAL)), mPlacement, getVersionID(mActivity), s);
+                new TMStatsManager(mActivity).sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString((mReward ? TMAdType.REWARD_INTERSTITIAL : TMAdType.STATIC_INTERSTITIAL)), mPlacement, getVersionID(mActivity), s);
         }
 
         @Override
         public void onAdPlayableChanged(boolean isAdPlayable) {
             TLog.debug(String.format(Locale.ENGLISH, "onAdPlayableChanged %b", isAdPlayable));
             if (isAdPlayable && mListener == null && mActivity != null) {
-                new TMStatsManager(mActivity).sendDidLoad(mActivity, getName(), TMAdType.getString(TMAdType.VIDEO_INTERSTITIAL), null, getVersionID(mActivity));
+                new TMStatsManager(mActivity).sendDidLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(TMAdType.VIDEO_INTERSTITIAL), null, getVersionID(mActivity));
             }
         }
 

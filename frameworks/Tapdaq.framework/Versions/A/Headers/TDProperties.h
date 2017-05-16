@@ -15,27 +15,11 @@
 
 @interface TDProperties : NSObject
 
-/**
- Set how often the same advert should appear to the user.
- 
- Defaults to 2.
- */
-@property (nonatomic) NSInteger frequencyCap;
+@property (nonatomic, strong) NSString *rewardName;
 
-/**
- Set the number of days the frequencyCap should be applied to.
- For example, a frequencyDurationInDays = 2, frequencyCap = 3 means the same ad will be shown to the user a maximum of 3 times in 2 days.
- 
- Defaults to 1.
- */
-@property (nonatomic) NSInteger frequencyDurationInDays;
+@property (nonatomic, strong) NSNumber *rewardValue;
 
-/**
- Set how many adverts per TDAdType should be cached on the device. The more adverts that are cached, the faster adverts are displayed to the user, but uses more storage.
- 
- Defaults to 3.
- */
-@property (nonatomic) NSUInteger maxCachedAdverts;
+@property (nonatomic) BOOL isDebugEnabled;
 
 /**
  Note: For plugin developers only.
