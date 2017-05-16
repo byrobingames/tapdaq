@@ -59,7 +59,7 @@ This means that the iOS Framework are not linked anymore in some how after you d
 ### Solution:<br/>
 1) Go to "YOURDOCUMENTFOLDER"/stencylworks/engine-extensions/tapdaq-master/frameworks"<br/>
 2) Delete the Tapdaq.framework in this folder<br/>
-3) Download the Tapdaq.framework from here: https://www.dropbox.com/s/vqeg64i8f8736mq/tapdaq-ios-sdk-master.zip?dl=0<br/>
+3) Download the Tapdaq.framework from here: https://www.dropbox.com/s/0d1p7fv3cghq6ui/tapdaq-ios-sdk-master.zip?dl=0<br/>
 4) Unzip it and copy the Tapdaq.framework to "YOURDOCUMENTFOLDER"/stencylworks/engine-extensions/tapdaq-master/frameworks"<br/>
 5) Run clean project and try to compile<br/>
 
