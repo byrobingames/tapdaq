@@ -7,7 +7,7 @@ Stencyl extension for "Tapdaq" (http://www.tapdaq.com) for iOS and Android. This
 ### Important!!
 
 This Extension Required the Toolset Extension Manager http://byrobin.nl/store/product/byrobintoolsetextension/
-[![tapdaqtoolset](http://byrobin.nl/store/wp-content/uploads/sites/4/2016/03/tapdaqtoolset-1.png)]
+![tapdaqtoolset](http://byrobin.nl/store/wp-content/uploads/sites/4/2016/03/tapdaqtoolset-1.png)]
 
 ### Main Features
 * Cross Promotion
