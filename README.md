@@ -7,7 +7,7 @@ Stencyl extension for "Tapdaq" (http://www.tapdaq.com) for iOS and Android. This
 ### Important!!
 
 This Extension Required the Toolset Extension Manager http://byrobin.nl/store/product/byrobintoolsetextension/
-[![tapdaqtoolset](http://byrobin.nl/store/wp-content/uploads/sites/4/2016/03/tapdaqtoolset.png)]
+[![tapdaqtoolset](http://byrobin.nl/store/wp-content/uploads/sites/4/2016/03/tapdaqtoolset-1.png)]
 
 ### Main Features
 * Cross Promotion
@@ -17,6 +17,7 @@ This Extension Required the Toolset Extension Manager http://byrobin.nl/store/pr
     - <a href="https://github.com/byrobingames/tapdaq/wiki/Implement-Tapdaq-Advertising-in-your-Stencyl-game.#interstitial-ads">Interstitial Ad</a>
     - <a href="https://github.com/byrobingames/tapdaq/wiki/Implement-Tapdaq-Advertising-in-your-Stencyl-game.#video-ads">Video Ad</a>
     - <a href="https://github.com/byrobingames/tapdaq/wiki/Implement-Tapdaq-Advertising-in-your-Stencyl-game.#rewarded-video-ads">Rewarded Video Ad</a>
+    - <a href="https://github.com/byrobingames/tapdaq/wiki/Implement-Tapdaq-Advertising-in-your-Stencyl-game.#rewarded-video-ads">More Apps</a>
     
 ### Supported Networks
 This extension supports the following Networks.<br/>
@@ -28,6 +29,8 @@ This extension supports the following Networks.<br/>
 * Facebook Audience Network
 * UnityAds
 * Vungle
+* Tapjoy
+* IronSource
 
 ## How to Install
 
@@ -59,7 +62,7 @@ This means that the iOS Framework are not linked anymore in some how after you d
 ### Solution:<br/>
 1) Go to "YOURDOCUMENTFOLDER"/stencylworks/engine-extensions/tapdaq-master/frameworks"<br/>
 2) Delete the Tapdaq.framework in this folder<br/>
-3) Download the Tapdaq.framework from here: https://www.dropbox.com/s/0d1p7fv3cghq6ui/tapdaq-ios-sdk-master.zip?dl=0<br/>
+3) Download the Tapdaq.framework from here: https://www.dropbox.com/s/umi1ksjw5nanoj3/tapdaq-ios-sdk-master.zip?dl=0<br/>
 4) Unzip it and copy the Tapdaq.framework to "YOURDOCUMENTFOLDER"/stencylworks/engine-extensions/tapdaq-master/frameworks"<br/>
 5) Run clean project and try to compile<br/>
 
