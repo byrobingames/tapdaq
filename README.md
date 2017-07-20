@@ -17,7 +17,7 @@ This Extension Required the Toolset Extension Manager http://byrobin.nl/store/pr
     - <a href="https://github.com/byrobingames/tapdaq/wiki/Implement-Tapdaq-Advertising-in-your-Stencyl-game#interstitial-ads">Interstitial Ad</a>
     - <a href="https://github.com/byrobingames/tapdaq/wiki/Implement-Tapdaq-Advertising-in-your-Stencyl-game#video-ads">Video Ad</a>
     - <a href="https://github.com/byrobingames/tapdaq/wiki/Implement-Tapdaq-Advertising-in-your-Stencyl-game#rewarded-video-ads">Rewarded Video Ad</a>
-    - <a href="https://github.com/byrobingames/tapdaq/wiki/Implement-Tapdaq-Advertising-in-your-Stencyl-game#rewarded-video-ads">More Apps</a>
+    - <a href="https://github.com/byrobingames/tapdaq/wiki/Implement-Tapdaq-Advertising-in-your-Stencyl-game#more-apps">More Apps</a>
     
 ### Supported Networks
 This extension supports the following Networks.<br/>
