@@ -68,7 +68,7 @@ public class TMAppLovinAdapter extends TMAdapter {
         super.initialise(activity);
 
         if (activity != null && getSdk(activity) != null) {
-            mListener.onInitSuccess(activity, TMMediationNetworks.APPLOVIN);
+            mServiceListener.onInitSuccess(activity, TMMediationNetworks.APPLOVIN);
         }
     }
 
@@ -113,7 +113,8 @@ public class TMAppLovinAdapter extends TMAdapter {
             AppLovinAdService adService = getSdk(activity).getAdService();
             adService.loadNextAd(AppLovinAdSize.INTERSTITIAL, new AdLoadListener(activity, shared_id, TMAdType.STATIC_INTERSTITIAL, placement, listener));
         } else {
-            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Applovin not initialised"));
+            new TMStatsManager(activity).finishAdRequest(activity, shared_id, false);
+            TMServiceErrorHandler.ServiceError(activity, shared_id, getName(), TMAdType.STATIC_INTERSTITIAL, placement, new TMAdError(0, "Applovin not initialised"), listener);
         }
     }
 
@@ -123,7 +124,8 @@ public class TMAppLovinAdapter extends TMAdapter {
             AppLovinAdService adService = getSdk(activity).getAdService();
             adService.loadNextAd(AppLovinAdSize.INTERSTITIAL, new AdLoadListener(activity, shared_id, TMAdType.VIDEO_INTERSTITIAL, placement, listener));
         } else {
-            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Applovin not initialised"));
+            new TMStatsManager(activity).finishAdRequest(activity, shared_id, false);
+            TMServiceErrorHandler.ServiceError(activity, shared_id, getName(), TMAdType.VIDEO_INTERSTITIAL, placement, new TMAdError(0, "Applovin not initialised"), listener);
         }
     }
 
@@ -134,10 +136,12 @@ public class TMAppLovinAdapter extends TMAdapter {
                 mIncentivizedInterstitial = AppLovinIncentivizedInterstitial.create(getSdk(activity));
                 mIncentivizedInterstitial.preload(new AdLoadListener(activity, shared_id, TMAdType.REWARD_INTERSTITIAL, placement, listener));
             } else {
+                new TMStatsManager(activity).finishAdRequest(activity, shared_id, true);
                 TMListenerHandler.DidLoad(listener);
             }
         } else {
-            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Applovin not initialised"));
+            new TMStatsManager(activity).finishAdRequest(activity, shared_id, false);
+            TMServiceErrorHandler.ServiceError(activity, shared_id, getName(), TMAdType.REWARD_INTERSTITIAL, placement, new TMAdError(0, "Applovin not initialised"), listener);
         }
     }
 
@@ -169,7 +173,7 @@ public class TMAppLovinAdapter extends TMAdapter {
     public void showRewardedVideo(Activity activity, String placement, TMRewardAdListenerBase listener) {
         if (isRewardInterstitialReady(activity)) {
             if (mIncentivizedInterstitial.isAdReadyToDisplay()) {
-                mIncentivizedInterstitial.show(activity, new AdRewardListener(listener), new AdPlaybackListener(listener), new AdDisplayListener(activity, getSharedId("rewarded_video"), TMAdType.REWARD_INTERSTITIAL, placement, listener), new AdClickListener(listener));
+                mIncentivizedInterstitial.show(activity, new AdRewardListener(listener), new AdPlaybackListener(listener), new AdDisplayListener(activity, getSharedId(getSharedKey(TMAdType.REWARD_INTERSTITIAL, placement)), TMAdType.REWARD_INTERSTITIAL, placement, listener), new AdClickListener(listener));
                 mIncentivizedInterstitial = null;
             } else {
                 TLog.error("Applovin cannot display incentivized ad");
@@ -204,7 +208,7 @@ public class TMAppLovinAdapter extends TMAdapter {
                     setSharedId(Long.toString(mVideoAd.getAdIdNumber()), mShared_id);
                     break;
                 case TMAdType.REWARD_INTERSTITIAL:
-                    setSharedId("rewarded_video", mShared_id);
+                    setSharedId(getSharedKey(TMAdType.REWARD_INTERSTITIAL, mPlacement), mShared_id);
                     break;
                 default:
                     break;
@@ -221,7 +225,7 @@ public class TMAppLovinAdapter extends TMAdapter {
             } else {
                 if (mActivity != null) {
                     TMAdError error = new TMAdError(0, "No Fill");
-                    TMServiceErrorHandler.ServiceError(mActivity, getName(), mType, mPlacement, error, mListener);
+                    TMServiceErrorHandler.ServiceError(mActivity, mShared_id, getName(), mType, mPlacement, error, mListener);
                     TMStatsManager statsManager = new TMStatsManager(mActivity);
                     statsManager.sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity), error.getErrorMessage());
                     statsManager.finishAdRequest(mActivity, mShared_id, false);
@@ -251,7 +255,7 @@ public class TMAppLovinAdapter extends TMAdapter {
             TMAdError error = new TMAdError(i, getError(i));
 
             if (mActivity != null) {
-                TMServiceErrorHandler.ServiceError(mActivity, getName(), mType, mPlacement, error, mListener);
+                TMServiceErrorHandler.ServiceError(mActivity, mShared_id, getName(), mType, mPlacement, error, mListener);
                 TMStatsManager statsManager = new TMStatsManager(mActivity);
                 statsManager.sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity), error.getErrorMessage());
                 statsManager.finishAdRequest(mActivity, mShared_id, false);
@@ -312,13 +316,11 @@ public class TMAppLovinAdapter extends TMAdapter {
             TMListenerHandler.DidDisplay(mListener);
             if (mActivity != null)
                 new TMStatsManager(mActivity).sendImpression(mActivity, mShared_id, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
-            mActivity = null;
         }
 
         @Override
         public void adHidden(AppLovinAd appLovinAd) {
             TMListenerHandler.DidClose(mListener);
-            mActivity = null;
 
             switch (mType) {
                 case TMAdType.STATIC_INTERSTITIAL:
@@ -333,6 +335,9 @@ public class TMAppLovinAdapter extends TMAdapter {
                 default:
                     break;
             }
+
+            reloadAd(mActivity, mType, mPlacement, mListener);
+            mActivity = null;
         }
     }
 
@@ -375,7 +380,7 @@ public class TMAppLovinAdapter extends TMAdapter {
 
         @Override
         public void validationRequestFailed(AppLovinAd appLovinAd, int i) {
-//            mListener.didFail(new TMAdError(i, ""));
+//            mServiceListener.didFail(new TMAdError(i, ""));
         }
 
         @Override

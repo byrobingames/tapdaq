@@ -36,7 +36,7 @@ public class TMVungleAdapter extends TMAdapter {
 
     private VungleEventListener getEventListener(Activity activity) {
         if (mEventListener == null)
-            mEventListener = new VungleEventListener(activity, null, false, null, null);
+            mEventListener = new VungleEventListener(activity, null, TMAdType.VIDEO_INTERSTITIAL, null, null);
         return mEventListener;
     }
 
@@ -63,19 +63,26 @@ public class TMVungleAdapter extends TMAdapter {
     }
 
     @Override
-    public void initialise(Activity activity) {
+    public void initialise(final Activity activity) {
         super.initialise(activity);
 
         if (activity != null && getAppId(activity) != null) {
             try {
-                VunglePub vunglePub = getVunglePub();
-                String appid = getAppId(activity);
-                vunglePub.init(activity, appid);
-                vunglePub.setEventListeners(getEventListener(activity));
-                mListener.onInitSuccess(activity, getID());
+                final VunglePub vunglePub = getVunglePub();
+                final String appid = getAppId(activity);
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        vunglePub.init(activity, appid);
+                        vunglePub.setEventListeners(getEventListener(activity));
+                        mServiceListener.onInitSuccess(activity, getID());
+                    }
+                });
+
+
             } catch (Exception e) {
                 TLog.error(e);
-                mListener.onInitFailure(activity, getID(), new TMAdError(0, "Vungle init failed"));
+                mServiceListener.onInitFailure(activity, getID(), new TMAdError(0, "Vungle init failed"));
             }
         }
     }
@@ -137,7 +144,7 @@ public class TMVungleAdapter extends TMAdapter {
     @Override
     public void showVideo(Activity activity, String placement, TMAdListenerBase listener) {
         if (isVideoInterstitialReady(activity)) {
-            getVunglePub().setEventListeners(new VungleEventListener(activity, getSharedId(getSharedKey(TMAdType.VIDEO_INTERSTITIAL, placement)), false, placement, listener), getEventListener(activity));
+            getVunglePub().setEventListeners(new VungleEventListener(activity, getSharedId(getSharedKey(TMAdType.VIDEO_INTERSTITIAL, placement)), TMAdType.VIDEO_INTERSTITIAL, placement, listener), getEventListener(activity));
             getVunglePub().playAd();
         }
     }
@@ -145,7 +152,7 @@ public class TMVungleAdapter extends TMAdapter {
     @Override
     public void showRewardedVideo(Activity activity, String placement, TMRewardAdListenerBase listener) {
         if (isRewardInterstitialReady(activity)) {
-            getVunglePub().setEventListeners(new VungleEventListener(activity, getSharedId(getSharedKey(TMAdType.REWARD_INTERSTITIAL, placement)), true, placement, listener), getEventListener(activity));
+            getVunglePub().setEventListeners(new VungleEventListener(activity, getSharedId(getSharedKey(TMAdType.REWARD_INTERSTITIAL, placement)), TMAdType.REWARD_INTERSTITIAL, placement, listener), getEventListener(activity));
 
             AdConfig config = new AdConfig();
             config.setBackButtonImmediatelyEnabled(false);
@@ -157,15 +164,15 @@ public class TMVungleAdapter extends TMAdapter {
     private class VungleEventListener implements com.vungle.publisher.EventListener {
 
         private TMAdListenerBase mListener;
-        private boolean mReward = false;
+        private int mType;
         private String mPlacement;
         private Activity mActivity;
         private String mShared_id;
 
-        VungleEventListener(Activity activity, String shared_id, boolean reward, String tag, TMAdListenerBase listener) {
+        VungleEventListener(Activity activity, String shared_id, int type, String tag, TMAdListenerBase listener) {
             mActivity = activity;
             mListener = listener;
-            mReward = reward;
+            mType = type;
             mPlacement = tag;
             mShared_id = shared_id;
         }
@@ -173,19 +180,23 @@ public class TMVungleAdapter extends TMAdapter {
         @Override
         public void onAdEnd(final boolean wasSuccessfulView, final boolean wasCallToActionClicked) {
 
-            if (mListener != null && mActivity != null) {
-                new Handler(mActivity.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (wasCallToActionClicked)
-                            TMListenerHandler.DidClick(mListener);
+            if (mListener != null) {
+                if (mActivity != null) {
+                    new Handler(mActivity.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (wasCallToActionClicked)
+                                TMListenerHandler.DidClick(mListener);
 
-                        TMListenerHandler.DidClose(mListener);
-
-                        if (wasSuccessfulView && mReward && mListener instanceof TMRewardAdListenerBase) {
-                            TMListenerHandler.DidVerify((TMRewardAdListenerBase) mListener, "", mRewardCurrency, mRewardValue);
+                            if (wasSuccessfulView && mType == TMAdType.REWARD_INTERSTITIAL && mListener instanceof TMRewardAdListenerBase) {
+                                TMListenerHandler.DidVerify((TMRewardAdListenerBase) mListener, "", mRewardCurrency, mRewardValue);
+                            }
+                            
+                            TMListenerHandler.DidClose(mListener);
                         }
-                    }});
+                    });
+                    reloadAd(mActivity, mType, mPlacement, mListener);
+                }
             }
 
             getVunglePub().removeEventListeners(this);
@@ -199,7 +210,7 @@ public class TMVungleAdapter extends TMAdapter {
                     public void run() {
                         TMListenerHandler.DidDisplay(mListener);
                     }});
-                new TMStatsManager(mActivity).sendImpression(mActivity, mShared_id, getName(), isPublisherKeys(), TMAdType.getString((mReward ? TMAdType.REWARD_INTERSTITIAL : TMAdType.STATIC_INTERSTITIAL)), mPlacement, getVersionID(mActivity));
+                new TMStatsManager(mActivity).sendImpression(mActivity, mShared_id, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
             }
         }
 
@@ -208,14 +219,14 @@ public class TMVungleAdapter extends TMAdapter {
             TLog.debug(String.format(Locale.ENGLISH, "onAdUnavailable %s", s));
 
             if (mActivity != null && mListener == null)
-                new TMStatsManager(mActivity).sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString((mReward ? TMAdType.REWARD_INTERSTITIAL : TMAdType.STATIC_INTERSTITIAL)), mPlacement, getVersionID(mActivity), s);
+                new TMStatsManager(mActivity).sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity), s);
         }
 
         @Override
         public void onAdPlayableChanged(boolean isAdPlayable) {
             TLog.debug(String.format(Locale.ENGLISH, "onAdPlayableChanged %b", isAdPlayable));
             if (isAdPlayable && mListener == null && mActivity != null) {
-                new TMStatsManager(mActivity).sendDidLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(TMAdType.VIDEO_INTERSTITIAL), null, getVersionID(mActivity));
+                new TMStatsManager(mActivity).sendDidLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(mType), null, getVersionID(mActivity));
             }
         }
 

@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 
 import com.facebook.ads.*;
 
-import com.tapdaq.sdk.adnetworks.TMServiceQueue;
+import com.tapdaq.sdk.ads.TapdaqPlacement;
 import com.tapdaq.sdk.analytics.TMStatsManager;
 import com.tapdaq.sdk.common.*;
 import com.tapdaq.sdk.helpers.TLog;
@@ -42,7 +42,7 @@ public class TMFacebookAdapter extends TMAdapter {
         super.initialise(activity);
 
         if (mKeys != null && activity != null) {
-            mListener.onInitSuccess(activity, TMMediationNetworks.FACEBOOK);
+            mServiceListener.onInitSuccess(activity, TMMediationNetworks.FACEBOOK);
         }
     }
 
@@ -87,11 +87,11 @@ public class TMFacebookAdapter extends TMAdapter {
     }
 
     @Override
-    public ViewGroup loadAd(Activity activity, TMAdSize size, TMAdListenerBase listener) {
+    public ViewGroup loadAd(Activity activity, String shared_id, TMAdSize size, TMAdListenerBase listener) {
         com.facebook.ads.AdSize adSize = new TMFacebookBannerSizes().getSize(size);
         if(adSize != null) {
             mAd = new AdView(activity, getBannerId(activity), adSize);
-            mAd.setAdListener(new FBBannerListener(activity, listener));
+            mAd.setAdListener(new FBBannerListener(activity, shared_id, listener));
             mAd.loadAd();
             return mAd;
         } else {
@@ -155,21 +155,31 @@ public class TMFacebookAdapter extends TMAdapter {
     private class FBBannerListener implements AdListener
     {
         private final TMAdListenerBase mAdListener;
+        private String mShared_Id;
         private Activity mActivity;
 
-        FBBannerListener(Activity activity, TMAdListenerBase listener) {
+        FBBannerListener(Activity activity, String shared_id, TMAdListenerBase listener) {
             mActivity = activity;
+            mShared_Id = shared_id;
             mAdListener = listener;
+        }
+
+        @Override
+        public void onLoggingImpression(Ad ad) {
+
         }
 
         @Override
         public void onError(Ad ad, AdError adError) {
             TMAdError error = buildError(adError);
-            TMListenerHandler.DidFailToLoad(mAdListener, error);
 
             if (mActivity != null) {
-                TMServiceQueue.ServiceError(mActivity, getName(), TMAdType.BANNER);
-                new TMStatsManager(mActivity).sendDidFailToLoad(mActivity, getName(), false, TMAdType.getString(TMAdType.BANNER), null, getVersionID(mActivity), error.getErrorMessage());
+                TMServiceErrorHandler.ServiceError(mActivity, mShared_Id, getName(), TMAdType.BANNER, TapdaqPlacement.TDPTagDefault, error, mAdListener);
+
+                TMStatsManager statsManager = new TMStatsManager(mActivity);
+                statsManager.sendDidFailToLoad(mActivity, getName(), false, TMAdType.getString(TMAdType.BANNER), null, getVersionID(mActivity), error.getErrorMessage());
+                statsManager.finishAdRequest(mActivity, mShared_Id, false);
+
             }
             mActivity = null;
         }
@@ -178,8 +188,11 @@ public class TMFacebookAdapter extends TMAdapter {
         public void onAdLoaded(Ad ad) {
             TMListenerHandler.DidLoad(mAdListener);
 
-            if (mActivity != null)
-                new TMStatsManager(mActivity).sendDidLoad(mActivity, getName(), false, TMAdType.getString(TMAdType.BANNER), null, getVersionID(mActivity));
+            if (mActivity != null) {
+                TMStatsManager statsManager = new TMStatsManager(mActivity);
+                statsManager.sendDidLoad(mActivity, getName(), false, TMAdType.getString(TMAdType.BANNER), null, getVersionID(mActivity));
+                statsManager.finishAdRequest(mActivity, mShared_Id, true);
+            }
             mActivity = null;
         }
 
@@ -205,6 +218,11 @@ public class TMFacebookAdapter extends TMAdapter {
         }
 
         @Override
+        public void onLoggingImpression(Ad ad) {
+
+        }
+
+        @Override
         public void onInterstitialDisplayed(Ad ad) {
             TMListenerHandler.DidDisplay(mAdListener);
             if (mActivity != null)
@@ -220,6 +238,9 @@ public class TMFacebookAdapter extends TMAdapter {
                 mInterstitialAd = null;
             else if (ad == mVideoInterstitialAd)
                 mVideoInterstitialAd = null;
+
+            reloadAd(mActivity, mType, mPlacement, mAdListener);
+
             mActivity = null;
         }
 

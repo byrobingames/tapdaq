@@ -4,21 +4,17 @@
 <dict>
 	<key>files</key>
 	<dict>
-		<key>.DS_Store</key>
-		<data>
-		3y++sUAKzaCQmjLBz2v0kvESHgc=
-		</data>
 		<key>Headers/AppLovinAdapter.h</key>
 		<data>
 		SV8VlPzWypBWIibywzGNsQxfOCY=
 		</data>
 		<key>Headers/TDMALSDKRequests.h</key>
 		<data>
-		4Ge904P5c7kpZyXx58G1loizR0g=
+		5pmtskQ6nACjQewqSdTXEIVQ3/Q=
 		</data>
 		<key>Info.plist</key>
 		<data>
-		DSgzhB3omSjwmAVmEfETHLbEhF0=
+		8r1K1YwjLV0pu6np2jMMYRAJllw=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -38,11 +34,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			4Ge904P5c7kpZyXx58G1loizR0g=
+			5pmtskQ6nACjQewqSdTXEIVQ3/Q=
 			</data>
 			<key>hash2</key>
 			<data>
-			4bOz4THVtYqfGzr71cY4OLdOy9VpvTzEJJv2NHwFn5Y=
+			7nUeivRPeRo2cUx6QqegCEN0qK5K25pF9o502bEsCKo=
 			</data>
 		</dict>
 	</dict>

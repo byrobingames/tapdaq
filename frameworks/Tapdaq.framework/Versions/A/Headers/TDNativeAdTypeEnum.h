@@ -7,7 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#ifndef TDNativeAdTypeEnum_h
+#define TDNativeAdTypeEnum_h
 typedef NS_ENUM(NSUInteger, TDNativeAdType) {
     
     TDNativeAdType1x1Large,
@@ -74,3 +75,4 @@ static NSString *const kNativeAdType5x1Medium = @"strip_wide_medium";
 static NSString *const kNativeAdType5x1Small = @"strip_wide_small";
 
 static NSString *const kNativeAdTypeUnknown = @"unknown";
+#endif

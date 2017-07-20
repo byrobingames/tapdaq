@@ -11,7 +11,7 @@ import com.google.android.gms.ads.*;
 import com.google.android.gms.ads.reward.RewardItem;
 import com.google.android.gms.ads.reward.RewardedVideoAd;
 import com.google.android.gms.ads.reward.RewardedVideoAdListener;
-import com.tapdaq.sdk.adnetworks.TMServiceQueue;
+import com.tapdaq.sdk.ads.TapdaqPlacement;
 import com.tapdaq.sdk.analytics.TMStatsManager;
 import com.tapdaq.sdk.common.*;
 import com.tapdaq.sdk.helpers.TLog;
@@ -53,7 +53,7 @@ public class TMAdMobAdapter extends TMAdapter {
 
         if (activity != null && mKeys != null) {
             MobileAds.initialize(activity);
-            mListener.onInitSuccess(activity, TMMediationNetworks.AD_MOB);
+            mServiceListener.onInitSuccess(activity, TMMediationNetworks.AD_MOB);
         }
     }
 
@@ -137,13 +137,13 @@ public class TMAdMobAdapter extends TMAdapter {
     }
 
     @Override
-    public ViewGroup loadAd(Activity activity, TMAdSize size, TMAdListenerBase listener) {
+    public ViewGroup loadAd(Activity activity, String shared_id, TMAdSize size, TMAdListenerBase listener) {
         com.google.android.gms.ads.AdSize adSize = mBannerSizes.getSize(size);
         if(adSize != null) {
             AdView view = new AdView(activity);
             view.setAdUnitId(getBannerId(activity));
             view.setAdSize(adSize);
-            view.setAdListener(new AdMobAdListener(activity, listener));
+            view.setAdListener(new AdMobAdListener(activity, shared_id, listener));
             AdRequest.Builder builder = new AdRequest.Builder();
 
             String[] devices = getTestDevices(activity);
@@ -166,7 +166,7 @@ public class TMAdMobAdapter extends TMAdapter {
         if (activity != null && getInterstitialId(activity) != null) {
             mInterstitialAd = new InterstitialAd(activity);
             mInterstitialAd.setAdUnitId(getInterstitialId(activity));
-            mInterstitialAd.setAdListener(new AdMobInterstitialAdListener(activity, mInterstitialAd, shared_id, listener, TMAdType.STATIC_INTERSTITIAL, placement));
+            mInterstitialAd.setAdListener(new AdMobInterstitialAdListener(activity, mInterstitialAd, shared_id, TMAdType.STATIC_INTERSTITIAL, placement, listener));
 
             AdRequest.Builder builder = new AdRequest.Builder();
 
@@ -179,7 +179,7 @@ public class TMAdMobAdapter extends TMAdapter {
 
             mInterstitialAd.loadAd(builder.build());
         } else {
-            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not ready"));
+            TMServiceErrorHandler.ServiceError(activity, shared_id, getName(), TMAdType.STATIC_INTERSTITIAL, placement, new TMAdError(0, "Ad Mob not ready"), listener);
         }
     }
 
@@ -188,7 +188,7 @@ public class TMAdMobAdapter extends TMAdapter {
         if (activity != null && getVideoId(activity) != null) {
             mVideoInterstitialAd = new InterstitialAd(activity);
             mVideoInterstitialAd.setAdUnitId(getVideoId(activity));
-            mVideoInterstitialAd.setAdListener(new AdMobInterstitialAdListener(activity, mVideoInterstitialAd, shared_id, listener, TMAdType.VIDEO_INTERSTITIAL, placement));
+            mVideoInterstitialAd.setAdListener(new AdMobInterstitialAdListener(activity, mVideoInterstitialAd, shared_id, TMAdType.VIDEO_INTERSTITIAL, placement, listener));
 
             AdRequest.Builder builder = new AdRequest.Builder();
 
@@ -201,7 +201,7 @@ public class TMAdMobAdapter extends TMAdapter {
 
             mVideoInterstitialAd.loadAd(builder.build());
         } else {
-            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not ready"));
+            TMServiceErrorHandler.ServiceError(activity, shared_id, getName(), TMAdType.VIDEO_INTERSTITIAL, placement, new TMAdError(0, "Ad Mob not ready"), listener);
         }
     }
 
@@ -209,7 +209,7 @@ public class TMAdMobAdapter extends TMAdapter {
     public void loadRewardedVideo(Activity activity, String shared_id, String placement, TMAdListenerBase listener) {
         if (activity != null && getRewardedVideoId(activity) != null) {
             mRewardVideoAd = MobileAds.getRewardedVideoAdInstance(activity);
-            mRewardVideoAd.setRewardedVideoAdListener(new AdMobRewardListener(activity, mRewardVideoAd, shared_id, listener, TMAdType.REWARD_INTERSTITIAL, placement));
+            mRewardVideoAd.setRewardedVideoAdListener(new AdMobRewardListener(activity, mRewardVideoAd, shared_id, TMAdType.REWARD_INTERSTITIAL, placement, listener));
 
             AdRequest.Builder builder = new AdRequest.Builder();
 
@@ -221,9 +221,8 @@ public class TMAdMobAdapter extends TMAdapter {
             }
 
             mRewardVideoAd.loadAd(getRewardedVideoId(activity), builder.build());
-
         } else {
-            TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not ready"));
+            TMServiceErrorHandler.ServiceError(activity, shared_id, getName(), TMAdType.REWARD_INTERSTITIAL, placement, new TMAdError(0, "Ad Mob not ready"), listener);
         }
     }
 
@@ -231,7 +230,7 @@ public class TMAdMobAdapter extends TMAdapter {
     public void showInterstitial(Activity activity, String placement, TMAdListenerBase listener) {
         if (isStaticInterstitialReady(activity)) {
             if (listener != null)
-                mInterstitialAd.setAdListener(new AdMobInterstitialAdListener(activity, mInterstitialAd, getSharedId(mInterstitialAd.getAdUnitId()), listener, TMAdType.STATIC_INTERSTITIAL, placement));
+                mInterstitialAd.setAdListener(new AdMobInterstitialAdListener(activity, mInterstitialAd, getSharedId(mInterstitialAd.getAdUnitId()), TMAdType.STATIC_INTERSTITIAL, placement, listener));
             mInterstitialAd.show();
         } else {
             TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not loaded ad"));
@@ -242,7 +241,7 @@ public class TMAdMobAdapter extends TMAdapter {
     public void showVideo(Activity activity, String placement, TMAdListenerBase listener) {
         if (isVideoInterstitialReady(activity)) {
             if (listener != null)
-                mVideoInterstitialAd.setAdListener(new AdMobInterstitialAdListener(activity, mVideoInterstitialAd, getSharedId(mVideoInterstitialAd.getAdUnitId()), listener, TMAdType.VIDEO_INTERSTITIAL, placement));
+                mVideoInterstitialAd.setAdListener(new AdMobInterstitialAdListener(activity, mVideoInterstitialAd, getSharedId(mVideoInterstitialAd.getAdUnitId()), TMAdType.VIDEO_INTERSTITIAL, placement, listener));
             mVideoInterstitialAd.show();
         }  else {
             TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not loaded ad"));
@@ -252,7 +251,7 @@ public class TMAdMobAdapter extends TMAdapter {
     @Override
     public void showRewardedVideo(Activity activity, String placement, TMRewardAdListenerBase listener) {
         if (isRewardInterstitialReady(activity)) {
-            mRewardVideoAd.setRewardedVideoAdListener(new AdMobRewardListener(activity, mRewardVideoAd, getSharedId("ADMOB_REWARDED_VIDEO"), listener, TMAdType.REWARD_INTERSTITIAL, placement));
+            mRewardVideoAd.setRewardedVideoAdListener(new AdMobRewardListener(activity, mRewardVideoAd, getSharedId("ADMOB_REWARDED_VIDEO"), TMAdType.REWARD_INTERSTITIAL, placement, listener));
             mRewardVideoAd.show();
         } else {
             TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Ad Mob not loaded ad"));
@@ -277,10 +276,12 @@ public class TMAdMobAdapter extends TMAdapter {
     private class AdMobAdListener extends AdListener
     {
         private Activity mActivity;
+        private String mShared_Id;
         private final TMAdListenerBase mAdListener;
 
-        AdMobAdListener(Activity activity, TMAdListenerBase listener) {
+        AdMobAdListener(Activity activity, String shared_id, TMAdListenerBase listener) {
             mActivity = activity;
+            mShared_Id = shared_id;
             mAdListener = listener;
         }
 
@@ -294,11 +295,14 @@ public class TMAdMobAdapter extends TMAdapter {
         public void onAdFailedToLoad(int i) {
             super.onAdFailedToLoad(i);
             TMAdError error = buildError(i);
-            TMListenerHandler.DidFailToLoad(mAdListener, error);
+
 
             if (mActivity != null) {
-                TMServiceQueue.ServiceError(mActivity, getName(), TMAdType.BANNER);
-                new TMStatsManager(mActivity).sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(TMAdType.BANNER), "", getVersionID(mActivity), error.getErrorMessage());
+                TMServiceErrorHandler.ServiceError(mActivity, mShared_Id, getName(), TMAdType.BANNER, TapdaqPlacement.TDPTagDefault, error, mAdListener);
+
+                TMStatsManager statsManager = new TMStatsManager(mActivity);
+                statsManager.sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(TMAdType.BANNER), "", getVersionID(mActivity), error.getErrorMessage());
+                statsManager.finishAdRequest(mActivity, mShared_Id, false);
             }
             mActivity = null;
         }
@@ -319,8 +323,11 @@ public class TMAdMobAdapter extends TMAdapter {
         public void onAdLoaded() {
             super.onAdLoaded();
             TMListenerHandler.DidLoad(mAdListener);
-            if (mActivity != null)
-                new TMStatsManager(mActivity).sendDidLoad(mActivity, getName(), false, TMAdType.getString(TMAdType.BANNER), null, getVersionID(mActivity));
+            if (mActivity != null) {
+                TMStatsManager statsManager = new TMStatsManager(mActivity);
+                statsManager.sendDidLoad(mActivity, getName(), false, TMAdType.getString(TMAdType.BANNER), null, getVersionID(mActivity));
+                statsManager.finishAdRequest(mActivity, mShared_Id, true);
+            }
             mActivity = null;
         }
     }
@@ -334,7 +341,7 @@ public class TMAdMobAdapter extends TMAdapter {
         private String mPlacement;
         private String mShared_id;
 
-        AdMobInterstitialAdListener(Activity activity, InterstitialAd ad, String shared_id, TMAdListenerBase listener, int type, String placement) {
+        AdMobInterstitialAdListener(Activity activity, InterstitialAd ad, String shared_id, int type, String placement, TMAdListenerBase listener) {
             mActivity = activity;
             mAd = ad;
             mAdListener = listener;
@@ -358,8 +365,10 @@ public class TMAdMobAdapter extends TMAdapter {
                 mVideoReady = false;
             }
 
+            reloadAd(mActivity, mType, mPlacement, mAdListener);
             mAd = null;
             mAdListener = null;
+            mActivity = null;
         }
 
         @Override
@@ -432,7 +441,7 @@ public class TMAdMobAdapter extends TMAdapter {
         private final String mPlacement;
         private final String mShared_id;
 
-        AdMobRewardListener(Activity activity, RewardedVideoAd ad, String shared_id, TMAdListenerBase listener, int type, String placement) {
+        AdMobRewardListener(Activity activity, RewardedVideoAd ad, String shared_id, int type, String placement, TMAdListenerBase listener) {
             mActivity = activity;
             mAd = ad;
             mShared_id = shared_id;
@@ -444,6 +453,9 @@ public class TMAdMobAdapter extends TMAdapter {
         @Override
         public void onRewardedVideoAdLoaded() {
             TLog.debug("onRewardedVideoAdLoaded");
+
+            if (mAd == mRewardVideoAd)
+                mRewardVideoReady = true;
 
             TMListenerHandler.DidLoad(mAdListener);
             if (mActivity != null) {
@@ -474,7 +486,15 @@ public class TMAdMobAdapter extends TMAdapter {
         @Override
         public void onRewardedVideoAdClosed() {
             TLog.debug("onRewardedVideoAdClosed");
+
+            if (mAd == mRewardVideoAd) {
+                mRewardVideoAd = null;
+                mRewardVideoReady = false;
+            }
+
             TMListenerHandler.DidClose(mAdListener);
+            reloadAd(mActivity, mType, mPlacement, mAdListener);
+
             mActivity = null;
         }
 
@@ -498,7 +518,6 @@ public class TMAdMobAdapter extends TMAdapter {
             TLog.debug("onRewardedVideoAdFailedToLoad");
 
             TMAdError error = buildError(i);
-
             TLog.error(error.getErrorMessage());
 
             if (mRewardVideoAd == mAd) {

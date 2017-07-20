@@ -21,6 +21,8 @@
 
 @property (nonatomic) BOOL isDebugEnabled;
 
+@property (nonatomic) BOOL autoReloadAds;
+
 /**
  Note: For plugin developers only.
  */

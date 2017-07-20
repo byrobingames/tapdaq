@@ -41,6 +41,9 @@ NSArray *rewardedPlacement;
 - (void)loadRewardedAd:(NSString*)placementTAG;
 - (void)showRewardedAd:(NSString*)placementTAG;
 - (BOOL)rewardedAdIsReady:(NSString*)placementTAG;
+- (void)loadMoreAppsAd;
+- (void)showMoreAppsAd;
+- (BOOL)moreAppsAdIsReady;
 
 @end
 
@@ -83,6 +86,7 @@ NSArray *rewardedPlacement;
         NSArray *interstititalplacementTags = [tagArray objectForKey:@"TDAdTypeInterstitial"];
         NSArray *videoplacementTags = [tagArray objectForKey:@"TDAdTypeVideo"];
         NSArray *rewardedplacementTags = [tagArray objectForKey:@"TDAdTypeRewardedVideo"];
+        NSArray *moreAppsplacementTags = [tagArray objectForKey:@"TDAdTypeMoreApps"];
         
         //NSLog(@"interstititalplacementTags: %@", interstititalplacementTags);
         //NSLog(@"videoplacementTags: %@", videoplacementTags);
@@ -118,6 +122,17 @@ NSArray *rewardedPlacement;
                     [tapdaqProps registerPlacement:rewardedTag];
                 } @catch (NSException *exception) {
                     NSLog (@"Error register rewardedTag: %@", exception);
+                }
+            }
+        }
+        if ([moreAppsplacementTags count] > 0) {
+            for (NSString *moreplacementTag in moreAppsplacementTags) {
+                NSLog (@"MoreAppsPlacement ID = %@", moreplacementTag);
+                @try {
+                    TDPlacement *moreappsTag = [[TDPlacement alloc] initWithAdTypes:TDAdType1x1Medium  forTag:moreplacementTag];
+                    [tapdaqProps registerPlacement:moreappsTag];
+                } @catch (NSException *exception) {
+                    NSLog (@"Error register MoreappsTag: %@", exception);
                 }
             }
         }
@@ -304,14 +319,82 @@ NSArray *rewardedPlacement;
     return [[Tapdaq sharedSession] isRewardedVideoReadyForPlacementTag:placementTAG];
 
 }
+    
+    ///// moreapps
+- (void)loadMoreAppsAd
+    {
+        NSLog(@"LoadMoreApps");
+        
+        [[Tapdaq sharedSession] loadMoreAppsWithConfig:[self customMoreAppsConfig]];
+    }
+    
+- (void)showMoreAppsAd
+    {
+        NSLog(@"ShowMoreApps");
+        
+        [[Tapdaq sharedSession] showMoreApps];
+    }
+    
+- (BOOL)moreAppsAdIsReady:(NSString*)placementTAG
+    {
+        return [[Tapdaq sharedSession] isMoreAppsReady];
+        
+    }
+    
+- (TDMoreAppsConfig *)customMoreAppsConfig
+    {
+        TDMoreAppsConfig *moreAppsConfig = [[TDMoreAppsConfig alloc] init];
+        
+        moreAppsConfig.headerText = @"More Games";
+        moreAppsConfig.installedAppButtonText = @"Play";
+        
+        moreAppsConfig.headerTextColor = [UIColor whiteColor];
+        moreAppsConfig.headerColor = [UIColor darkGrayColor];
+        moreAppsConfig.headerCloseButtonColor = [UIColor blackColor];
+        moreAppsConfig.backgroundColor = [UIColor grayColor];
+        
+        moreAppsConfig.appNameColor = [UIColor blackColor];
+        moreAppsConfig.appButtonColor = [UIColor blackColor];
+        moreAppsConfig.appButtonTextColor = [UIColor whiteColor];
+        moreAppsConfig.installedAppButtonColor = [UIColor whiteColor];
+        moreAppsConfig.installedAppButtonTextColor = [UIColor blackColor];
+        
+        return moreAppsConfig;
+    }
 
+#pragma mark - TapdaqDelegate
 
-//Delegate interstitial
 //Called immediately after the SDK is ready to begin loading adverts
 - (void)didLoadConfig
 {
     sendTapdaqEvent("configdidload");
 }
+    
+- (void)didLoadMoreApps
+{
+    sendTapdaqEvent("moreappsdidload");
+}
+    
+- (void)didFailToLoadMoreApps
+{
+    sendTapdaqEvent("moreappsdidfailtoload");
+}
+    
+- (void)willDisplayMoreApps
+{
+    sendTapdaqEvent("moreappswilldisplay");
+}
+    
+- (void)didDisplayMoreApps
+{
+   sendTapdaqEvent("moreappsdiddisplay");
+}
+    
+- (void)didCloseMoreApps
+{
+    sendTapdaqEvent("moreappsdidclose");
+}
+
 
 #pragma mark Banner delegate methods
 
@@ -535,8 +618,7 @@ NSArray *rewardedPlacement;
 {
     NSLog(@"Tapdaq Rewarded failed to validate");
 }
-
-
+    
 @end
 
 namespace tapdaq {
@@ -659,6 +741,22 @@ namespace tapdaq {
         }
     }
     
+    void loadMoreApps()
+    {
+        if(tapdaqController!=NULL)
+        {
+            [tapdaqController loadMoreAppsAd];
+        }
+    }
+    
+    void showMoreApps()
+    {
+        if(tapdaqController!=NULL)
+        {
+            [tapdaqController showMoreAppsAd];
+        }
+    }
+    
     void openMediationDebugger()
     {
         if(tapdaqController!=NULL)
@@ -705,6 +803,15 @@ namespace tapdaq {
         {
             NSString *tagnew = [NSString stringWithUTF8String:tag];
             return [tapdaqController rewardedAdIsReady:tagnew];
+        }
+        return false;
+    }
+    
+    bool moreAppsIsReady()
+    {
+        if(tapdaqController != NULL)
+        {
+            return [tapdaqController moreAppsAdIsReady];
         }
         return false;
     }

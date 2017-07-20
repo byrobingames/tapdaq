@@ -69,23 +69,23 @@ public class TMTapjoyAdapter extends TMAdapter {
 
         if (isInitialised(activity)) {
             if (activity != null) {
-                mListener.onInitSuccess(activity, getID());
+                mServiceListener.onInitSuccess(activity, getID());
             }
         } else if (activity != null) {
             if (getAppKey(activity) != null) {
                 Tapjoy.connect(activity, getAppKey(activity), null, new TJConnectListener() {
                     @Override
                     public void onConnectSuccess() {
-                        mListener.onInitSuccess(activity, getID());
+                        mServiceListener.onInitSuccess(activity, getID());
                     }
 
                     @Override
                     public void onConnectFailure() {
-                        mListener.onInitFailure(activity, getID(), new TMAdError(0, "Failed to connect to Tapjoy"));
+                        mServiceListener.onInitFailure(activity, getID(), new TMAdError(0, "Failed to connect to Tapjoy"));
                     }
                 });
             } else {
-                mListener.onInitFailure(activity, getID(), new TMAdError(0, "Failed to connect to Tapjoy: Tapjoy SDK Key Missing"));
+                mServiceListener.onInitFailure(activity, getID(), new TMAdError(0, "Failed to connect to Tapjoy: Tapjoy SDK Key Missing"));
             }
             Tapjoy.setActivity(activity);
         } else {
@@ -224,7 +224,7 @@ public class TMTapjoyAdapter extends TMAdapter {
                 statsManager.sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity), error.getErrorMessage());
                 statsManager.finishAdRequest(mActivity, mShared_id, false);
 
-                TMServiceErrorHandler.ServiceError(mActivity, getName(), mType, mPlacement, error, mListener);
+                TMServiceErrorHandler.ServiceError(mActivity, mShared_id, getName(), mType, mPlacement, error, mListener);
                 mActivity = null;
             }
         }
@@ -240,7 +240,7 @@ public class TMTapjoyAdapter extends TMAdapter {
                 statsManager.sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity), error.getErrorMessage());
                 statsManager.finishAdRequest(mActivity, mShared_id, false);
 
-                TMServiceErrorHandler.ServiceError(mActivity, getName(), mType, mPlacement, error, mListener);
+                TMServiceErrorHandler.ServiceError(mActivity, mShared_id, getName(), mType, mPlacement, error, mListener);
                 mActivity = null;
             }
         }
@@ -292,6 +292,8 @@ public class TMTapjoyAdapter extends TMAdapter {
                         TMListenerHandler.DidClose(mListener);
                     }
                 });
+
+                reloadAd(mActivity, mType, mPlacement, mListener);
                 mActivity = null;
             }
         }

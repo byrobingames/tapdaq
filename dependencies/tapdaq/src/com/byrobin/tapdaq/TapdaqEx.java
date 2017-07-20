@@ -18,6 +18,8 @@ import com.tapdaq.sdk.helpers.TLogLevel;
 import com.tapdaq.sdk.listeners.TMInitListener;
 import com.tapdaq.sdk.common.TMAdError;
 import com.tapdaq.sdk.listeners.TMAdListener;
+import com.tapdaq.sdk.moreapps.TMMoreAppsConfig;
+import com.tapdaq.sdk.moreapps.TMMoreAppsListener;
 
 import tapdaq.adapters.*;
 
@@ -34,6 +36,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.Signature;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Base64;
 
@@ -104,6 +107,7 @@ public class TapdaqEx extends Extension {
                 JSONArray interTagsArray = new JSONArray();
                 JSONArray videoTagsArray = new JSONArray();
                 JSONArray rewardTagsArray = new JSONArray();
+                JSONArray moreTagsArray = new JSONArray();
                 try
                 {
                     JSONObject obj = new JSONObject(_tags);
@@ -114,6 +118,7 @@ public class TapdaqEx extends Extension {
                     interTagsArray = obj.getJSONArray("TDAdTypeInterstitial");
                     videoTagsArray = obj.getJSONArray("TDAdTypeVideo");
                     rewardTagsArray = obj.getJSONArray("TDAdTypeRewardedVideo");
+                    moreTagsArray = obj.getJSONArray("TDAdTypeMoreApps");
                     
                     Log.d("Tapdaq", "interTags1 "+interTagsArray);
                 }
@@ -161,6 +166,18 @@ public class TapdaqEx extends Extension {
                     }
                 }
                 
+                if(moreTagsArray != null){
+                    for (int mTagNum=0; mTagNum < moreTagsArray.length(); mTagNum++) {
+                        try{
+                            Log.d("Tapdaq","moreTagsList: "+mTagNum+"= "+moreTagsArray.getString(mTagNum));
+                            enabledPlacements.add(TapdaqPlacement.createPlacement(Arrays.asList(CreativeType.SQUARE_MEDIUM), moreTagsArray.getString(mTagNum)));
+                        } catch (JSONException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                
                 config.withPlacementTagSupport((TapdaqPlacement[])enabledPlacements.toArray(new TapdaqPlacement[enabledPlacements.size()]));
                 
                 
@@ -181,6 +198,7 @@ public class TapdaqEx extends Extension {
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMAppLovinAdapter(mainActivity)); //Applovin
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMTapjoyAdapter(mainActivity)); //Tapjoy
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMChartboostAdapter(mainActivity));//Chartboost
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMIronSourceAdapter(mainActivity)); //IronSource
                     
                     
                 }else{
@@ -194,6 +212,7 @@ public class TapdaqEx extends Extension {
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMAppLovinAdapter(mainActivity)); //Applovin
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMTapjoyAdapter(mainActivity)); //Tapjoy
                     Tapdaq.getInstance().registerAdapter(mainActivity, new TMChartboostAdapter(mainActivity));//Chartboost
+                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMIronSourceAdapter(mainActivity)); //IronSource
                     
                 }
                 
@@ -449,10 +468,60 @@ public class TapdaqEx extends Extension {
         });
         Log.d("TapdaqEx","Show rewarded End ");
     }
+    
+    /////MoreApps
+    
+    private TMMoreAppsConfig getCustomMoreAppsConfig() {
+        TMMoreAppsConfig config = new TMMoreAppsConfig();
+        config.setHeaderText("More Games");
+        config.setInstalledButtonText("Play");
+        
+        config.setHeaderTextColor(Color.WHITE);
+        config.setHeaderColor(Color.DKGRAY);
+        config.setHeaderCloseButtonColor(Color.BLACK);
+        config.setBackgroundColor(Color.GRAY);
+        
+        config.setAppNameColor(Color.BLACK);
+        config.setAppButtonColor(Color.BLACK);
+        config.setAppButtonTextColor(Color.WHITE);
+        config.setInstalledAppButtonColor(Color.WHITE);
+        config.setInstalledAppButtonTextColor(Color.BLACK);
+        return config;
+    }
+    
+    static public void loadMore()
+    {
+        Log.d("TapdaqEx","Load More Apps Begin");
+        if(appId=="") return;
+        if(clientKey=="") return;
+        Extension.mainActivity.runOnUiThread(new Runnable() {
+            public void run()
+            {
+                Tapdaq.getInstance().loadMoreApps(Extension.mainActivity, instance.getCustomMoreAppsConfig(), new MoreAppsListener());
+            }
+        });
+        Log.d("TapdaqEx","Load More Apps End ");
+    }
+    
+    static public void showMore()
+    {
+        Log.d("TapdaqEx","Show More Apps Begin");
+        if(appId=="") return;
+        if(clientKey=="") return;
+        Extension.mainActivity.runOnUiThread(new Runnable() {
+            public void run()
+            {
+                Tapdaq.getInstance().showMoreApps(Extension.mainActivity, new MoreAppsListener());
+            }
+        });
+        Log.d("TapdaqEx","Show More Apps End ");
+    }
+    
+    
+    /////End MoreApps
 
 	
     
-	//////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	
     static public boolean isInterstitialReady(final String tag)
@@ -469,6 +538,13 @@ public class TapdaqEx extends Extension {
     {
          return Tapdaq.getInstance().isRewardedVideoReady(Extension.mainActivity, tag);
     }
+    
+    static public boolean isMoreReady()
+    {
+        return Tapdaq.getInstance().isMoreAppsReady(Extension.mainActivity);
+    }
+    
+    //////////////////////////////////////////////////////////////////////////////////////////////////
     
     
     @Override
@@ -601,6 +677,38 @@ class RewardedAdListener extends TMAdListener {
         TapdaqEx.haxeCallback.call("onRewardedSucceeded", new Object[] {});
     }
     
+}
+
+class MoreAppsListener extends TMMoreAppsListener {
+    @Override
+    public void didLoad() {
+        super.didLoad();
+        TapdaqEx.haxeCallback.call("onMoreAppsDidLoad", new Object[] {});
+    }
+    
+    @Override
+    public void didFailToLoad(TMAdError error) {
+        super.didFailToLoad(error);
+        TapdaqEx.haxeCallback.call("onMoreAppsDidFailToLoad", new Object[] {});
+    }
+    
+    @Override
+    public void willDisplay() {
+        super.willDisplay();
+        TapdaqEx.haxeCallback.call("onMoreAppsWillDisplay", new Object[] {});
+    }
+    
+    @Override
+    public void didDisplay() {
+        super.didDisplay();
+        TapdaqEx.haxeCallback.call("onMoreAppsDidDisplay", new Object[] {});
+    }
+    
+    @Override
+    public void didClose() {
+        super.didClose();
+        TapdaqEx.haxeCallback.call("onMoreAppsDidClose", new Object[] {});
+    }
 }
 
 

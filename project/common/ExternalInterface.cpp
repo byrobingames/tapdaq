@@ -79,10 +79,23 @@ void tapdaq_rewarded_show(value tag){
 }
 DEFINE_PRIM(tapdaq_rewarded_show, 1);
 
+//moreapps
+void tapdaq_moreapps_load(){
+    loadMoreApps();
+}
+DEFINE_PRIM(tapdaq_moreapps_load, 0);
+
+void tapdaq_moreapps_show(){
+    showMoreApps();
+}
+DEFINE_PRIM(tapdaq_moreapps_show, 0);
+
+//Debugger
 void tapdaq_mediation_debugger(){
     openMediationDebugger();
 }
 DEFINE_PRIM(tapdaq_mediation_debugger, 0);
+
 
 //callbacks
 
@@ -117,6 +130,14 @@ static value tapdaq_rewarded_isready(value tag)
     return val_false;
 }
 DEFINE_PRIM(tapdaq_rewarded_isready, 1);
+
+static value tapdaq_moreapps_isready()
+{
+    if (tapdaq::moreAppsIsReady())
+        return val_true;
+    return val_false;
+}
+DEFINE_PRIM(tapdaq_moreapps_isready, 0);
 
 extern "C" void tapdaq_main()
 {

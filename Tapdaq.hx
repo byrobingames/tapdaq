@@ -12,19 +12,28 @@ class Tapdaq {
 	private static var _bannerfailtoload:Bool=false;
 	private static var _bannerdidclick:Bool=false;
 	private static var _bannerdidrefresh:Bool=false;
+	
 	private static var _interstitialwilldisplay:Bool=false;
 	private static var _interstitialdiddisplay:Bool=false;
 	private static var _interstitialdidclose:Bool=false;
 	private static var _interstitialdidclick:Bool=false;
+	
 	private static var _videowilldisplay:Bool=false;
 	private static var _videodiddisplay:Bool=false;
 	private static var _videodidclose:Bool=false;
 	private static var _videodidclick:Bool=false;
+	
 	private static var _rewardedwilldisplay:Bool=false;
 	private static var _rewardeddiddisplay:Bool=false;
 	private static var _rewardeddidclose:Bool=false;
 	private static var _rewardeddidclick:Bool=false;
 	private static var _rewardedsucceeded:Bool=false;
+	
+	private static var _moreappsdidload:Bool=false;
+	private static var _moreappsdidfailtoload:Bool=false;
+	private static var _moreappswilldisplay:Bool=false;
+	private static var _moreappsdiddisplay:Bool=false;
+	private static var _moreappsdidclose:Bool=false;
 
 	////////////////////////////////////////////////////////////////////////////
 	#if ios
@@ -45,11 +54,14 @@ class Tapdaq {
 	private static var __hideBanner:Void->Void = function(){};
 	private static var __moveBanner:String->Void = function(gravity:String){};
 	private static var __openMediationDebugger:Void->Void = function(){};
+	private static var __loadMoreApps:Void->Void = function(){};
+	private static var __showMoreApps:Void->Void = function(){};
 	
 	private static var __bannerIsReady:Dynamic;
 	private static var __interstitialIsReady:Dynamic;
 	private static var __videoIsReady:Dynamic;
 	private static var __rewardedIsReady:Dynamic;
+	private static var __moreAppsIsReady:Dynamic;
 	////////////////////////////////////////////////////////////////////////////
 	public static var _tagsArray:Array<Dynamic>;
 	////////////////////////////////////////////////////////////////////////////
@@ -69,6 +81,7 @@ class Tapdaq {
 		var interTags:String = ByRobinAssets.TDAdTypeInterstitial;
 		var vidTags:String = ByRobinAssets.TDAdTypeVideo;
 		var rewarTags:String = ByRobinAssets.TDAdTypeRewardedVideo;
+		var moreTags:String = ByRobinAssets.TDAdTypeMoreApps;
 		
 		if (interTags == ""){
 			interTags = "default";
@@ -78,6 +91,9 @@ class Tapdaq {
 		}
 		if (rewarTags == ""){
 			rewarTags = "default";
+		}
+		if (moreTags == ""){
+			moreTags = "default";
 		}
 		///////////
 		if(ByRobinAssets.TDTestADS)
@@ -91,12 +107,14 @@ class Tapdaq {
 		var newInterString:String = getJSONString(interTags);
 		var newVideoString:String = getJSONString(vidTags);
 		var newRewardString:String = getJSONString(rewarTags);
+		var newMoreString:String = getJSONString(moreTags);
 		
-		trace("newInterString" + newInterString);
-		trace("newVideoString" + newVideoString);
-		trace("newRewardString" + newRewardString);
+		trace("newInterString " + newInterString);
+		trace("newVideoString " + newVideoString);
+		trace("newRewardString " + newRewardString);
+		trace("newMoreString " + newMoreString);
 		
-		var tagsString:String = '{"TDAdTypeInterstitial": [$newInterString],"TDAdTypeVideo": [$newVideoString],"TDAdTypeRewardedVideo": [$newRewardString]}';
+		var tagsString:String = '{"TDAdTypeInterstitial": [$newInterString],"TDAdTypeVideo": [$newVideoString],"TDAdTypeRewardedVideo": [$newRewardString],"TDAdTypeMoreApps": [$newMoreString]}';
 		trace("tags string : " + tagsString);
 	
 		#if ios
@@ -116,11 +134,14 @@ class Tapdaq {
 	 		__hideBanner = cpp.Lib.load("tapdaq","tapdaq_banner_hide",0);
 			__moveBanner = cpp.Lib.load("tapdaq","tapdaq_banner_move",1);
 			__openMediationDebugger = cpp.Lib.load("tapdaq","tapdaq_mediation_debugger",0);
+			__loadMoreApps = cpp.Lib.load("tapdaq","tapdaq_moreapps_load",0);
+			__showMoreApps = cpp.Lib.load("tapdaq","tapdaq_moreapps_show",0);
 			
 			__bannerIsReady = cpp.Lib.load("tapdaq","tapdaq_banner_isready",0);
 			__interstitialIsReady = cpp.Lib.load("tapdaq","tapdaq_interstitial_isready",1);
 			__videoIsReady = cpp.Lib.load("tapdaq","tapdaq_video_isready",1);
 			__rewardedIsReady = cpp.Lib.load("tapdaq","tapdaq_rewarded_isready",1);
+			__moreAppsIsReady = cpp.Lib.load("tapdaq","tapdaq_moreapps_isready",0);
 
 			__init(appId, clientKey, testmode,tagsString);
 			__tapdaq_set_event_handle(notifyListeners);
@@ -145,10 +166,13 @@ class Tapdaq {
 	 		__hideBanner = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "hideBanner", "()V");
 			__moveBanner = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "setBannerPosition", "(Ljava/lang/String;)V");	
 			__openMediationDebugger = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "openDebugger", "()V");
+			__loadMoreApps = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadMore", "()V");
+			__showMoreApps = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showMore", "()V");
 			
 			__interstitialIsReady = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isInterstitialReady", "(Ljava/lang/String;)Z");
 			__videoIsReady = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isVideoReady", "(Ljava/lang/String;)Z");
 			__rewardedIsReady = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isRewardedReady", "(Ljava/lang/String;)Z");
+			__moreAppsIsReady = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isMoreReady", "()Z");
 		
 			if(__init == null)
 			{
@@ -252,6 +276,21 @@ class Tapdaq {
 		}
 	}
 	
+	public static function loadMoreApps() {
+		try{
+			__loadMoreApps();
+		} catch(e:Dynamic) {
+			trace("LoadMoreApps Exception: "+e);
+		}
+	}
+	public static function showMoreApps() {
+		try{
+			__showMoreApps();
+		} catch(e:Dynamic) {
+			trace("ShowRewarded Exception: "+e);
+		}
+	}
+	
 	///////Are ads ready///////////////
 	public static function bannerIsReady():Bool{
 		return __bannerIsReady();
@@ -264,6 +303,9 @@ class Tapdaq {
 	}
 	public static function rewardedIsReady(tag:String):Bool{
 		return __rewardedIsReady(tag);
+	}
+	public static function moreAppsIsReady():Bool{
+		return __moreAppsIsReady();
 	}
 	////////////Banner////////////////
 	public static function bannerDidLoad():Bool{
@@ -422,6 +464,57 @@ class Tapdaq {
 		
 		return false;
 	}
+	
+	public static function moreAppsDidLoad():Bool{
+		
+		if(_moreappsdidload){
+			_moreappsdidload = false;
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public static function moreAppsDidFailToLoad():Bool{
+		
+		if(_moreappsdidfailtoload){
+			_moreappsdidfailtoload = false;
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public static function moreAppsWillDisplay():Bool{
+		
+		if(_moreappswilldisplay){
+			_moreappswilldisplay = false;
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public static function moreAppsDidDisplay():Bool{
+		
+		if(_moreappsdiddisplay){
+			_moreappsdiddisplay = false;
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public static function moreAppsDidClose():Bool{
+		
+		if(_moreappsdidclose){
+			_moreappsdidclose = false;
+			return true;
+		}
+		
+		return false;
+	}
+	
 	///////Events Callbacks/////////////
 	
 	#if ios
@@ -498,6 +591,26 @@ class Tapdaq {
 		{
 			_rewardedsucceeded = true;
 		}
+		if(event == "moreappsdidload")
+		{
+			_moreappsdidload = true;
+		}
+		if(event == "moreappsdidfailtoload")
+		{
+			_moreappsdidfailtoload = true;
+		}
+		if(event == "moreappswilldisplay")
+		{
+			_moreappswilldisplay = true;
+		}
+		if(event == "moreappsdiddisplay")
+		{
+			_moreappsdiddisplay = true;
+		}
+		if(event == "moreappsdidclose")
+		{
+			_moreappsdidclose = true;
+		}
 	}
 	#end
 	
@@ -566,6 +679,31 @@ class Tapdaq {
 	public function onRewardedSucceeded()
 	{
 		_rewardedsucceeded = true;
+	}
+	
+	public function onMoreAppsDidLoad()
+	{
+		_moreappsdidload = true;
+	}
+	
+	public function onMoreAppsDidFailToLoad()
+	{
+		_moreappsdidfailtoload = true;
+	}
+	
+	public function onMoreAppsWillDisplay()
+	{
+		_moreappswilldisplay = true;
+	}
+	
+	public function onMoreAppsDidDisplay()
+	{
+		_moreappsdiddisplay = true;
+	}
+	
+	public function onMoreAppsDidClose()
+	{
+		_moreappsdidclose = true;
 	}
 	#end
 	

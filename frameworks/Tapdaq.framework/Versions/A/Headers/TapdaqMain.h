@@ -30,33 +30,33 @@
 typedef NSString *const TDPTag;
 
 // Default.
-static TDPTag const TDPTagDefault = @"default";
+extern TDPTag const TDPTagDefault;
 // Bootup - Initial bootup of game.
-static TDPTag const TDPTagBootup = @"bootup";
+extern TDPTag const TDPTagBootup;
 // Home Screen - Home screen the player first sees.
-static TDPTag const TDPTagHomeScreen = @"home_screen";
+extern TDPTag const TDPTagHomeScreen;
 // Main Menu - Menu that provides game options.
-static TDPTag const TDPTagMainMenu = @"main_menu";
+extern TDPTag const TDPTagMainMenu;
 // Pause - Pause screen.
-static TDPTag const TDPTagPause = @"pause";
+extern TDPTag const TDPTagPause;
 // Level Start - Start of the level.
-static TDPTag const TDPTagLevelStart = @"start";
+extern TDPTag const TDPTagLevelStart;
 // Level Complete - Completion of the level.
-static TDPTag const TDPTagLevelComplete = @"level_complete";
+extern TDPTag const TDPTagLevelComplete;
 // Game Center - After a user visits the Game Center.
-static TDPTag const TDPTagGameCenter = @"game_center";
+extern TDPTag const TDPTagGameCenter;
 // IAP Store - The store where the player pays real money for currency or items.
-static TDPTag const TDPTagIAPStore = @"iap_store";
+extern TDPTag const TDPTagIAPStore;
 // Item Store - The store where a player buys virtual goods.
-static TDPTag const TDPTagItemStore = @"item_store";
+extern TDPTag const TDPTagItemStore;
 // Game Over - The game over screen after a player is finished playing.
-static TDPTag const TDPTagGameOver = @"game_over";
+extern TDPTag const TDPTagGameOver;
 // Leaderboard - List of leaders in the game.
-static TDPTag const TDPTagLeaderBoard = @"leaderboard";
+extern TDPTag const TDPTagLeaderBoard;
 // Settings - Screen where player can change settings such as sound.
-static TDPTag const TDPTagSettings = @"settings";
+extern TDPTag const TDPTagSettings ;
 // Quit - Screen displayed right before the player exits a game.
-static TDPTag const TDPTagQuit = @"quit";
+extern TDPTag const TDPTagQuit;
 
 @interface Tapdaq : NSObject
 

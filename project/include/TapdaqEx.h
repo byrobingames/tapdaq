@@ -17,12 +17,15 @@ namespace tapdaq {
     void showVideo(const char *tag);
     void loadRewardedVideo(const char *tag);
     void showRewardedVideo(const char *tag);
+    void loadMoreApps();
+    void showMoreApps();
     void openMediationDebugger();
     
     bool bannerIsReady();
     bool interstitialIsReady(const char *tag);
     bool videoIsReady(const char *tag);
     bool rewardedIsReady(const char *tag);
+    bool moreAppsIsReady();
 }
 
 

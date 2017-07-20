@@ -10,9 +10,6 @@
 
 #define CBSDK 1
 
-#import <Chartboost/Chartboost.h>
-#import "TDAdUnitEnum.h"
-
 //Debug flags
 #define TDMCBDEBUG 1
 
@@ -22,60 +19,15 @@
 #   define TDMCBLog(...)
 #endif
 
-@class TDMediationConfig;
-@protocol TDMCBDelegate;
-
 #ifdef CBSDK
 
-@interface TDMCBSDKRequests : NSObject <ChartboostDelegate>
+#import "TDMediationAdapter.h"
+
+@interface TDMCBSDKRequests : NSObject <TDMediationAdapter>
 #else
 @interface TDMCBSDKRequests : NSObject
 #endif
 
-@property (nonatomic, weak) id <TDMCBDelegate> delegate;
-
-+ (instancetype)sharedInstance;
-
-- (void)configure:(TDMediationConfig *)config;
-
-- (void)loadForAdUnit:(TDAdUnit)adUnit;
-
-- (BOOL)isReadyForAdUnit:(TDAdUnit)adUnit;
-
-- (void)showForAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
-
-@end
-
-#pragma mark TDMCBDelegate
-
-@protocol TDMCBDelegate <NSObject>
-
-@required
-
-- (void)tapdaqCBDidLoadConfig;
-
-- (void)tapdaqCBDidFailToLoadConfig;
-
-#pragma mark - All ad units
-
-- (void)tapdaqCBDidLoadAdUnit:(TDAdUnit)adUnit;
-
-- (void)tapdaqCBDidFailToLoadAdUnit:(TDAdUnit)adUnit;
-
-- (void)tapdaqCBWillDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
-
-- (void)tapdaqCBDidDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
-
-- (void)tapdaqCBDidCloseAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
-
-- (void)tapdaqCBDidClickAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
-
-#pragma mark - Rewarded Video
-
-- (void)tapdaqCBRewardValidationSucceededWithPlacementTag:(NSString *)placementTag
-                                               rewardName:(NSString *)rewardName
-                                             rewardAmount:(int)rewardAmount;
-
-- (void)tapdaqCBRewardValidationErroredWithPlacementTag:(NSString *)placementTag;
+@property (nonatomic, weak) id <TDAdapterDelegate> delegate;
 
 @end

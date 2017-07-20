@@ -8,58 +8,15 @@
 
 #import <Foundation/Foundation.h>
 #import "TDMTJSDKConstants.h"
-#import "TDMTJSDKInterstitialRequests.h"
-#import "TDMTJSDKVideoRequests.h"
-#import "TDMTJSDKRewardedVideoRequests.h"
-#import "TDAdUnitEnum.h"
-
-@class TDMediationConfig;
-@protocol TDMTJDelegate;
+#import "TDMediationAdapter.h"
 
 #ifdef TJSDK
-@interface TDMTJSDKRequests : NSObject <TDMTJInterstitialDelegate, TDMTJVideoDelegate, TDMTJRewardedVideoDelegate>
+@interface TDMTJSDKRequests : NSObject <TDMediationAdapter>
 #else
 @interface TDMTJSDKRequests : NSObject
 #endif
 
-@property (nonatomic, weak) id <TDMTJDelegate> delegate;
-
-+ (instancetype)sharedInstance;
-
-- (void)configure:(TDMediationConfig *)config;
-
-- (void)loadForAdUnit:(TDAdUnit)adUnit;
-
-- (BOOL)isReadyForAdUnit:(TDAdUnit)adUnit;
-
-- (void)showForAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
+@property (nonatomic, weak) id <TDAdapterDelegate> delegate;
 
 @end
 
-@protocol TDMTJDelegate <NSObject>
-
-@required
-
-- (void)tapdaqTJDidLoadConfig;
-
-- (void)tapdaqTJDidFailToLoadConfig;
-
-#pragma mark - All Ads
-
-- (void)tapdaqTJDidLoadAdUnit:(TDAdUnit)adUnit;
-
-- (void)tapdaqTJDidFailToLoadAdUnit:(TDAdUnit)adUnit;
-
-- (void)tapdaqTJWillDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
-
-- (void)tapdaqTJDidDisplayAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
-
-- (void)tapdaqTJDidCloseAdUnit:(TDAdUnit)adUnit withPlacementTag:(NSString *)placementTag;
-
-#pragma mark - Rewarded Video
-
-- (void)tapdaqTJRewardValidationSucceededWithPlacementTag:(NSString *)placementTag
-                                               rewardName:(NSString *)rewardName
-                                             rewardAmount:(int)rewardAmount;
-
-@end

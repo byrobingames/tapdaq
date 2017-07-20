@@ -24,6 +24,9 @@
         <!-- Cross Promo -->
         <activity android:name="com.tapdaq.sdk.TMInterstitialActivity" />
         
+        <!-- More Apps -->
+        <activity android:name="com.tapdaq.sdk.TMMoreAppsActivity"/>
+        
         <!-- AdMob Adapter -->
         <activity android:name="com.google.android.gms.ads.AdActivity" android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:theme="@android:style/Theme.Translucent"/>/>
         

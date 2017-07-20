@@ -140,6 +140,23 @@
             <text order="1"></text>
         </fields>
     </block>
+    
+    <block tag="load-showMoreAppsTapdaq"
+        spec="%0 Tapdaq More Apps [c:tapdaq]"
+        code="Tapdaq.~MoreApps();"
+        help=""
+        type="action"
+        color="charcoal"
+        returns="void">
+        <fields>
+            <dropdown order="0">
+                <choices>
+                    <c text="Load" code="load"></c>
+                    <c text="Show" code="show"></c>
+                </choices>
+            </dropdown>
+        </fields>
+    </block>
        
     <block tag="adisreadyTapdaq"
         spec="Tapdaq %0 with placementTag: %1 is ready [c:tapdaq]"
@@ -157,6 +174,17 @@
 				</choices>
 			</dropdown>
             <text order="1"></text>
+        </fields>
+    </block>
+    
+    <block tag="moreappsisreadyTapdaq"
+        spec="Tapdaq More Apps is ready [c:tapdaq]"
+        code="Tapdaq.moreAppsIsReady()"
+        help="returns true if MoreApps is ready."
+        type="normal"
+        color="charcoal"
+        returns="boolean">
+        <fields>
         </fields>
     </block>
     
@@ -231,5 +259,26 @@
             </dropdown>
         </fields>
     </block>
+    
+    <block tag="getMoreAppsInfoTapdaq"
+        spec="Tapdaq More Apps %0 [c:tapdaq]"
+        code="Tapdaq.~()"
+        type="normal"
+        color="charcoal"
+        returns="boolean">
+        <fields>
+            <dropdown order="0">
+                <choices>
+                    <c text="did load" code="moreAppsDidLoad"></c>
+                    <c text="did fail to load" code="moreAppsDidFailToLoad"></c>
+                    <c text="will display" code="moreAppsWillDisplay"></c>
+                    <c text="did display" code="moreAppsDidDisplay"></c>
+                    <c text="did close" code="moreAppsDidClose"></c>
+                </choices>
+            </dropdown>
+        </fields>
+    </block>
+    
+    
 
 </palette>

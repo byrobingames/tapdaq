@@ -40,9 +40,10 @@ public class TMChartboostAdapter extends TMAdapter {
 
         if (activity != null && mKeys != null) {
             Chartboost.startWithAppId(activity, getAppId(activity), getAppKey(activity));
+            Chartboost.setActivityCallbacks(false);
             Chartboost.onCreate(activity);
             Chartboost.setAutoCacheAds(false);
-            mListener.onInitSuccess(activity, getID());
+            mServiceListener.onInitSuccess(activity, getID());
         }
     }
 
@@ -84,35 +85,48 @@ public class TMChartboostAdapter extends TMAdapter {
     }
 
 
-    @Override public void loadInterstitial(Activity activity, String shared_id, String placement, TMAdListenerBase listener) {
+    @Override
+    public void loadInterstitial(Activity activity, String shared_id, String placement, TMAdListenerBase listener) {
         onStart(activity);
-        if (Chartboost.hasInterstitial(CBLocation.LOCATION_MAIN_MENU)) {
-            TMListenerHandler.DidLoad(listener);
+        if(Chartboost.isWebViewEnabled()) {
+            if (Chartboost.hasInterstitial(CBLocation.LOCATION_MAIN_MENU)) {
+                TMListenerHandler.DidLoad(listener);
+            } else {
+                Chartboost.setDelegate(new ChartboostListener(activity, TMAdType.STATIC_INTERSTITIAL, placement, shared_id, listener));
+                Chartboost.cacheInterstitial(CBLocation.LOCATION_MAIN_MENU);
+            }
         } else {
-            Chartboost.setDelegate(new ChartboostListener(activity, false, placement, shared_id, listener));
-            Chartboost.cacheInterstitial(CBLocation.LOCATION_MAIN_MENU);
+            TMServiceErrorHandler.ServiceError(activity, shared_id, getName(), TMAdType.STATIC_INTERSTITIAL, placement, new TMAdError(0, "CB Webview unavailable"), listener);
         }
     }
 
     @Override
     public void loadVideo(Activity activity, String shared_id, String placement, TMAdListenerBase listener) {
         onStart(activity);
-        if (Chartboost.hasInterstitial(CBLocation.LOCATION_SETTINGS)) {
-            TMListenerHandler.DidLoad(listener);
+        if (Chartboost.isWebViewEnabled()) {
+            if (Chartboost.hasInterstitial(CBLocation.LOCATION_SETTINGS)) {
+                TMListenerHandler.DidLoad(listener);
+            } else {
+                Chartboost.setDelegate(new ChartboostListener(activity, TMAdType.VIDEO_INTERSTITIAL, placement, shared_id, listener));
+                Chartboost.cacheInterstitial(CBLocation.LOCATION_SETTINGS);
+            }
         } else {
-            Chartboost.setDelegate(new ChartboostListener(activity, false, placement, shared_id, listener));
-            Chartboost.cacheInterstitial(CBLocation.LOCATION_SETTINGS);
+            TMServiceErrorHandler.ServiceError(activity, shared_id, getName(), TMAdType.VIDEO_INTERSTITIAL, placement, new TMAdError(0, "CB Webview unavailable"), listener);
         }
     }
 
     @Override
     public void loadRewardedVideo(Activity activity, String shared_id, String placement, TMAdListenerBase listener) {
         onStart(activity);
-        if (Chartboost.hasRewardedVideo(CBLocation.LOCATION_GAMEOVER)) {
-            TMListenerHandler.DidLoad(listener);
+        if (Chartboost.isWebViewEnabled()) {
+            if (Chartboost.hasRewardedVideo(CBLocation.LOCATION_GAMEOVER)) {
+                TMListenerHandler.DidLoad(listener);
+            } else {
+                Chartboost.setDelegate(new ChartboostListener(activity, TMAdType.REWARD_INTERSTITIAL, placement, shared_id, listener));
+                Chartboost.cacheRewardedVideo(CBLocation.LOCATION_GAMEOVER);
+            }
         } else {
-            Chartboost.setDelegate(new ChartboostListener(activity, true, placement, shared_id, listener));
-            Chartboost.cacheRewardedVideo(CBLocation.LOCATION_GAMEOVER);
+            TMServiceErrorHandler.ServiceError(activity, shared_id, getName(), TMAdType.REWARD_INTERSTITIAL, placement, new TMAdError(0, "CB Webview unavailable"), listener);
         }
     }
 
@@ -120,7 +134,7 @@ public class TMChartboostAdapter extends TMAdapter {
     public void showInterstitial(Activity activity, String placement, TMAdListenerBase listener) {
         onStart(activity);
         if (Chartboost.hasInterstitial(CBLocation.LOCATION_MAIN_MENU)) {
-            Chartboost.setDelegate(new ChartboostListener(activity, false, placement, getSharedId(CBLocation.LOCATION_MAIN_MENU), listener));
+            Chartboost.setDelegate(new ChartboostListener(activity, TMAdType.STATIC_INTERSTITIAL, placement, getSharedId(CBLocation.LOCATION_MAIN_MENU), listener));
             Chartboost.showInterstitial(CBLocation.LOCATION_MAIN_MENU);
         } else {
             TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "No ad available"));
@@ -131,7 +145,7 @@ public class TMChartboostAdapter extends TMAdapter {
     public void showVideo(Activity activity, String placement, TMAdListenerBase listener) {
         onStart(activity);
         if (Chartboost.hasInterstitial(CBLocation.LOCATION_SETTINGS)) {
-            Chartboost.setDelegate(new ChartboostListener(activity, false, placement, getSharedId(CBLocation.LOCATION_SETTINGS), listener));
+            Chartboost.setDelegate(new ChartboostListener(activity, TMAdType.VIDEO_INTERSTITIAL, placement, getSharedId(CBLocation.LOCATION_SETTINGS), listener));
             Chartboost.showInterstitial(CBLocation.LOCATION_SETTINGS);
         } else {
             TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "No ad available"));
@@ -142,7 +156,7 @@ public class TMChartboostAdapter extends TMAdapter {
     public void showRewardedVideo(Activity activity, String placement, TMRewardAdListenerBase listener) {
         onStart(activity);
         if (Chartboost.hasRewardedVideo(CBLocation.LOCATION_GAMEOVER)) {
-            Chartboost.setDelegate(new ChartboostListener(activity, true, placement, getSharedId(CBLocation.LOCATION_GAMEOVER), listener));
+            Chartboost.setDelegate(new ChartboostListener(activity, TMAdType.REWARD_INTERSTITIAL, placement, getSharedId(CBLocation.LOCATION_GAMEOVER), listener));
             Chartboost.showRewardedVideo(CBLocation.LOCATION_GAMEOVER);
         } else {
             TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "No ad available"));
@@ -244,19 +258,19 @@ public class TMChartboostAdapter extends TMAdapter {
     }
 
     private class ChartboostListener extends ChartboostDelegate {
-        private TMAdListenerBase mInterstitialListener;
+        private TMAdListenerBase mListener;
         private Activity mActivity;
         private boolean mDidDisplay = false;
-        private boolean mRewarded = false;
+        private int mType;
         private String mPlacement;
         private String mSharedId;
 
-        ChartboostListener(Activity activity, boolean rewarded, String placement, String shared_id, TMAdListenerBase listenerBase) {
+        ChartboostListener(Activity activity, int type, String placement, String shared_id, TMAdListenerBase listenerBase) {
             mActivity = activity;
-            mRewarded = rewarded;
+            mType = type;
             mPlacement = placement;
             mSharedId = shared_id;
-            mInterstitialListener = listenerBase;
+            mListener = listenerBase;
         }
 
         @Override
@@ -265,9 +279,9 @@ public class TMChartboostAdapter extends TMAdapter {
             TMAdError tapdaqError =  buildError(error);
 
             if (mActivity != null) {
-                TMServiceErrorHandler.ServiceError(mActivity, getName(), (mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL), mPlacement, tapdaqError, mInterstitialListener);
+                TMServiceErrorHandler.ServiceError(mActivity, mSharedId, getName(), mType, mPlacement, tapdaqError, mListener);
                 TMStatsManager statsManager = new TMStatsManager(mActivity);
-                statsManager.sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString((mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL)), mPlacement, getVersionID(mActivity), "No Fill");
+                statsManager.sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity), "No Fill");
                 statsManager.finishAdRequest(mActivity, mSharedId, false);
             }
             onStop(mActivity);
@@ -282,10 +296,10 @@ public class TMChartboostAdapter extends TMAdapter {
         @Override
         public void didCacheInterstitial(String location) {
             super.didCacheInterstitial(location);
-            TMListenerHandler.DidLoad(mInterstitialListener);
+            TMListenerHandler.DidLoad(mListener);
             if (mActivity != null) {
                 TMStatsManager statsManager = new TMStatsManager(mActivity);
-                statsManager.sendDidLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString((mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL)), mPlacement, getVersionID(mActivity));
+                statsManager.sendDidLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
                 statsManager.finishAdRequest(mActivity, mSharedId, true);
             }
             setSharedId(location, mSharedId);
@@ -294,8 +308,8 @@ public class TMChartboostAdapter extends TMAdapter {
         @Override
         public void didCloseInterstitial(String location) {
             super.didCloseInterstitial(location);
-            TMListenerHandler.DidClose(mInterstitialListener);
-
+            TMListenerHandler.DidClose(mListener);
+            reloadAd(mActivity, mType, mPlacement, mListener);
             onStop(mActivity);
             mActivity = null;
         }
@@ -303,16 +317,16 @@ public class TMChartboostAdapter extends TMAdapter {
         @Override
         public void didClickInterstitial(String location) {
             super.didClickInterstitial(location);
-            TMListenerHandler.DidClick(mInterstitialListener);
+            TMListenerHandler.DidClick(mListener);
         }
 
         @Override
         public void didDisplayInterstitial(String location) {
             super.didDisplayInterstitial(location);
-            TMListenerHandler.DidDisplay(mInterstitialListener);
+            TMListenerHandler.DidDisplay(mListener);
 
             if (mActivity != null)
-                new TMStatsManager(mActivity).sendImpression(mActivity, mSharedId, getName(), isPublisherKeys(), TMAdType.getString((mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL)), mPlacement, getVersionID(mActivity));
+                new TMStatsManager(mActivity).sendImpression(mActivity, mSharedId, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
 
         }
 
@@ -324,11 +338,11 @@ public class TMChartboostAdapter extends TMAdapter {
         @Override
         public void didCacheRewardedVideo(String location) {
             super.didCacheRewardedVideo(location);
-            TMListenerHandler.DidLoad(mInterstitialListener);
+            TMListenerHandler.DidLoad(mListener);
 
             if (mActivity != null) {
                 TMStatsManager statsManager = new TMStatsManager(mActivity);
-                statsManager.sendDidLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString((mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL)), mPlacement, getVersionID(mActivity));
+                statsManager.sendDidLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
                 statsManager.finishAdRequest(mActivity, mSharedId, true);
             }
             setSharedId(location, mSharedId);
@@ -340,9 +354,9 @@ public class TMChartboostAdapter extends TMAdapter {
             TMAdError tapdaqError =  buildError(error);
 
             if (mActivity != null) {
-                TMServiceErrorHandler.ServiceError(mActivity, getName(), (mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL), mPlacement, tapdaqError, mInterstitialListener);
+                TMServiceErrorHandler.ServiceError(mActivity, mSharedId, getName(), mType, mPlacement, tapdaqError, mListener);
                 TMStatsManager statsManager = new TMStatsManager(mActivity);
-                statsManager.sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString((mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL)), mPlacement, getVersionID(mActivity), "No Fill");
+                statsManager.sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity), "No Fill");
                 statsManager.finishAdRequest(mActivity, mSharedId, false);
             }
             onStop(mActivity);
@@ -353,16 +367,16 @@ public class TMChartboostAdapter extends TMAdapter {
         public void didDismissRewardedVideo(String location) {
             super.didDismissRewardedVideo(location);
 
-            if (!mDidDisplay && mInterstitialListener instanceof TMRewardAdListenerBase) {
-                TMListenerHandler.OnUserDeclined((TMRewardAdListenerBase)mInterstitialListener);
+            if (!mDidDisplay && mListener instanceof TMRewardAdListenerBase) {
+                TMListenerHandler.OnUserDeclined((TMRewardAdListenerBase) mListener);
             }
         }
 
         @Override
         public void didCloseRewardedVideo(String location) {
             super.didCloseRewardedVideo(location);
-            TMListenerHandler.DidClose(mInterstitialListener);
-
+            TMListenerHandler.DidClose(mListener);
+            reloadAd(mActivity, mType, mPlacement, mListener);
             onStop(mActivity);
             mActivity = null;
         }
@@ -370,24 +384,24 @@ public class TMChartboostAdapter extends TMAdapter {
         @Override
         public void didClickRewardedVideo(String location) {
             super.didClickRewardedVideo(location);
-            TMListenerHandler.DidClick(mInterstitialListener);
+            TMListenerHandler.DidClick(mListener);
         }
 
         @Override
         public void didCompleteRewardedVideo(String location, int reward) {
             super.didCompleteRewardedVideo(location, reward);
-            if (mInterstitialListener != null && mInterstitialListener instanceof TMRewardAdListenerBase)
-                TMListenerHandler.DidVerify((TMRewardAdListenerBase)mInterstitialListener, "", "Reward", (double)reward);
+            if (mListener != null && mListener instanceof TMRewardAdListenerBase)
+                TMListenerHandler.DidVerify((TMRewardAdListenerBase) mListener, "", "Reward", (double)reward);
         }
 
         @Override
         public void didDisplayRewardedVideo(String location) {
             super.didDisplayRewardedVideo(location);
-            TMListenerHandler.DidDisplay(mInterstitialListener);
+            TMListenerHandler.DidDisplay(mListener);
             mDidDisplay = true;
 
             if (mActivity != null)
-                new TMStatsManager(mActivity).sendImpression(mActivity, mSharedId, getName(), isPublisherKeys(), TMAdType.getString((mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL)), mPlacement, getVersionID(mActivity));
+                new TMStatsManager(mActivity).sendImpression(mActivity, mSharedId, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
 
         }
 

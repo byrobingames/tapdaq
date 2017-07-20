@@ -6,7 +6,7 @@
 	<dict>
 		<key>Headers/TDMTJSDKRequests.h</key>
 		<data>
-		d3Yq5qoNrz3BzTJNFKCKVHU1lk4=
+		SWrtrGHNxPK8ZEM7wDs/ZwVwqow=
 		</data>
 		<key>Headers/TapjoyAdapter.h</key>
 		<data>
@@ -14,7 +14,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		E4I+8G6qlYhLaZ9g3S9afBn2afs=
+		uQ9zTWUBLUW43EDxRk/HIHzZ8AE=
 		</data>
 		<key>TapjoyResources.bundle/1.sql</key>
 		<data>
@@ -30,7 +30,7 @@
 		</data>
 		<key>TapjoyResources.bundle/Info.plist</key>
 		<data>
-		CjDXq6dks9GE5xcfMRo/4MErx80=
+		3qQLNanWYcZLzEwqhXr56EF0pZA=
 		</data>
 		<key>TapjoyResources.bundle/MRAID_Standard_HTML_Stub.html</key>
 		<data>
@@ -42,7 +42,7 @@
 		</data>
 		<key>TapjoyResources.bundle/TJCLoadingView.nib</key>
 		<data>
-		zOd1H+YYgOTXDwnHQ4Due8eHXas=
+		c5o2aEoRsgajK3z2hzurHrav9cU=
 		</data>
 		<key>TapjoyResources.bundle/TJCclose_button.png</key>
 		<data>
@@ -54,11 +54,7 @@
 		</data>
 		<key>TapjoyResources.bundle/TJMRAIDWebBrowserViewController.nib</key>
 		<data>
-		asqcjDFTKJU45IxYnXYLG5oekL0=
-		</data>
-		<key>TapjoyResources.bundle/WebViewJavascriptBridge.js.txt</key>
-		<data>
-		Rv+5wZdtEr+FG2UMBc/oBM8gm8U=
+		qZeQqUbQ9JgbjYShj/291viugVs=
 		</data>
 		<key>TapjoyResources.bundle/addressbar-background.png</key>
 		<data>
@@ -130,7 +126,7 @@
 		</data>
 		<key>TapjoyResources.bundle/revision.txt</key>
 		<data>
-		NMzkG/9HWoqpbTY9CKoWNZ1UE5g=
+		Ms1KIGWnSS58opOdNgLfgDyBdJ8=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -139,11 +135,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			d3Yq5qoNrz3BzTJNFKCKVHU1lk4=
+			SWrtrGHNxPK8ZEM7wDs/ZwVwqow=
 			</data>
 			<key>hash2</key>
 			<data>
-			+Is33YgaZwZUWZK1GELxRs8S0eiyA4U5SzvtMLXBah0=
+			3/BEsPr3yTgCn0ZTzT+ryzXuF377wIxWskz3Say26iI=
 			</data>
 		</dict>
 		<key>Headers/TapjoyAdapter.h</key>
@@ -194,11 +190,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			CjDXq6dks9GE5xcfMRo/4MErx80=
+			3qQLNanWYcZLzEwqhXr56EF0pZA=
 			</data>
 			<key>hash2</key>
 			<data>
-			fptYs7mEBfQahP2Bhm7+zkwaUAmlvQV7qS5/v3rXgv8=
+			X/qg1qHoIWNqot746PE5QRkCrGKzGo1o140AQisq32k=
 			</data>
 		</dict>
 		<key>TapjoyResources.bundle/MRAID_Standard_HTML_Stub.html</key>
@@ -227,11 +223,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			zOd1H+YYgOTXDwnHQ4Due8eHXas=
+			c5o2aEoRsgajK3z2hzurHrav9cU=
 			</data>
 			<key>hash2</key>
 			<data>
-			qr4Vz7QddAiHn7icrKsWXgpNQsyWy84Ec7EiZgAMkSQ=
+			xlJif1Pf7FIFaFFCUIkt1MLiFZy0h1u2/VlmOrs6AP8=
 			</data>
 		</dict>
 		<key>TapjoyResources.bundle/TJCclose_button.png</key>
@@ -260,22 +256,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			asqcjDFTKJU45IxYnXYLG5oekL0=
+			qZeQqUbQ9JgbjYShj/291viugVs=
 			</data>
 			<key>hash2</key>
 			<data>
-			Qg9zAg7kD6rKYu6XxADYNZ4y9u8q8zvN20xtw74SnF4=
-			</data>
-		</dict>
-		<key>TapjoyResources.bundle/WebViewJavascriptBridge.js.txt</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			Rv+5wZdtEr+FG2UMBc/oBM8gm8U=
-			</data>
-			<key>hash2</key>
-			<data>
-			L8ftgT3brN0TwEBY2znJPC95AQbcC7/4AQctDM4RF6Y=
+			vME92UlPjUJrVN4jCelRwkJnVk1rLmwb6nDMyyaaZx8=
 			</data>
 		</dict>
 		<key>TapjoyResources.bundle/addressbar-background.png</key>
@@ -469,11 +454,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			NMzkG/9HWoqpbTY9CKoWNZ1UE5g=
+			Ms1KIGWnSS58opOdNgLfgDyBdJ8=
 			</data>
 			<key>hash2</key>
 			<data>
-			sobp25puQSnJ9F1svXMAJxNao2GI/mQAOti+jYLTsHI=
+			5uE96Oh9j58fxs2XXnPdMvD6KeKBRL7giKbMHk+wbOM=
 			</data>
 		</dict>
 	</dict>

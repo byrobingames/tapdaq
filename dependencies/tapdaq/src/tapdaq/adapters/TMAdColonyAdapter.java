@@ -61,7 +61,7 @@ public class TMAdColonyAdapter extends TMAdapter {
                 zones.add(getRewardedVideoId(activity));
 
             AdColony.configure(activity, getAppId(activity), zones.toArray(new String[zones.size()]));
-            mListener.onInitSuccess(activity, TMMediationNetworks.ADCOLONY);
+            mServiceListener.onInitSuccess(activity, TMMediationNetworks.ADCOLONY);
         }
     }
 
@@ -94,7 +94,7 @@ public class TMAdColonyAdapter extends TMAdapter {
 
     @Override
     public void loadVideo(Activity activity, String shared_id, String placement, final TMAdListenerBase listener) {
-        AdColony.requestInterstitial(getVideoId(activity), new AdColonyListener(activity, shared_id, false, placement, listener));
+        AdColony.requestInterstitial(getVideoId(activity), new AdColonyListener(activity, shared_id, TMAdType.VIDEO_INTERSTITIAL, placement,listener));
     }
 
     @Override
@@ -103,13 +103,13 @@ public class TMAdColonyAdapter extends TMAdapter {
                 .enableConfirmationDialog(false)
                 .enableResultsDialog(false);
 
-        AdColony.requestInterstitial(getRewardedVideoId(activity), new AdColonyListener(activity, shared_id, true, placement, listener), options);
+        AdColony.requestInterstitial(getRewardedVideoId(activity), new AdColonyListener(activity, shared_id, TMAdType.REWARD_INTERSTITIAL, placement, listener), options);
     }
 
     @Override
     public void showVideo(Activity activity, String placement, TMAdListenerBase listener) {
         if (isVideoInterstitialReady(activity)) {
-            mAd.setListener(new AdColonyListener(activity, getSharedId(mAd.getZoneID()), false, placement, listener));
+            mAd.setListener(new AdColonyListener(activity, getSharedId(mAd.getZoneID()), TMAdType.VIDEO_INTERSTITIAL, placement, listener));
             mAd.show();
         } else {
             TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "No ad available"));
@@ -119,7 +119,7 @@ public class TMAdColonyAdapter extends TMAdapter {
     @Override
     public void showRewardedVideo(Activity activity, String placement, TMRewardAdListenerBase listener) {
         if (isRewardInterstitialReady(activity)) {
-            mRewardedAd.setListener(new AdColonyListener(activity, getSharedId(mRewardedAd.getZoneID()), true, placement, listener));
+            mRewardedAd.setListener(new AdColonyListener(activity, getSharedId(mRewardedAd.getZoneID()), TMAdType.REWARD_INTERSTITIAL, placement, listener));
             AdColony.setRewardListener(new TMAdColonyRewardListener(listener));
             mRewardedAd.show();
         } else {
@@ -130,14 +130,14 @@ public class TMAdColonyAdapter extends TMAdapter {
     private class AdColonyListener extends AdColonyInterstitialListener {
 
         private TMAdListenerBase mAdListener;
-        private boolean mRewarded;
+        private int mType;
         private String mPlacement;
         private Activity mActivity;
         private String mShared_id;
 
-        AdColonyListener(Activity activity, String shared_id, boolean rewarded, String tag, TMAdListenerBase listener) {
+        AdColonyListener(Activity activity, String shared_id, int type, String tag, TMAdListenerBase listener) {
             mActivity = activity;
-            mRewarded = rewarded;
+            mType = type;
             mAdListener = listener;
             mPlacement = tag;
             mShared_id = shared_id;
@@ -145,7 +145,7 @@ public class TMAdColonyAdapter extends TMAdapter {
 
         @Override
         public void onRequestFilled(AdColonyInterstitial adColonyInterstitial) {
-            if (mRewarded) {
+            if (mType == TMAdType.REWARD_INTERSTITIAL) {
                 mRewardedAd = adColonyInterstitial;
                 setSharedId(mRewardedAd.getZoneID(), mShared_id);
             } else {
@@ -156,7 +156,7 @@ public class TMAdColonyAdapter extends TMAdapter {
             TMListenerHandler.DidLoad(mAdListener);
             if (mActivity != null) {
                 TMStatsManager statsManager = new TMStatsManager(mActivity);
-                statsManager.sendDidLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString((mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL)), mPlacement, getVersionID(mActivity));
+                statsManager.sendDidLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
                 statsManager.finishAdRequest(mActivity, mShared_id, true);
 
             }
@@ -170,9 +170,9 @@ public class TMAdColonyAdapter extends TMAdapter {
             TMAdError error = new TMAdError(0, "No Fill");
 
             if (mActivity != null) {
-                TMServiceErrorHandler.ServiceError(mActivity, getName(), (mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL), mPlacement, error, mAdListener);
+                TMServiceErrorHandler.ServiceError(mActivity, mShared_id, getName(), mType, mPlacement, error, mAdListener);
                 TMStatsManager statsManager = new TMStatsManager(mActivity);
-                statsManager.sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString((mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL)), mPlacement, getVersionID(mActivity), "No Fill");
+                statsManager.sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity), "No Fill");
                 statsManager.finishAdRequest(mActivity, mShared_id, false);
             }
             mActivity = null;
@@ -183,7 +183,7 @@ public class TMAdColonyAdapter extends TMAdapter {
             super.onOpened(ad);
             TMListenerHandler.DidDisplay(mAdListener);
             if (mActivity != null)
-                new TMStatsManager(mActivity).sendImpression(mActivity, mShared_id, getName(), isPublisherKeys(), TMAdType.getString((mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL)), mPlacement, getVersionID(mActivity));
+                new TMStatsManager(mActivity).sendImpression(mActivity, mShared_id, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
             mActivity = null;
         }
 
@@ -191,7 +191,9 @@ public class TMAdColonyAdapter extends TMAdapter {
         public void onClosed(AdColonyInterstitial ad) {
             super.onClosed(ad);
             TMListenerHandler.DidClose(mAdListener);
+            reloadAd(mActivity, mType, mPlacement, mAdListener);
             mActivity = null;
+
         }
 
         @Override

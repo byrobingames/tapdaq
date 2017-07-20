@@ -27,6 +27,7 @@ public class TMUnityAdsAdapter extends TMAdapter {
     private String mRewardCurrency = "Reward";
     private double mRewardValue = 1.0;
     private UnityListener mUnityListener;
+    private boolean mHasInitialised = false;
 
     private UnityListener getUnityListener(Activity activity) {
         if (mUnityListener != null)
@@ -61,7 +62,6 @@ public class TMUnityAdsAdapter extends TMAdapter {
 
         if (activity != null && getAppId(activity) != null) {
             UnityAds.initialize(activity, getAppId(activity), getUnityListener(activity));
-            mListener.onInitSuccess(activity, TMMediationNetworks.UNITY_ADS);
         }
     }
 
@@ -101,8 +101,13 @@ public class TMUnityAdsAdapter extends TMAdapter {
             setSharedId(getSharedKey(TMAdType.VIDEO_INTERSTITIAL, placement), shared_id);
             statsManager.finishAdRequest(activity, shared_id, true);
         } else {
-            TMServiceErrorHandler.ServiceError(activity, shared_id, getName(), TMAdType.VIDEO_INTERSTITIAL, placement, new TMAdError(0, "Unity video ad failed to load"), listener);
-            statsManager.finishAdRequest(activity, shared_id, false);
+            if(UnityAds.getPlacementState().equals(UnityAds.PlacementState.WAITING)) {
+                //Waiting
+                UnityAds.setListener(new UnityListener(activity, shared_id, TMAdType.VIDEO_INTERSTITIAL, placement, true, listener));
+            } else {
+                TMServiceErrorHandler.ServiceError(activity, shared_id, getName(), TMAdType.VIDEO_INTERSTITIAL, placement, new TMAdError(0, "Unity video ad failed to load"), listener);
+                statsManager.finishAdRequest(activity, shared_id, false);
+            }
         }
     }
 
@@ -115,15 +120,20 @@ public class TMUnityAdsAdapter extends TMAdapter {
             setSharedId(getSharedKey(TMAdType.REWARD_INTERSTITIAL, placement), shared_id);
             statsManager.finishAdRequest(activity, shared_id, true);
         } else {
-            TMServiceErrorHandler.ServiceError(activity, shared_id, getName(), TMAdType.REWARD_INTERSTITIAL, placement, new TMAdError(0, "Unity rewarded video ad failed to load"), listener);
-            statsManager.finishAdRequest(activity, shared_id, false);
+            if(UnityAds.getPlacementState().equals(UnityAds.PlacementState.WAITING)) {
+                //Waiting
+                UnityAds.setListener(new UnityListener(activity, shared_id, TMAdType.REWARD_INTERSTITIAL, placement, true, listener));
+            } else {
+                TMServiceErrorHandler.ServiceError(activity, shared_id, getName(), TMAdType.REWARD_INTERSTITIAL, placement, new TMAdError(0, "Unity rewarded video ad failed to load"), listener);
+                statsManager.finishAdRequest(activity, shared_id, false);
+            }
         }
     }
 
     @Override
     public void showVideo(Activity activity, String placement, TMAdListenerBase listener) {
         if (UnityAds.isReady(getVideoId(activity))) {
-            UnityAds.setListener(new UnityListener(activity, getSharedId(getSharedKey(TMAdType.VIDEO_INTERSTITIAL, placement)), false, placement, listener));
+            UnityAds.setListener(new UnityListener(activity, getSharedId(getSharedKey(TMAdType.VIDEO_INTERSTITIAL, placement)), TMAdType.VIDEO_INTERSTITIAL, placement, false, listener));
             UnityAds.show(activity, getVideoId(activity));
         } else {
             TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Unity video ad failed to show"));
@@ -133,7 +143,7 @@ public class TMUnityAdsAdapter extends TMAdapter {
     @Override
     public void showRewardedVideo(Activity activity, String placement, TMRewardAdListenerBase listener) {
         if (UnityAds.isReady(getRewardedVideoId(activity))) {
-            UnityAds.setListener(new UnityListener(activity, getSharedId(getSharedKey(TMAdType.REWARD_INTERSTITIAL, placement)), true, placement, listener));
+            UnityAds.setListener(new UnityListener(activity, getSharedId(getSharedKey(TMAdType.REWARD_INTERSTITIAL, placement)), TMAdType.REWARD_INTERSTITIAL, placement, false, listener));
             UnityAds.show(activity, getRewardedVideoId(activity));
         } else {
             TMListenerHandler.DidFailToLoad(listener, new TMAdError(0, "Unity rewarded video ad failed to show"));
@@ -143,21 +153,23 @@ public class TMUnityAdsAdapter extends TMAdapter {
     private class UnityListener implements IUnityAdsExtendedListener {
 
         private TMAdListenerBase mListener;
-        private boolean mRewarded;
+        private int mType;
         private String mPlacement;
         private Activity mActivity;
         private String mShared_id;
+        private Boolean mIsLoading = false;
 
         private UnityListener(Activity activity) {
             mActivity = activity;
         }
 
-        private UnityListener(Activity activity, String shared_id, boolean rewarded, String tag, TMAdListenerBase listenerBase) {
+        private UnityListener(Activity activity, String shared_id, int type, String tag, boolean isLoading, TMAdListenerBase listenerBase) {
             mActivity = activity;
-            mRewarded = rewarded;
+            mType = type;
             mListener = listenerBase;
             mPlacement = tag;
             mShared_id = shared_id;
+            mIsLoading = isLoading;
         }
 
         void destroy() {
@@ -167,37 +179,73 @@ public class TMUnityAdsAdapter extends TMAdapter {
         @Override
         public void onUnityAdsReady(String s) {
             TLog.debug("onUnityAdsReady: " + s);
-
-            if (mActivity != null)
-                new TMStatsManager(mActivity).sendDidLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString((mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL)), mPlacement, getVersionID(mActivity));
         }
 
         @Override
         public void onUnityAdsStart(String s) {
             TMListenerHandler.DidDisplay(mListener);
             if (mActivity != null)
-                new TMStatsManager(mActivity).sendImpression(mActivity, mShared_id, getName(), isPublisherKeys(), TMAdType.getString((mRewarded ? TMAdType.REWARD_INTERSTITIAL : TMAdType.VIDEO_INTERSTITIAL)), mPlacement, getVersionID(mActivity));
+                new TMStatsManager(mActivity).sendImpression(mActivity, mShared_id, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
         }
 
         @Override
         public void onUnityAdsFinish(String s, UnityAds.FinishState finishState) {
-            TMListenerHandler.DidClose(mListener);
-            if (mRewarded && mListener instanceof TMRewardAdListenerBase) {
+            if (mType == TMAdType.REWARD_INTERSTITIAL && mListener instanceof TMRewardAdListenerBase) {
                 TMListenerHandler.DidVerify((TMRewardAdListenerBase)mListener, "", mRewardCurrency, mRewardValue);
+            }
+            TMListenerHandler.DidClose(mListener);
+            reloadAd(mActivity, mType, mPlacement, mListener);
+        }
+
+        @Override
+        public void onUnityAdsError(UnityAds.UnityAdsError unityAdsError, String errorStr) {
+            TLog.debug("onUnityAdsError: " + errorStr);
+            if(!mHasInitialised) {
+                mServiceListener.onInitFailure(mActivity, TMMediationNetworks.UNITY_ADS, new TMAdError(0, errorStr));
             }
         }
 
-        @Override
-        public void onUnityAdsError(UnityAds.UnityAdsError unityAdsError, String s) {
-            TLog.debug("onUnityAdsError: " + s);
-            TMListenerHandler.DidFailToLoad(mListener, new TMAdError(0, s));
-            if (mActivity != null)
-                new TMStatsManager(mActivity).sendDidFailToLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(TMAdType.VIDEO_INTERSTITIAL), mPlacement, getVersionID(mActivity), unityAdsError.name());
-        }
 
-        @Override
-        public void onUnityAdsPlacementStateChanged(String s, UnityAds.PlacementState placementState, UnityAds.PlacementState placementState1) {
+                @Override
+        public void onUnityAdsPlacementStateChanged(String placement, UnityAds.PlacementState oldState, UnityAds.PlacementState newState) {
+            TLog.debug("onUnityAdsPlacementStateChanged: " + placement + " OldState: " + oldState.name() + " NewState: " + newState.name());
 
+            if (!mHasInitialised) {
+                if(newState == UnityAds.PlacementState.WAITING) {
+                    mServiceListener.onInitSuccess(mActivity, TMMediationNetworks.UNITY_ADS);
+                } else {
+                    mServiceListener.onInitFailure(mActivity, TMMediationNetworks.UNITY_ADS, new TMAdError(0, placement));
+                }
+                mHasInitialised = true;
+                mActivity = null;
+                mListener = null;
+            } else if(mIsLoading) {
+                if(newState == UnityAds.PlacementState.READY) {
+                    if (mListener != null) {
+                        TMListenerHandler.DidLoad(mListener);
+                        mListener = null;
+                    }
+
+                    if (mActivity != null) {
+                        TMStatsManager statsManager = new TMStatsManager(mActivity);
+                        statsManager.finishAdRequest(mActivity, mShared_id, true);
+                        statsManager.sendDidLoad(mActivity, getName(), isPublisherKeys(), TMAdType.getString(mType), mPlacement, getVersionID(mActivity));
+                    }
+
+                    mActivity = null;
+                    mListener = null;
+                } else {
+                    if(mListener != null)
+                        TMListenerHandler.DidFailToLoad(mListener, new TMAdError(0, placement));
+                    if (mActivity != null) {
+                        TMStatsManager statsManager = new TMStatsManager(mActivity);
+                        statsManager.finishAdRequest(mActivity, mShared_id, false);
+                        TMServiceErrorHandler.ServiceError(mActivity, mShared_id, getName(), mType, placement, new TMAdError(0, "Unity ad failed to load"), mListener);
+                    }
+                    mActivity = null;
+                    mListener = null;
+                }
+            }
         }
 
         @Override
