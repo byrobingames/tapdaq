@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" package="com.byrobin.receptiv" android:versionCode="::APP_BUILD_NUMBER::" android:versionName="::APP_VERSION::" android:installLocation="::ANDROID_INSTALL_LOCATION::">
+    
+    <application>
+        <!-- Receptiv Adapter -->
+        <activity
+            android:name="com.mediabrix.android.service.AdViewActivity"
+            android:configChanges="orientation|screenSize|keyboard"
+            android:hardwareAccelerated="true"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        </activity>
+        <activity
+            android:name="com.mediabrix.android.service.ClickOutActivity"
+            android:configChanges="orientation|screenSize|keyboard"
+            android:hardwareAccelerated="true"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        </activity>
+        <service
+            android:name="com.mediabrix.android.service.MediaBrixService" >
+        </service>
+    </application>
+
+</manifest>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" package="com.byrobin.tphyprmx" android:versionCode="::APP_BUILD_NUMBER::" android:versionName="::APP_VERSION::" android:installLocation="::ANDROID_INSTALL_LOCATION::">
+    
+    <application>
+        <!-- HyprMX Adapter -->
+        <activity android:name="com.tapdaq.adapters.TMHyprMXActivity"/>
+        <activity
+        android:name="com.hyprmx.android.sdk.activity.HyprMXOfferViewerActivity"
+        android:hardwareAccelerated="true"
+        android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize"
+        android:label="HyprMX SDK"
+        android:launchMode="singleTop"
+        android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
+        <activity
+        android:name="com.hyprmx.android.sdk.activity.HyprMXRequiredInformationActivity"
+        android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize"
+        android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
+        <activity
+        android:name="com.hyprmx.android.sdk.activity.HyprMXNoOffersActivity"
+        android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize"
+        android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
+        <activity
+        android:name="com.hyprmx.android.sdk.videoplayer.HyprMXVideoPlayerActivity"
+        android:hardwareAccelerated="true"
+        android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize"
+        android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
+        </application>
+
+</manifest>
