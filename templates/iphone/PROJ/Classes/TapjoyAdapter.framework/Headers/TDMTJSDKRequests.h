@@ -10,13 +10,8 @@
 #import "TDMTJSDKConstants.h"
 #import "TDMediationAdapter.h"
 
-#ifdef TJSDK
 @interface TDMTJSDKRequests : NSObject <TDMediationAdapter>
-#else
-@interface TDMTJSDKRequests : NSObject
-#endif
-
 @property (nonatomic, weak) id <TDAdapterDelegate> delegate;
-
+@property (nonatomic, weak) id <TDAdapterConfigDelegate> configDelegate;
 @end
 

@@ -11,7 +11,6 @@
 #import "TDMediationAdapter.h"
 #define VGSDK 1
 
-#import <VungleSDK/VungleSDK.h>
 
 //Debug flags
 #define TDMVGINFO 1
@@ -29,17 +28,8 @@
 #   define TDMVGDebugLog(...)
 #endif
 
-@class TDMediationConfig;
-@protocol TDMVGDelegate;
-
-#ifdef VGSDK
-
 @interface TDMVGSDKRequests : NSObject <TDMediationAdapter>
-#else
-@interface TDMVGSDKRequests : NSObject
-#endif
-
 @property (nonatomic, weak) id <TDAdapterDelegate> delegate;
-
+@property (nonatomic, weak) id <TDAdapterConfigDelegate> configDelegate;
 @end
 

@@ -1,11 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
+    
+    <setenv name="TAPDAQ_ENABLED" value="true" />
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <setenv name="TPUNITYADS_ENABLED" value="true" />
+    <setenv name="TPVUNGLE_ENABLED" value="true" />
+
+    
     <section if="android">
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        <set name="tpunityads"/>
+        <set name="tpvungle"/>
+        
         <classpath name="src" />
         
-        <dependency name="tapdaq" path="dependencies/tapdaq" if="android" />
+        <dependency name="tapdaq" path="dependencies/tapdaq" />
+        <dependency name="tpadcolony" path="dependencies/tpadcolony" if="tpadcolony" />
+        <dependency name="tpapplovin" path="dependencies/tpapplovin" if="tpapplovin" />
+        <dependency name="tpaudiencenetwork" path="dependencies/tpaudiencenetwork" if="tpaudiencenetwork" />
+        <dependency name="tpchartboost" path="dependencies/tpchartboost" if="tpchartboost" />
+        <dependency name="tpgson" path="dependencies/tpgson"/>
+        <dependency name="tphyprmx" path="dependencies/tphyprmx" if="tphyprmx" />
+        <dependency name="tpinmobi" path="dependencies/tpinmobi" if="tpinmobi" />
+        <dependency name="tpironsource" path="dependencies/tpironsource" if="tpironsource" />
+        <dependency name="tpmopub" path="dependencies/tpmopub" if="tpmopub" />
+        <dependency name="tpreceptive" path="dependencies/tpreceptive" if="tpreceptive" />
+        <dependency name="tptapjoy" path="dependencies/tptapjoy" if="tptapjoy" />
+        <dependency name="tpunityads" path="dependencies/tpunityads" if="tpunityads" />
+        <dependency name="tpvungle" path="dependencies/tpvungle" if="tpvungle" />
+        <dependency name="google-play-services-gcm" path="dependencies/google-play-services-gcm" if="tpadcolony" />
         
         <android extension="com.byrobin.tapdaq.TapdaqEx" />
+        
     </section>
     
     
@@ -15,7 +59,6 @@
         <echo value='| Tapdaq: Enable byRobin Extension manager in "Setting->Extension"           |' />
         <echo value='|----------------------------------------------------------------------------|' />
         
-        <setenv name="TAPDAQ_ENABLED" value="true" />
         
 		<ndll name="tapdaq" />
         

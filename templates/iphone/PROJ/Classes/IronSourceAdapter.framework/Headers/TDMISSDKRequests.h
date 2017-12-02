@@ -10,12 +10,7 @@
 #import "TDMISSDKConstants.h"
 #import "TDMediationAdapter.h"
 
-#ifdef ISSDK
 @interface TDMISSDKRequests : NSObject <TDMediationAdapter>
-#else
-@interface TDMISSDKRequests : NSObject
-#endif
-
 @property (nonatomic, weak) id <TDAdapterDelegate> delegate;
-
+@property (nonatomic, weak) id <TDAdapterConfigDelegate> configDelegate;
 @end

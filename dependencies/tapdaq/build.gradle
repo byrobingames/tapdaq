@@ -1,13 +1,12 @@
 buildscript {
+
 	repositories {
-		maven {
-			url "http://repo1.maven.org/maven2/"
-		}
+		maven { url "http://repo1.maven.org/maven2/" }
 	}
-	
 	dependencies {
 		classpath 'com.android.tools.build:gradle:::ANDROID_GRADLE_PLUGIN::'
 	}
+
 }
 
 apply plugin: 'android-library'
@@ -15,7 +14,18 @@ apply plugin: 'android-library'
 android {
 	compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
 	buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
-	
+
+	buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),'proguard-rules.pro'
+        	}
+	debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),'proguard-rules.pro'
+        	}
+    	}
+
 	sourceSets {
 		main {
 			manifest.srcFile 'AndroidManifest.xml'
@@ -28,4 +38,44 @@ dependencies {
 	compile fileTree(dir: 'libs', include: ['*.jar'])
 	compile project(':deps:extension-api')
 	compile 'com.google.android.gms:play-services-ads:10.0.1'
+	compile project(':deps:tpgson')
+
+	::if ENV_TPADCOLONY_ENABLED::
+	compile project(':deps:tpadcolony')
+	compile project(':deps:google-play-services-gcm')
+	::end::
+	::if ENV_TPAPPLOVIN_ENABLED::
+	compile project(':deps:tpapplovin')
+	::end::
+	::if ENV_TPFACEBOOK_ENABLED::
+	compile project(':deps:tpaudiencenetwork')
+	::end::
+	::if ENV_TPCHARTBOOST_ENABLED::
+	compile project(':deps:tpchartboost')
+	::end::
+	::if ENV_TPHYPRMX_ENABLED::
+	compile project(':deps:tphyprmx')
+	::end::
+	::if ENV_TPINMOBI_ENABLED::
+	compile project(':deps:tpinmobi')
+	::end::
+	::if ENV_TPIRONSOURCE_ENABLED::
+	compile project(':deps:tpironsource')
+	::end::
+	::if ENV_TPMOPUB_ENABLED::
+	compile project(':deps:tpmopub')
+	::end::
+	::if ENV_TPRECEPTIV_ENABLED::
+	compile project(':deps:tpreceptive')
+	::end::
+	::if ENV_TPTAPJOY_ENABLED::
+	compile project(':deps:tptapjoy')
+	::end::
+	::if ENV_TPUNITYADS_ENABLED::
+	compile project(':deps:tpunityads')
+	::end::
+	::if ENV_TPVUNGLE_ENABLED::
+	compile project(':deps:tpvungle')
+	::end::
+
 }

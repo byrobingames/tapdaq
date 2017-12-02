@@ -191,7 +191,7 @@ NSArray *rewardedPlacement;
 {
     NSLog(@"Mediation Debugger");
     
-    [[Tapdaq sharedSession] launchMediationDebugger:root];
+    [[Tapdaq sharedSession] presentDebugViewController];
 }
 
 /// banners
@@ -234,14 +234,30 @@ NSArray *rewardedPlacement;
     if (bottom) // Reposition the adView to the bottom of the screen
     {
         CGRect frame = bannerView.frame;
+        frame.origin.x = (root.view.bounds.size.width - frame.size.width)/2;
         frame.origin.y = root.view.bounds.size.height - frame.size.height;
         bannerView.frame=frame;
+       //[bannerView setFrame:CGRectMake(
+                                             //(root.view.frame.size.width-bannerView.frame.size.width)/2,
+                                             //root.view.frame.size.height-bannerView.frame.size.height,
+                                            // bannerView.frame.size.width,
+                                            // bannerView.frame.size.height
+                                            // )];
         
     }else // Reposition the adView to the top of the screen
     {
         CGRect frame = bannerView.frame;
+        frame.origin.x = (root.view.bounds.size.width - frame.size.width)/2;
         frame.origin.y = 0;
         bannerView.frame=frame;
+        
+        
+        //[bannerView setFrame:CGRectMake(
+                                       // (root.view.frame.size.width-bannerView.frame.size.width)/2,
+                                       // 0,
+                                       // bannerView.frame.size.width,
+                                      //  bannerView.frame.size.height
+                                      //  )];
     }
 }
 
@@ -335,7 +351,7 @@ NSArray *rewardedPlacement;
         [[Tapdaq sharedSession] showMoreApps];
     }
     
-- (BOOL)moreAppsAdIsReady:(NSString*)placementTAG
+- (BOOL)moreAppsAdIsReady
     {
         return [[Tapdaq sharedSession] isMoreAppsReady];
         
@@ -457,27 +473,27 @@ NSArray *rewardedPlacement;
 }
 
 // Called before interstitial is shown
-- (void)willDisplayInterstitial
+- (void)willDisplayInterstitialForPlacementTag:(NSString *)placementTag
 {
     NSLog(@"Tapdaq Interstital will display");
     sendTapdaqEvent("interstitialwilldisplay");
 }
 
 // Called after interstitial is shown
-- (void)didDisplayInterstitial
+- (void)didDisplayInterstitialForPlacementTag:(NSString *)placementTag
 {
     NSLog(@"Tapdaq Interstital is shown");
     sendTapdaqEvent("interstitialdiddisplay");
 }
 
 // Called when interstitial is closed
-- (void)didCloseInterstitial
+- (void)didCloseInterstitialForPlacementTag:(NSString *)placementTag
 {
     NSLog(@"Tapdaq Interstital Closed");
     sendTapdaqEvent("interstitialdidclose");
 }
 
-- (void)didClickInterstitial
+- (void)didClickInterstitialForPlacementTag:(NSString *)placementTag
 {
     NSLog(@"Tapdaq Interstital did click");
     sendTapdaqEvent("interstitialdidclick");
@@ -508,7 +524,7 @@ NSArray *rewardedPlacement;
 /**
  Called immediately before the video is to be displayed to the user.
  */
-- (void)willDisplayVideo
+- (void)willDisplayVideoForPlacementTag:(NSString *)placementTag
 {
      NSLog(@"Tapdaq Video will display");
     sendTapdaqEvent("videowilldisplay");
@@ -517,7 +533,7 @@ NSArray *rewardedPlacement;
 /**
  Called immediately after the video is displayed to the user.
  */
-- (void)didDisplayVideo
+- (void)didDisplayVideoForPlacementTag:(NSString *)placementTag
 {
     NSLog(@"Tapdaq Video did display");
     sendTapdaqEvent("videodiddisplay");
@@ -526,7 +542,7 @@ NSArray *rewardedPlacement;
 /**
  Called when the user closes the video.
  */
-- (void)didCloseVideo
+- (void)didCloseVideoForPlacementTag:(NSString *)placementTag
 {
     NSLog(@"Tapdaq Video did close");
     sendTapdaqEvent("videodidclose");
@@ -535,7 +551,7 @@ NSArray *rewardedPlacement;
 /**
  Called when the user clicks the video ad.
  */
-- (void)didClickVideo
+- (void)didClickVideoForPlacementTag:(NSString *)placementTag
 {
     NSLog(@"Tapdaq Video did click");
     sendTapdaqEvent("videodidclick");
@@ -566,7 +582,7 @@ NSArray *rewardedPlacement;
 /**
  Called immediately before the rewarded video is to be displayed to the user.
  */
-- (void)willDisplayRewardedVideo
+- (void)willDisplayRewardedVideoForPlacementTag:(NSString *)placementTag
 {
     NSLog(@"Tapdaq Rewarded will display");
     sendTapdaqEvent("rewardedwilldisplay");
@@ -575,7 +591,7 @@ NSArray *rewardedPlacement;
 /**
  Called immediately after the rewarded video is displayed to the user.
  */
-- (void)didDisplayRewardedVideo
+- (void)didDisplayRewardedVideoForPlacementTag:(NSString *)placementTag
 {
     NSLog(@"Tapdaq Rewarded did display");
     sendTapdaqEvent("rewardeddiddisplay");
@@ -584,7 +600,7 @@ NSArray *rewardedPlacement;
 /**
  Called when the user closes the rewarded video.
  */
-- (void)didCloseRewardedVideo
+- (void)didCloseRewardedVideoForPlacementTag:(NSString *)placementTag
 {
     NSLog(@"Tapdaq Rewarded did close");
     sendTapdaqEvent("rewardeddidclose");
@@ -593,7 +609,7 @@ NSArray *rewardedPlacement;
 /**
  Called when the user clicks the rewarded video ad.
  */
-- (void)didClickRewardedVideo
+- (void)didClickRewardedVideoForPlacementTag:(NSString *)placementTag
 {
     NSLog(@"Tapdaq Rewarded did click");
     sendTapdaqEvent("rewardeddidclick");
@@ -604,8 +620,10 @@ NSArray *rewardedPlacement;
  @param rewardName The name of the reward.
  @param rewardAmount The value of the reward.
  */
-- (void)rewardValidationSucceededForRewardName:(NSString *)rewardName
-                                  rewardAmount:(int)rewardAmount
+- (void)rewardValidationSucceededForPlacementTag:(NSString *)placementTag
+                                      rewardName:(NSString *)rewardName
+                                    rewardAmount:(int)rewardAmount
+                                         payload:(NSDictionary *)payload
 {
     NSLog(@"Tapdaq Rewarded validated");
     sendTapdaqEvent("rewardedsucceeded");

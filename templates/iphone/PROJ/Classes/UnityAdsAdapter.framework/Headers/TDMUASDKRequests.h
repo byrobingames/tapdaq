@@ -12,7 +12,6 @@
 
 #define UASDK 1
 
-#import <UnityAds/UnityAds.h>
 
 //Debug flags
 #define TDMUADEBUG 1
@@ -23,17 +22,8 @@
 #   define TDMUALog(...)
 #endif
 
-@class TDMediationConfig;
-@protocol TDMUADelegate;
-
-#ifdef UASDK
-
 @interface TDMUASDKRequests : NSObject <TDMediationAdapter>
-#else
-@interface TDMUASDKRequests : NSObject
-#endif
-
 @property (nonatomic, weak) id <TDAdapterDelegate> delegate;
-
+@property (nonatomic, weak) id <TDAdapterConfigDelegate> configDelegate;
 @end
 

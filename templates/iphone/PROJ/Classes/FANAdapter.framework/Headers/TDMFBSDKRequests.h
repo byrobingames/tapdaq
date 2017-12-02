@@ -11,15 +11,8 @@
 #import "TDMediationBannerAdapter.h"
 #import "TDMFBSDKConstants.h"
 
-
-#ifdef FBSDK
 @interface TDMFBSDKRequests : NSObject <TDMediationAdapter, TDMediationBannerAdapter>
-#else
-@interface TDMFBSDKRequests : NSObject
-#endif 
-
 @property (nonatomic, weak) id <TDAdapterDelegate> delegate;
-- (void)addTestDevices:(NSArray *)testDeviceIDs;
-
+@property (nonatomic, weak) id <TDAdapterConfigDelegate> configDelegate;
 @end
 

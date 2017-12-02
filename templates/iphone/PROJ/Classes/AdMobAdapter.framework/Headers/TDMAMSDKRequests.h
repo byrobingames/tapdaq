@@ -7,21 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "TDMAMSDKInterstitialRequests.h"
-#import "TDMAMSDKVideoRequests.h"
-#import "TDMAMSDKRewardedRequests.h"
 
 #import "TDMediationAdapter.h"
 #import "TDMediationBannerAdapter.h"
 
-#ifdef AMSDK
 @interface TDMAMSDKRequests : NSObject <TDMediationAdapter, TDMediationBannerAdapter>
-#else
-@interface TDMAMSDKRequests : NSObject
-#endif
-
 @property (nonatomic, weak) id <TDAdapterDelegate> delegate;
-
-
+@property (nonatomic, weak) id <TDAdapterConfigDelegate> configDelegate;
 @end
 

@@ -6,17 +6,10 @@
 //  Copyright © 2016 Tapdaq. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import "TDMediationAdapter.h"
 
-@class TDMediationConfig;
-
-#ifdef ACSDK
 @interface TDMACSDKRequests : NSObject <TDMediationAdapter>
-#else
-@interface TDMACSDKRequests : NSObject <TDMediationAdapter>
-#endif
-
 @property (nonatomic, weak) id <TDAdapterDelegate> delegate;
+@property (nonatomic, weak) id <TDAdapterConfigDelegate> configDelegate;
 @end

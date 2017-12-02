@@ -20,13 +20,13 @@ import com.tapdaq.sdk.common.TMAdError;
 import com.tapdaq.sdk.listeners.TMAdListener;
 import com.tapdaq.sdk.moreapps.TMMoreAppsConfig;
 import com.tapdaq.sdk.moreapps.TMMoreAppsListener;
-
-import tapdaq.adapters.*;
+import com.tapdaq.sdk.adnetworks.TMMediationNetworks;
 
 import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -60,7 +60,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+::if ENV_TPFACEBOOK_ENABLED::
 import com.facebook.ads.internal.util.*;//used to get facebook hashkey
+::end::
 
 public class TapdaqEx extends Extension {
 
@@ -182,38 +184,15 @@ public class TapdaqEx extends Extension {
                 
                 
                 if (testMode.equals("YES")){
-                    
                     String android_id = Secure.getString(mainActivity.getContentResolver(), Secure.ANDROID_ID);
                     String admobDeviceId = getInstance().md5(android_id).toUpperCase();
+                    config.registerTestDevices(TMMediationNetworks.AD_MOB,Arrays.asList(admobDeviceId));
                     Log.d("Tapdaq","Admob DEVICE ID: "+admobDeviceId);
-                    
+                    ::if ENV_TPFACEBOOK_ENABLED::
                     String facebookDeviceId = getInstance().getDeviceIdHash(mainActivity);
+                    config.registerTestDevices(TMMediationNetworks.FACEBOOK,Arrays.asList(facebookDeviceId));
                     Log.d("Tapdaq","Facebook DEVICE ID: "+facebookDeviceId);
-                    //Register Adapters
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMAdMobAdapter(mainActivity).setTestDevices(Extension.mainActivity, Arrays.asList(admobDeviceId))); //Ad Mob
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMFacebookAdapter(mainActivity).setTestDevices(Arrays.asList(facebookDeviceId))); //Facebook Audience Network
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMUnityAdsAdapter(mainActivity)); //UnityAds
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMVungleAdapter(mainActivity)); //Vungle
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMAdColonyAdapter(mainActivity)); //AdColony
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMAppLovinAdapter(mainActivity)); //Applovin
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMTapjoyAdapter(mainActivity)); //Tapjoy
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMChartboostAdapter(mainActivity));//Chartboost
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMIronSourceAdapter(mainActivity)); //IronSource
-                    
-                    
-                }else{
-                    
-                    //Register Adapters
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMAdMobAdapter(mainActivity)); //Ad Mob
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMFacebookAdapter(mainActivity)); //Facebook Audience Network
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMUnityAdsAdapter(mainActivity)); //UnityAds
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMVungleAdapter(mainActivity)); //Vungle
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMAdColonyAdapter(mainActivity)); //AdColony
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMAppLovinAdapter(mainActivity)); //Applovin
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMTapjoyAdapter(mainActivity)); //Tapjoy
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMChartboostAdapter(mainActivity));//Chartboost
-                    Tapdaq.getInstance().registerAdapter(mainActivity, new TMIronSourceAdapter(mainActivity)); //IronSource
-                    
+                    ::end::
                 }
                 
                 Tapdaq.getInstance().initialize(mainActivity,appId,clientKey,config, new InitListener());
@@ -221,6 +200,7 @@ public class TapdaqEx extends Extension {
 			}
 		});	
 	}
+    
     ////Admob get DeviceID
     private static String md5(String s)  {
         MessageDigest digest;
@@ -234,18 +214,20 @@ public class TapdaqEx extends Extension {
         return "";
     }
     
+    ::if ENV_TPFACEBOOK_ENABLED::
     ////facebook get DeviceID
     public static String getDeviceIdHash(Context var0) { //get's device hash id.
         
         SharedPreferences var1 = var0.getSharedPreferences("FBAdPrefs", 0);
         String deviceIdHash = var1.getString("deviceIdHash", null);
         if(deviceIdHash == null || deviceIdHash.length() <= 0){
-            deviceIdHash = t.b(UUID.randomUUID().toString());
+            deviceIdHash = u.b(UUID.randomUUID().toString());
             var1.edit().putString("deviceIdHash", deviceIdHash).apply();
             
         }
         return deviceIdHash;
     }
+    ::end::
     
     //////////////////////
     
@@ -555,6 +537,18 @@ public class TapdaqEx extends Extension {
         super.onDestroy();
     }
     
+    @Override
+    public void onPause() {
+        super.onPause();
+        Tapdaq.getInstance().onPause(mainActivity);
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        Tapdaq.getInstance().onResume(mainActivity);
+    }
+    
 }
 
 class InitListener extends TMInitListener {
@@ -672,8 +666,8 @@ class RewardedAdListener extends TMAdListener {
     }
     
     @Override
-    public void didVerify(String s, String s1, Double aDouble) {
-        Log.i("Tapdaq Rewarded Video", String.format(Locale.ENGLISH, "didVerify %s %s %.2f", s, s1, aDouble));
+    public void didVerify(String location, String reward, int value, boolean reward_valid, Map<Object, Object> custom_data) {
+        Log.i("MEDIATION-SAMPLE", String.format(Locale.ENGLISH, "didVerify %s %d %b %s", reward, value, reward_valid, custom_data.toString()));
         TapdaqEx.haxeCallback.call("onRewardedSucceeded", new Object[] {});
     }
     

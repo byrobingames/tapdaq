@@ -3,6 +3,12 @@ package;
 import openfl.Lib;
 import scripts.ByRobinAssets;
 
+#if openfl_legacy
+import openfl.utils.JNI;
+#else
+import lime.system.JNI;
+#end
+
 class Tapdaq {
 
 	private static var initialized:Bool=false;
@@ -155,28 +161,28 @@ class Tapdaq {
 		initialized = true;
 		try{
 			// JNI METHOD LINKING
-			__loadInterstitial = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadInterstitial", "(Ljava/lang/String;)V");
-			__showInterstitial = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showInterstitial", "(Ljava/lang/String;)V");
-			__loadVideo = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadVideo", "(Ljava/lang/String;)V");
-			__showVideo = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showVideo", "(Ljava/lang/String;)V");
-			__loadRewarded = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadRewarded", "(Ljava/lang/String;)V");
-			__showRewarded = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showRewarded", "(Ljava/lang/String;)V");
-			__loadBanner = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadBanner", "(Ljava/lang/String;)V");
-			__showBanner = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showBanner", "()V");
-	 		__hideBanner = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "hideBanner", "()V");
-			__moveBanner = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "setBannerPosition", "(Ljava/lang/String;)V");	
-			__openMediationDebugger = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "openDebugger", "()V");
-			__loadMoreApps = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadMore", "()V");
-			__showMoreApps = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showMore", "()V");
+			__loadInterstitial = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadInterstitial", "(Ljava/lang/String;)V");
+			__showInterstitial = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showInterstitial", "(Ljava/lang/String;)V");
+			__loadVideo = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadVideo", "(Ljava/lang/String;)V");
+			__showVideo = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showVideo", "(Ljava/lang/String;)V");
+			__loadRewarded = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadRewarded", "(Ljava/lang/String;)V");
+			__showRewarded = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showRewarded", "(Ljava/lang/String;)V");
+			__loadBanner = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadBanner", "(Ljava/lang/String;)V");
+			__showBanner = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showBanner", "()V");
+	 		__hideBanner = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "hideBanner", "()V");
+			__moveBanner = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "setBannerPosition", "(Ljava/lang/String;)V");	
+			__openMediationDebugger = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "openDebugger", "()V");
+			__loadMoreApps = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "loadMore", "()V");
+			__showMoreApps = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "showMore", "()V");
 			
-			__interstitialIsReady = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isInterstitialReady", "(Ljava/lang/String;)Z");
-			__videoIsReady = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isVideoReady", "(Ljava/lang/String;)Z");
-			__rewardedIsReady = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isRewardedReady", "(Ljava/lang/String;)Z");
-			__moreAppsIsReady = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isMoreReady", "()Z");
+			__interstitialIsReady = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isInterstitialReady", "(Ljava/lang/String;)Z");
+			__videoIsReady = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isVideoReady", "(Ljava/lang/String;)Z");
+			__rewardedIsReady = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isRewardedReady", "(Ljava/lang/String;)Z");
+			__moreAppsIsReady = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "isMoreReady", "()Z");
 		
 			if(__init == null)
 			{
-				__init = openfl.utils.JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "init", "(Lorg/haxe/lime/HaxeObject;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", true);
+				__init = JNI.createStaticMethod("com/byrobin/tapdaq/TapdaqEx", "init", "(Lorg/haxe/lime/HaxeObject;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", true);
 			}
 	
 			var args = new Array<Dynamic>();

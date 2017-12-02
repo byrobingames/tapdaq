@@ -7,17 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <AppLovinSDK/AppLovinSDK.h>
 #import "TDMALSDKConstants.h"
-
 #import "TDMediationAdapter.h"
+#import "TDMediationBannerAdapter.h"
 
-#ifdef ALSDK
-@interface TDMALSDKRequests : NSObject <TDMediationAdapter>
-#else
-@interface TDMALSDKRequests : NSObject
-#endif
+@interface TDMALSDKRequests : NSObject <TDMediationAdapter, TDMediationBannerAdapter>
 @property (nonatomic, weak) id <TDAdapterDelegate> delegate;
-
+@property (nonatomic, weak) id <TDAdapterConfigDelegate> configDelegate;
 @end
 

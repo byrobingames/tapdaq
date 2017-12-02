@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-#define CBSDK 1
 
 //Debug flags
 #define TDMCBDEBUG 1
@@ -19,15 +18,9 @@
 #   define TDMCBLog(...)
 #endif
 
-#ifdef CBSDK
-
 #import "TDMediationAdapter.h"
 
 @interface TDMCBSDKRequests : NSObject <TDMediationAdapter>
-#else
-@interface TDMCBSDKRequests : NSObject
-#endif
-
 @property (nonatomic, weak) id <TDAdapterDelegate> delegate;
-
+@property (nonatomic, weak) id <TDAdapterConfigDelegate> configDelegate;
 @end

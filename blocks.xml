@@ -21,9 +21,9 @@
     </block>
     
     <block tag="openDebuggerTapdaq"
-        spec="Open Mediation Debugger (android only) [c:tapdaq]"
+        spec="Open Mediation Debugger [c:tapdaq]"
         code="Tapdaq.openMediationDebugger();"
-        help="Open the Mediator Debugger, for now only supports Android"
+        help="Open the Mediator Debugger"
         type="action"
         color="charcoal"
         returns="void">

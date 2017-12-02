@@ -19,6 +19,7 @@
         <compilerflag value="-IiPhone/include"/>
         <compilerflag value="-Iinclude"/>
         <compilerflag value="-F../frameworks"/>
+        <compilerflag value="-F../templates/iphone/PROJ/Classes"/>
         <file name="ios/TapdaqEx.mm"/>
     </files>
     
