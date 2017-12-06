@@ -16,6 +16,7 @@
 #import <Tapdaq/TDNativeAdTypeEnum.h>
 #import <Tapdaq/TDMNetworkEnum.h>
 #import <Tapdaq/TDMBannerSizeEnum.h>
+#import <Tapdaq/TDReward.h>
 
 @protocol TapdaqDelegate;
 
@@ -99,6 +100,9 @@ extern TDPTag const TDPTagQuit;
  * @return YES if the SDK is initialised. NO otherwise.
  */
 - (BOOL)isInitialised;
+
+#pragma mark Reward
+- (NSString *)rewardIdForPlacementTag:(NSString *)placementTag;
 
 #pragma mark Debugger
 - (void)presentDebugViewController;
@@ -410,7 +414,7 @@ extern TDPTag const TDPTagQuit;
  @param rewardAmount The value of the reward.
  */
 - (void)rewardValidationSucceededForRewardName:(NSString *)rewardName
-                                  rewardAmount:(int)rewardAmount __attribute__((deprecated("rewardValidationSucceededForRewardName:rewardAmount: has been deprecated. Please use rewardValidationSucceededForPlacementTag:rewardName:rewardAmount:payload: instead. This method will be removed in future releases.")));
+                                  rewardAmount:(int)rewardAmount __attribute__((deprecated("rewardValidationSucceededForRewardName:rewardAmount: has been deprecated. Please use rewardValidationSucceeded: instead. This method will be removed in future releases.")));
 /**
  Called when a reward is ready for the user.
  @param placementTag Placement tag.
@@ -419,7 +423,7 @@ extern TDPTag const TDPTagQuit;
  */
 - (void)rewardValidationSucceededForPlacementTag:(NSString *)placementTag
                                       rewardName:(NSString *)rewardName
-                                    rewardAmount:(int)rewardAmount __attribute__((deprecated("rewardValidationSucceededForPlacementTag:rewardName:rewardAmount: has been deprecated. Please use rewardValidationSucceededForPlacementTag:rewardName:rewardAmount:payload: instead. This method will be removed in future releases.")));
+                                    rewardAmount:(int)rewardAmount __attribute__((deprecated("rewardValidationSucceededForPlacementTag:rewardName:rewardAmount: has been deprecated. Please use rewardValidationSucceeded: instead. This method will be removed in future releases.")));
 /**
  Called when a reward is ready for the user.
  @param placementTag Placement tag.
@@ -430,7 +434,14 @@ extern TDPTag const TDPTagQuit;
 - (void)rewardValidationSucceededForPlacementTag:(NSString *)placementTag
                                       rewardName:(NSString *)rewardName
                                     rewardAmount:(int)rewardAmount
-                                         payload:(NSDictionary *)payload;
+                                         payload:(NSDictionary *)payload  __attribute__((deprecated("rewardValidationSucceededForPlacementTag:rewardName:rewardAmount:payload: has been deprecated. Please use rewardValidationSucceeded: instead. This method will be removed in future releases.")));
+
+/**
+Called when a reward is ready for the user.
+@param reward Reward object.
+@see TDReward
+*/
+- (void)rewardValidationSucceeded:(TDReward *)reward;
 
 /**
  Called if an error occurred when rewarding the user.

@@ -37,4 +37,5 @@ FOUNDATION_EXPORT const unsigned char TapdaqVersionString[];
 
 #import <Tapdaq/TDMoreAppsConfig.h>
 #import <Tapdaq/TDLogLevel.h>
+#import <Tapdaq/TDReward.h>
 
