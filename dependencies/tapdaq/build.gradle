@@ -35,6 +35,7 @@ android {
 }
 
 dependencies {
+	compile 'com.android.support:multidex:1.0.1'
 	compile fileTree(dir: 'libs', include: ['*.jar'])
 	compile project(':deps:extension-api')
 	compile 'com.google.android.gms:play-services-ads:10.0.1'

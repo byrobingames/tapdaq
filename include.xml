@@ -2,33 +2,33 @@
 <project>
     
     <setenv name="TAPDAQ_ENABLED" value="true" />
-    [SETENVTPADCOLONY]
-    [SETENVTPAPPLOVIN]
-    [SETENVTPFACEBOOK]
-    [SETENVTPCHARTBOOST]
-    [SETENVTPHYPRMX]
-    [SETENVTPINMOBI]
-    [SETENVTPIRONSOURCE]
-    [SETENVTPMOPUB]
-    [SETENVTPRECEPTIV]
-    [SETENVTPTAPJOY]
-    [SETENVTPUNITYADS]
-    [SETENVTPVUNGLE]
+    <setenv name="TPADCOLONY_ENABLED" value="true" />
     
+    
+    
+    
+    
+    
+    <setenv name="TPMOPUB_ENABLED" value="true" />
+    
+    <setenv name="TPTAPJOY_ENABLED" value="true" />
+    <setenv name="TPUNITYADS_ENABLED" value="true" />
+    
+
     
     <section if="android">
-        [SETNAMETPADCOLONY]
-        [SETNAMETPAPPLOVIN]
-        [SETNAMETPFACEBOOK]
-        [SETNAMETPCHARTBOOST]
-        [SETNAMETPHYPRMX]
-        [SETNAMETPINMOBI]
-        [SETNAMETPIRONSOURCE]
-        [SETNAMETPMOPUB]
-        [SETNAMETPRECEPTIV]
-        [SETNAMETPTAPJOY]
-        [SETNAMETPUNITYADS]
-        [SETNAMETPVUNGLE]
+        <set name="tpadcolony"/>
+        
+        
+        
+        
+        
+        
+        <set name="tpmopub"/>
+        
+        <set name="tptapjoy"/>
+        <set name="tpunityads"/>
+        
         
         <classpath name="src" />
         
@@ -53,16 +53,16 @@
     </section>
     
     
-    <section if="ios">
+	<section if="ios">
         
         <echo value='|----------------------------------------------------------------------------|' />
         <echo value='| Tapdaq: Enable byRobin Extension manager in "Setting->Extension"           |' />
         <echo value='|----------------------------------------------------------------------------|' />
         
         
-        <ndll name="tapdaq" />
+		<ndll name="tapdaq" />
         
-        <!--<dependency path="frameworks/Tapdaq.framework" />-->
+        <dependency path="frameworks/Tapdaq.framework" />
         <dependency name="AVKit.framework" />
         <dependency name="CoreData.framework" />
         <dependency name="MediaToolbox.framework" />
@@ -70,7 +70,6 @@
         <template path="templates" />
         
         
-    </section>
+	</section>
     
 </project>
-

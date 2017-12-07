@@ -665,9 +665,15 @@ class RewardedAdListener extends TMAdListener {
         TapdaqEx.haxeCallback.call("onRewardedDidClose", new Object[] {});
     }
     
-    @Override
-    public void didVerify(String location, String reward, int value, boolean reward_valid, Map<Object, Object> custom_data) {
+    //Deprecated
+    //@Override
+    /*public void didVerify(String location, String reward, int value, boolean reward_valid, Map<Object, Object> custom_data) {
         Log.i("MEDIATION-SAMPLE", String.format(Locale.ENGLISH, "didVerify %s %d %b %s", reward, value, reward_valid, custom_data.toString()));
+        TapdaqEx.haxeCallback.call("onRewardedSucceeded", new Object[] {});
+    }*/
+    @Override
+    public void didVerify(TDReward reward) {
+        Log.i("Tapdaq Rewarded Video", String.format(Locale.ENGLISH, "didVerify: ID: %s, Tag: %s. Reward: %s. Value: %f. Valid: %b. Custom Json: %s", reward.getId(), reward.getTag(), reward.getName(), reward.getValue(), reward.isValid(), reward.getCustom_json().toString()));
         TapdaqEx.haxeCallback.call("onRewardedSucceeded", new Object[] {});
     }
     

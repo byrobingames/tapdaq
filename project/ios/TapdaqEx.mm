@@ -99,7 +99,7 @@ NSArray *rewardedPlacement;
                     TDPlacement *interstitialTag = [[TDPlacement alloc] initWithAdTypes:TDAdTypeInterstitial forTag:initplacementTag];
                     [tapdaqProps registerPlacement:interstitialTag];
                 } @catch (NSException *exception) {
-                    NSLog (@"Error register interstitialTag: %@", exception);
+                    NSLog (@"Warning register interstitialTag: %@", exception);
                 }
             }
         }
@@ -110,7 +110,7 @@ NSArray *rewardedPlacement;
                     TDPlacement *videoTag = [[TDPlacement alloc] initWithAdTypes:TDAdTypeVideo forTag:vidplacementTag];
                     [tapdaqProps registerPlacement:videoTag];
                 } @catch (NSException *exception) {
-                    NSLog (@"Error register videoTag: %@", exception);
+                    NSLog (@"Warning register videoTag: %@", exception);
                 }
             }
         }
@@ -121,7 +121,7 @@ NSArray *rewardedPlacement;
                     TDPlacement *rewardedTag = [[TDPlacement alloc] initWithAdTypes:TDAdTypeRewardedVideo forTag:rewaplacementTag];
                     [tapdaqProps registerPlacement:rewardedTag];
                 } @catch (NSException *exception) {
-                    NSLog (@"Error register rewardedTag: %@", exception);
+                    NSLog (@"Warning register rewardedTag: %@", exception);
                 }
             }
         }
@@ -132,12 +132,11 @@ NSArray *rewardedPlacement;
                     TDPlacement *moreappsTag = [[TDPlacement alloc] initWithAdTypes:TDAdType1x1Medium  forTag:moreplacementTag];
                     [tapdaqProps registerPlacement:moreappsTag];
                 } @catch (NSException *exception) {
-                    NSLog (@"Error register MoreappsTag: %@", exception);
+                    NSLog (@"Warning register MoreappsTag: %@", exception);
                 }
             }
         }
     }
-    
     //////End Register
     
     [[Tapdaq sharedSession] setApplicationId:appID
@@ -620,13 +619,20 @@ NSArray *rewardedPlacement;
  @param rewardName The name of the reward.
  @param rewardAmount The value of the reward.
  */
-- (void)rewardValidationSucceededForPlacementTag:(NSString *)placementTag
+/**- (void)rewardValidationSucceededForPlacementTag:(NSString *)placementTag
                                       rewardName:(NSString *)rewardName
                                     rewardAmount:(int)rewardAmount
                                          payload:(NSDictionary *)payload
 {
     NSLog(@"Tapdaq Rewarded validated");
     sendTapdaqEvent("rewardedsucceeded");
+}*/
+- (void)rewardValidationSucceeded:(TDReward *)reward {
+    NSString *eventId = reward.eventId;
+    NSString *name = reward.name;
+    int value = reward.value;
+    NSString *tag = reward.tag;
+    id customJson = reward.customJson;
 }
 
 /**
