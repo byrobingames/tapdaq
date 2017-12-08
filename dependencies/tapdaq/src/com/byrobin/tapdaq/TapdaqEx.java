@@ -21,6 +21,7 @@ import com.tapdaq.sdk.listeners.TMAdListener;
 import com.tapdaq.sdk.moreapps.TMMoreAppsConfig;
 import com.tapdaq.sdk.moreapps.TMMoreAppsListener;
 import com.tapdaq.sdk.adnetworks.TMMediationNetworks;
+import com.tapdaq.sdk.model.rewards.TDReward;
 
 import java.util.Locale;
 import java.util.ArrayList;
@@ -673,7 +674,7 @@ class RewardedAdListener extends TMAdListener {
     }*/
     @Override
     public void didVerify(TDReward reward) {
-        Log.i("Tapdaq Rewarded Video", String.format(Locale.ENGLISH, "didVerify: ID: %s, Tag: %s. Reward: %s. Value: %f. Valid: %b. Custom Json: %s", reward.getId(), reward.getTag(), reward.getName(), reward.getValue(), reward.isValid(), reward.getCustom_json().toString()));
+        Log.i("Tapdaq Rewarded Video", String.format(Locale.ENGLISH, "didVerify: ID: %s, Tag: %s. Reward: %s. Value: %f. Valid: %b. Custom Json: %s", reward.getEventId(), reward.getTag(), reward.getName(), reward.getValue(), reward.isValid(), reward.getCustom_json().toString()));
         TapdaqEx.haxeCallback.call("onRewardedSucceeded", new Object[] {});
     }
     
