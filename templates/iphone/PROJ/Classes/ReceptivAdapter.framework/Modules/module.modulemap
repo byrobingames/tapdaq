@@ -1,0 +1,6 @@
+framework module ReceptivAdapter {
+  umbrella header "ReceptivAdapter.h"
+
+  export *
+  module * { export * }
+}
