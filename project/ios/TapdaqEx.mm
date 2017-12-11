@@ -633,6 +633,9 @@ NSArray *rewardedPlacement;
     int value = reward.value;
     NSString *tag = reward.tag;
     id customJson = reward.customJson;
+    
+    NSLog(@"Tapdaq Rewarded validated");
+    sendTapdaqEvent("rewardedsucceeded");
 }
 
 /**
