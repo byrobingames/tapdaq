@@ -35,8 +35,6 @@ This extension supports the following Networks.<br/>
 
 ## How to Install
 
-## How to Install
-
 To install this Engine Extension, go to the toolset (byRobin Extension Mananger) in the Extension menu of your game inside Stencyl.<br/>
 ![toolsetextensionlocation](https://byrobingames.github.io/img/toolset/toolsetextensionlocation.png)<br/>
 Select the Extension from the menu and click on "Download"
